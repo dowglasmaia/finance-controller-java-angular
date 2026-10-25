@@ -1,0 +1,42 @@
+spring:
+  application:
+    name: api-finance-controller
+  profiles:
+    default: local
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+  # Tracing and metrics via Spring Boot's native OpenTelemetry support (Micrometer Tracing bridge + OTLP).
+  # Export is OFF by default; set OTEL_EXPORT_ENABLED=true and the standard OTEL_EXPORTER_OTLP_* variables
+  # (mapped automatically by Spring Boot) to send data to an OpenTelemetry Collector.
+  tracing:
+    sampling:
+      probability: ${TRACING_SAMPLING_PROBABILITY:0.1}
+    export:
+      otlp:
+        enabled: ${OTEL_EXPORT_ENABLED:false}
+  otlp:
+    metrics:
+      export:
+        enabled: ${OTEL_EXPORT_ENABLED:false}
+  logging:
+    export:
+      otlp:
+        enabled: false
+  opentelemetry:
+    resource-attributes:
+      deployment.environment.name: ${APP_ENV:production}
+# Structured JSON logs on stdout (Spring Boot native, Logback underneath). Formats: ecs, logstash, gelf.
+logging:
+  structured:
+    format:
+      console: ${LOG_FORMAT:ecs}
+    ecs:
+      service:
+        name: ${spring.application.name}
+        environment: ${APP_ENV:production}
+  level:
+    root: ${LOG_LEVEL_ROOT:INFO}
+    com.dowglasmaia.financecontroller: ${LOG_LEVEL_APP:INFO}

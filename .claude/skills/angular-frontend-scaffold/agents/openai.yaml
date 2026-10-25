@@ -1,0 +1,4 @@
+interface:
+  display_name: "Angular Frontend Scaffold"
+  short_description: "Cria o shell Angular 21 determinístico"
+  default_prompt: "Crie um novo frontend Angular com a skill angular-frontend-scaffold."

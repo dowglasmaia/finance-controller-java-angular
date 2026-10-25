@@ -1,0 +1,15 @@
+server:
+  port: ${PORT:8080}
+# Readable single-line logs for the terminal; every other profile emits JSON.
+management:
+  tracing:
+    sampling:
+      probability: ${TRACING_SAMPLING_PROBABILITY:1.0}
+logging:
+  pattern:
+    console: "%d{HH:mm:ss.SSS} %-5level [%X{requestId:-}] [%X{traceId:-}] %logger{36} : %msg %kvp%n"
+  structured:
+    format:
+      console: ""
+  level:
+    com.dowglasmaia.financecontroller: ${LOG_LEVEL_APP:DEBUG}

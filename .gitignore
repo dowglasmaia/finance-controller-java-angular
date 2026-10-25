@@ -1,0 +1,64 @@
+# ---------- IDEs e editores ----------
+.idea/
+*.iml
+.vscode/
+.fleet/
+.project
+.classpath
+.settings/
+*.swp
+
+# ---------- Sistema operacional ----------
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ---------- Ferramentas de IA (configuração local) ----------
+# Skills e regras do projeto (.claude/skills, .agents/skills, .cursor/rules) são versionadas.
+.claude/settings.local.json
+.claude/worktrees/
+.claude/scheduled_tasks.lock
+CLAUDE.local.md
+
+# ---------- Segredos e ambiente ----------
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.jks
+
+# ---------- Logs e temporários ----------
+*.log
+logs/
+tmp/
+*.tmp
+*.bak
+*.7z
+
+# ---------- Backend (api-finance-controller) ----------
+api-finance-controller/target/
+api-finance-controller/.mvn/wrapper/dists/
+api-finance-controller/.flattened-pom.xml
+api-finance-controller/dependency-reduced-pom.xml
+hs_err_pid*
+
+# ---------- Frontend (app-finance-controller) ----------
+app-finance-controller/node_modules/
+app-finance-controller/dist/
+app-finance-controller/.angular/
+app-finance-controller/coverage/
+app-finance-controller/out-tsc/
+app-finance-controller/playwright-report/
+app-finance-controller/test-results/
+app-finance-controller/.sass-cache/
+app-finance-controller/__screenshots__/
+app-finance-controller/testem.log
+app-finance-controller/.history/
+app-finance-controller/bazel-out/
+npm-debug.log*
+yarn-error.log*
+
+# ---------- Skills com Node (dependências instaladas) ----------
+**/node_modules/

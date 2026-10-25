@@ -1,0 +1,12 @@
+spring:
+  ai:
+    model:
+      chat: none
+management:
+  tracing:
+    sampling:
+      probability: 1.0
+logging:
+  structured:
+    format:
+      console: ""

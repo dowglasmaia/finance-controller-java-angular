@@ -1,0 +1,11 @@
+---
+description: Use project skills for feature-module work.
+alwaysApply: true
+---
+
+When creating or expanding an Angular 21+ feature module, read and follow `.agents/skills/angular-module-scaffold/SKILL.md`. The OpenAPI contract must already be approved. Keep a `doc.md` in the root of each feature module and consult `.spec/memory/` before implementation.
+
+When starting the Angular frontend, read and follow `.agents/skills/angular-frontend-scaffold/SKILL.md`. Ask for the project name when absent, use its deterministic generator, and validate only by build; do not run tests, a development server, or an API.
+
+When implementing or reviewing Angular UI, read and follow `.agents/skills/angular-tailwind-ui-specialist/SKILL.md`. Use Tailwind CSS, semantic HTML, mobile-first responsive behavior, accessible controls, and the Neon Graphite design tokens. Keep business rules and HTTP out of templates.
+

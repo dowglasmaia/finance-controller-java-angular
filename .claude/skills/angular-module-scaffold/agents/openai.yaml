@@ -1,0 +1,7 @@
+interface:
+  display_name: "Angular Module Scaffold"
+  short_description: "Create consistent Angular 21+ feature modules"
+  default_prompt: "Use $angular-module-scaffold to implement the selected Angular 21+ feature module from its approved OpenAPI operations."
+
+policy:
+  allow_implicit_invocation: true

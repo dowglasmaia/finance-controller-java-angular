@@ -1,0 +1,4 @@
+interface:
+  display_name: "Angular Tailwind UI Specialist"
+  short_description: "Cria interfaces Angular responsivas e acessíveis com Tailwind"
+  default_prompt: "Use angular-tailwind-ui-specialist para implementar ou revisar a interface desta funcionalidade."
