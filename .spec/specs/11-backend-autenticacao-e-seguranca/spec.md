@@ -58,12 +58,20 @@ Recuperação de senha: BACKEND-SPEC-18 (esta spec fornece a política de senha 
 ## Regras e critérios de aceitação
 
 - [ ] Cadastrar com e-mail novo cria o utilizador, as 11 categorias padrão e devolve tokens; repetir o e-mail (em qualquer caixa) devolve 409.
-- [ ] Entrada com senha errada e com e-mail inexistente devolvem a mesma resposta 401.
-- [ ] Qualquer rota de dados sem token válido devolve 401.
+  > ⏳ 2026-10-27 — Parcial: cadastro, tokens e 409 para e-mail repetido em outra caixa verificados (`IdentityFlowIntegrationTest`; `./mvnw clean verify` com Docker: 159 testes, 0 falhas, BUILD SUCCESS; também na API real pelo navegador). Falta: as 11 categorias padrão (semeadura na F4).
+- [x] Entrada com senha errada e com e-mail inexistente devolvem a mesma resposta 401.
+  > ✅ 2026-10-27 — Mesma resposta 401 `INVALID_CREDENTIALS` (`unknownEmailAndWrongPasswordGiveTheSameInvalidCredentialsResponse`). Verificação: `./mvnw clean verify` com Docker: 159 testes, 0 falhas, BUILD SUCCESS.
+- [x] Qualquer rota de dados sem token válido devolve 401.
+  > ✅ 2026-10-27 — 401 `application/problem+json` sem token (`protectedRouteWithoutTokenIs401ProblemJson`). Verificação: `./mvnw clean verify` com Docker: 159 testes, 0 falhas, BUILD SUCCESS. Os módulos de dados ainda não existem; cada fatia repete a verificação.
 - [ ] O utilizador A não lê, altera nem apaga recurso do utilizador B em **nenhum** módulo (404), nem por listagem ou agregação.
-- [ ] O *refresh token* roda a cada uso; o reuso de um token antigo é recusado e revoga a família.
-- [ ] Após N tentativas falhas a entrada é limitada (429).
-- [ ] Nenhuma senha, *hash* ou token aparece em respostas de erro ou logs.
+  > ⏳ 2026-10-27 — Parcial: no módulo `identity`, cada token só vê o seu utilizador (`eachTokenOnlySeesItsOwnUser`; `./mvnw clean verify` com Docker: 159 testes, 0 falhas, BUILD SUCCESS). Falta: um teste de isolamento por módulo de dados (F4–F10).
+- [x] O *refresh token* roda a cada uso; o reuso de um token antigo é recusado e revoga a família.
+  > ✅ 2026-10-27 — Rotação e reuso de token antigo recusado com revogação da família (`fullFlowRegisterMeLoginRefreshRotationReuseAndLogout`). Verificação: `./mvnw clean verify` com Docker: 159 testes, 0 falhas, BUILD SUCCESS; recarga e saída na API real pelo navegador.
+- [x] Após N tentativas falhas a entrada é limitada (429).
+  > ✅ 2026-10-27 — Cinco falhas e a sexta devolve 429 `TOO_MANY_ATTEMPTS` (`repeatedFailuresAreThrottledWith429`; `./mvnw clean verify` com Docker: 159 testes, 0 falhas, BUILD SUCCESS); confirmado na API real. Limitação: limitador em memória, não compartilhado entre instâncias.
+- [x] Nenhuma senha, *hash* ou token aparece em respostas de erro ou logs.
+  > ✅ 2026-10-27 — Respostas: `invalidRegistrationIs400WithoutEchoingThePassword` e `GlobalExceptionHandlerTest`. Logs: busca por senha, e-mail, JWT, cookie de renovação e segredo nos logs de uma execução real (cadastro, login, falhas, 429) e do `verify` sem ocorrências. Limitação: auditoria manual, sem teste automatizado de logs (spec 13).
+  > ⏳ 2026-10-27 — Parcial: respostas de erro não ecoam a senha (`invalidRegistrationIs400WithoutEchoingThePassword`; `GlobalExceptionHandlerTest`, 36 testes). Falta: auditoria dos logs da aplicação.
 
 ### Cenários de teste
 
@@ -82,19 +90,25 @@ Cadastro e duplicidade; entrada válida e inválida; expiração do *access toke
 
 ### Descoberta e decisão
 
-- [ ] Registar a escolha final do mecanismo de token (recomendação: ADR-012) ao implementar.
+- [x] Registar a escolha final do mecanismo de token (recomendação: ADR-012) ao implementar.
+  > ✅ 2026-10-27 — Registada no ADR-012 de `decisoes-adr.md` (JWT HS256 + *refresh* opaco rotativo com SHA-256, BCrypt custo 12, limitador, CORS, cookie).
 
 ### Contrato e dados
 
 - [ ] Prévia aprovada e contrato `identity`; migrações `app_user` e `refresh_token`.
+  > ⏳ 2026-10-27 — Parcial: contrato e migração V1 (`app_user`, `refresh_token`) aplicados: `IdentityMigrationTests` (7) e migração aplicada ao PostgreSQL 18.1 do `compose`. Verificação: `./mvnw clean verify` com Docker: 159 testes, 0 falhas, BUILD SUCCESS. Desvios: `requestPasswordReset`/`confirmPasswordReset` na F11; semeadura na F4.
+  > ⏳ 2026-10-27 — Parcial: prévia aprovada pelo utilizador e contrato gerado em `openapi/modules/identity.yaml` (+ `common/responses.yaml`, `common/security.yaml`, execution `generate-identity-api` no `pom.xml`). Verificação: `redocly lint` válido nos dois contratos; `mvnw generate-sources` gera `IdentityApi` e modelos em `generated.identity`; `mvnw clean verify` verde. Desvios: `requestPasswordReset`/`confirmPasswordReset` ficam para a F11; semeadura das categorias fica para a F4; `ProblemDetail` ganhou `code` obrigatório. Falta: migrações `app_user` e `refresh_token`. Próxima ação: migração V1 (spec 08).
 
 ### Back-end
 
 - [ ] Implementar o módulo `identity`, o filtro de autenticação e o contexto de proprietário usado por todos os módulos.
+  > ⏳ 2026-10-27 — Parcial: módulo implementado e verificado com PostgreSQL real (contexto Spring, persistência, fluxo completo; `./mvnw clean verify` com Docker: 159 testes, 0 falhas, BUILD SUCCESS). Falta: semeadura das categorias (F4). Desvio: `GET /api/v1/examples/{id}` passa a exigir token; `InMemoryExampleRepository` deixou de ser `final` (proxy de `@Repository` com JPA).
+  > ⏳ 2026-10-27 — Parcial: implementados domínio, 5 casos de uso, adaptadores JPA, segurança (JWT HS256, BCrypt, limitador em memória, `SecurityFilterChain`, CORS, `CurrentOwner`) e `IdentityController` com cookie de renovação. Verificação: `mvnw test` sem os testes que exigem Docker — 135 testes verdes, incluindo `ModularityTests`. Falta: arranque do contexto Spring e testes com PostgreSQL (migração, persistência, `IdentityFlowIntegrationTest` com isolamento), todos escritos mas não executados por falta de Docker; semeadura das categorias (F4). Desvios: `GET /api/v1/examples/{id}` passa a exigir token. Mecanismo de token registado para o ADR-012: JWT HS256 (15 min) + refresh opaco rotativo com hash SHA-256. Próxima ação: subir o Docker e rodar `mvnw clean verify`.
 
 ### Validação
 
 - [ ] Executar os testes de segurança e de isolamento com PostgreSQL real.
+  > ⏳ 2026-10-27 — Parcial: executados com Testcontainers (PostgreSQL 18.1): `./mvnw clean verify` com Docker: 159 testes, 0 falhas, BUILD SUCCESS. Falta: isolamento nos módulos de dados (F4–F10) e verificador de dependências (QUALITY-SPEC-05).
 
 ## Resultado esperado
 

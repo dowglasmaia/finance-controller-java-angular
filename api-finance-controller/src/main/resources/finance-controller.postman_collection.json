@@ -1,0 +1,205 @@
+{
+  "info": {
+    "name": "Finance Controller API",
+    "description": "Collection de testes da API. Atualizada a cada fatia entregue (atual: F1 - identity).\n\nUso: execute 'Register' ou 'Login'; o script de teste guarda o accessToken na variável de coleção {{accessToken}} e o cookie refresh_token fica no cookie jar do Postman (domínio localhost). Em ambiente local o cookie não é Secure (perfil local).",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      { "key": "token", "value": "{{accessToken}}", "type": "string" }
+    ]
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:8080", "type": "string" },
+    { "key": "apiPath", "value": "/api/v1", "type": "string" },
+    { "key": "email", "value": "usuario.teste@example.com", "type": "string" },
+    { "key": "password", "value": "SenhaForte#2026", "type": "string" },
+    { "key": "accessToken", "value": "", "type": "string" },
+    { "key": "userId", "value": "", "type": "string" }
+  ],
+  "item": [
+    {
+      "name": "Sistema",
+      "item": [
+        {
+          "name": "Health",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/actuator/health",
+              "host": ["{{baseUrl}}"],
+              "path": ["actuator", "health"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Identity",
+      "item": [
+        {
+          "name": "registerUser",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('201 Created', () => pm.response.to.have.status(201));",
+                  "const body = pm.response.json();",
+                  "pm.test('devolve accessToken e user', () => {",
+                  "  pm.expect(body.accessToken).to.be.a('string');",
+                  "  pm.expect(body.user.email).to.be.a('string');",
+                  "});",
+                  "pm.collectionVariables.set('accessToken', body.accessToken);",
+                  "pm.collectionVariables.set('userId', body.user.id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{email}}\",\n  \"password\": \"{{password}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}{{apiPath}}/auth/register",
+              "host": ["{{baseUrl}}"],
+              "path": ["{{apiPath}}", "auth", "register"]
+            },
+            "description": "Cadastra o utilizador. 201 com cookie refresh_token; 409 EMAIL_ALREADY_REGISTERED se o e-mail já existe; 400 VALIDATION_FAILED."
+          },
+          "response": []
+        },
+        {
+          "name": "login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('200 OK', () => pm.response.to.have.status(200));",
+                  "const body = pm.response.json();",
+                  "pm.collectionVariables.set('accessToken', body.accessToken);",
+                  "pm.collectionVariables.set('userId', body.user.id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{email}}\",\n  \"password\": \"{{password}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}{{apiPath}}/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["{{apiPath}}", "auth", "login"]
+            },
+            "description": "200 com cookie refresh_token; 401 INVALID_CREDENTIALS (mesma resposta para senha errada e e-mail inexistente); 429 TOO_MANY_ATTEMPTS após 5 falhas em 15 min."
+          },
+          "response": []
+        },
+        {
+          "name": "refreshToken",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('200 OK', () => pm.response.to.have.status(200));",
+                  "pm.collectionVariables.set('accessToken', pm.response.json().accessToken);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}{{apiPath}}/auth/refresh",
+              "host": ["{{baseUrl}}"],
+              "path": ["{{apiPath}}", "auth", "refresh"]
+            },
+            "description": "Usa o cookie refresh_token do cookie jar e o rotaciona. Reusar um token já rotacionado devolve 401 e revoga a família."
+          },
+          "response": []
+        },
+        {
+          "name": "logout",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('204 No Content', () => pm.response.to.have.status(204));",
+                  "pm.collectionVariables.set('accessToken', '');"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}{{apiPath}}/auth/logout",
+              "host": ["{{baseUrl}}"],
+              "path": ["{{apiPath}}", "auth", "logout"]
+            },
+            "description": "Revoga a sessão de renovação e limpa o cookie."
+          },
+          "response": []
+        },
+        {
+          "name": "getCurrentUser",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('200 OK', () => pm.response.to.have.status(200));",
+                  "pm.test('id e email', () => {",
+                  "  const b = pm.response.json();",
+                  "  pm.expect(b.id).to.be.a('string');",
+                  "  pm.expect(b.email).to.be.a('string');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [{ "key": "token", "value": "{{accessToken}}", "type": "string" }]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}{{apiPath}}/auth/me",
+              "host": ["{{baseUrl}}"],
+              "path": ["{{apiPath}}", "auth", "me"]
+            },
+            "description": "Requer Bearer token. Sem token válido: 401 application/problem+json."
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}

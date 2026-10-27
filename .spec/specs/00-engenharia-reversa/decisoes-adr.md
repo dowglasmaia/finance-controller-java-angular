@@ -71,6 +71,7 @@ Prefixo `/api/v1`; alterações incompatíveis criam nova versão.
   - limitação de tentativas de entrada e mensagens de erro genéricas;
   - o proprietário vem sempre do token, **nunca** de parâmetro do cliente; todos os repositórios filtram por `owner_id`; recurso de outro utilizador responde 404;
   - ao cadastrar, o servidor cria as 11 categorias padrão do novo utilizador (substitui a flag `seeded` do cliente).
+- **Escolha técnica registada na implementação (2026-10-27, F1):** *access token* JWT HS256 (Nimbus, ~15 min; `sub`=id do utilizador, `email`, `iss`, `iat`, `exp`, `jti`) com segredo só por `APP_JWT_SECRET` (≥ 32 bytes; o arranque falha sem ele); *refresh token* opaco (32 bytes aleatórios em Base64URL), guardado como SHA-256 em hexadecimal, rotativo por família (reuso revoga a família), cookie `refresh_token` `HttpOnly`/`Secure`/`SameSite=Lax` com `Path=/api/v1/auth`; senha com BCrypt custo 12 sobre SHA-256 da senha em Base64; limitador em memória (5 falhas em 15 min, por conta e por origem, independentes); CSRF desativado (API sem estado com *bearer*); CORS restrito com credenciais só em `/api/v1/auth/**`; limite de 1 MB no corpo. Limitação conhecida: o limitador em memória não é compartilhado entre instâncias.
 - **Consequências:** `owner_id` em todas as tabelas de dados desde a primeira migração; testes de isolamento obrigatórios por recurso; o módulo `identity` passa a ter uma integração de e-mail (porta `MailSender`).
 
 ## ADR-013 — Bibliotecas de frontend (delegada)

@@ -30,6 +30,22 @@ Specs: B = BACKEND-SPEC, F = FRONTEND-SPEC, I = INFRA-SPEC, Q = QUALITY-SPEC (n�
 | Infra e operação | `tools/*.ps1`, ausência de CI | DESC-INF-02/03 | — | 08 | — | I-00…12 | ambientes, CI/CD, backup do banco | N (P-18, P-23) |
 | Testes | `test/*.dart` | DESC-TST-01 | — | 09 | 08 | Q-00…05 | cenários migrados e novos | C (lidos, não executados) |
 
+## Estado da implementação por funcionalidade (atualizado em 2026-10-27, após F1 e F2)
+
+A tabela acima descreve a origem (análise estática). Esta mostra o que já foi implementado no destino e como foi verificado; só entram funcionalidades com algum trabalho executado. Legenda: ✅ verificado · ⏳ parcial · — não iniciado.
+
+| Func. | Fatia | Implementado | Verificação | Pendente |
+|---|---|---|---|---|
+| F-18 Contas e isolamento | F1 (backend), F2 (frontend) | Módulo `identity` (cadastro, entrada, renovação rotativa, saída, utilizador atual), `CurrentOwner`, V1 `app_user`/`refresh_token`; páginas `/entrar` e `/cadastrar`, guardas, interceptores, sessão em memória | ✅ `./mvnw clean verify` com Docker (159 testes: migração, persistência, fluxo com rotação/reuso/429, isolamento entre dois utilizadores); 72 testes Vitest; percurso real no navegador contra o backend (specs 11 e 29) | ⏳ 11 categorias na semeadura (F4); isolamento por módulo de dados (F4–F10); e-mail de recuperação (F11) |
+| F-17 Navegação/layout | F2 | Shell com seis entradas, gaveta, rotas lazy, página não encontrada, títulos e foco por rota (specs 24 e 30) | ✅ build e testes; 320 px e gaveta verificados no navegador | ⏳ páginas reais das rotas (F4–F9); percurso completo por teclado; 768/1280 px; verificador de acessibilidade |
+| F-03 Mês de referência | F2 | `ReferenceMonthStore` (sessão) e `MonthSwitcher` | ✅ testes unitários | ⏳ consultas dependentes do mês (F5 em diante) |
+| F-05 Multimoeda | F2 (estado) | `CurrencyStore` (`localStorage`), `CurrencySelector`, `formatMoney` sem `number` | ✅ testes unitários | ⏳ moeda por utilizador no servidor (F10); dados por moeda (F5 em diante) |
+| F-14 Preferências | F2 (parte) | Tema claro/escuro/sistema em `ThemeStore` com `localStorage` | ✅ testes unitários | ⏳ servidor (F10); cores do tema claro escurecidas, a aprovar (spec 25) |
+| Dados/precisão (RT-02/03) | F2 | Dinheiro como string decimal na formatação e nos validadores | ✅ testes e busca sem `parseFloat` | ⏳ `NUMERIC(19,2)` e `BigDecimal` a partir da F4/F5 |
+| Infra e operação | F1 | `compose` com PostgreSQL 18.1, variáveis `APP_*`, proxy de desenvolvimento | ✅ banco e backend executados localmente (specs 39 e 40) | ⏳ imagens Docker, fallback SPA, CI (F3), máquina limpa (spec 41) |
+| Testes | F1, F2 | Testes de domínio, casos de uso, segurança, controller, integração com Testcontainers; Vitest | ✅ executados | ⏳ E2E, isolamento por módulo, verificador de acessibilidade (F12) |
+| F-19 Recuperação de senha | F11 | — | — | ⏳ `password_reset_token`, e-mail e páginas (F11) |
+
 ## Cobertura reversa: specs → funcionalidades
 
 Specs sem funcionalidade de origem (PROPOSTO): BACKEND-SPEC-00/02 (parte)/04/05/08, FRONTEND-SPEC-00/03/06/07/08, INFRA-SPEC-*, QUALITY-SPEC-*, IMPLEMENTATION-SPEC-00, GLOBAL-SPEC-01/03. São requisitos da nova arquitetura, não comportamento da origem.

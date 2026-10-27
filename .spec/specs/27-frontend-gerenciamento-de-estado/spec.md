@@ -22,7 +22,7 @@ Definir quem é dono de cada estado do frontend — contexto global (mês, moeda
 | `themeMode` | `ThemeModeNotifier` (DESC-PRF-01) | servidor, por utilizador; antes do login, `localStorage` só para o tema | `SYSTEM`; alternar: dark→light, outros→dark |
 | `session` (utilizador e *access token*) | novo (P-01) | só memória (nunca `localStorage`) | sem sessão |
 
-Acesso a `localStorage` sempre dentro de `try/catch`. Após o login, as preferências do servidor prevalecem; falha ao gravar mostra erro mas não bloqueia o uso.
+**Decisão (aprovada pelo utilizador em 2026-10-27):** até a F10 (preferências no servidor), moeda e tema são preferências do dispositivo em `localStorage` e **não** são limpos ao sair; a F10 passa a sincronizá-los por utilizador. Acesso a `localStorage` sempre dentro de `try/catch`. Após o login, as preferências do servidor prevalecem; falha ao gravar mostra erro mas não bloqueia o uso.
 
 ### Estado por funcionalidade
 
@@ -66,15 +66,24 @@ Estado duplicado entre páginas se cada uma guardar o mês próprio; manter um �
 
 ## Regras e critérios de aceitação
 
-- [ ] Existe exatamente um proprietário de `referenceMonth`, `selectedCurrency` e `themeMode`.
-- [ ] Moeda e tema sobrevivem a recarregar a página; o mês volta ao atual.
+- [x] Existe exatamente um proprietário de `referenceMonth`, `selectedCurrency` e `themeMode`.
+  > ✅ 2026-10-27 — `ReferenceMonthStore`, `CurrencyStore` e `ThemeStore` em `core/state` são os únicos donos. Verificação: `stores.spec.ts`. Desvio: sincronização por utilizador no servidor é da F10.
+- [x] Moeda e tema sobrevivem a recarregar a página; o mês volta ao atual.
+  > ✅ 2026-10-27 — Moeda e tema persistem em `localStorage` e o mês volta ao atual. Verificação: `stores.spec.ts` (persistência, restauração, valor inválido).
 - [ ] Mudar o mês ou a moeda recarrega todas as consultas dependentes e descarta respostas antigas.
+  > ⏳ 2026-10-27 — Parcial: ainda não há consultas dependentes. Falta: implementar nas fatias de dados.
 - [ ] Cada mutação da tabela atualiza as áreas listadas sem recarregar a página.
-- [ ] A aplicação funciona (valores padrão) com `localStorage` indisponível.
+  > ⏳ 2026-10-27 — Parcial: ponto de extensão `AppStateReset.register`. Falta: mutações (F4–F9).
+- [x] A aplicação funciona (valores padrão) com `localStorage` indisponível.
+  > ✅ 2026-10-27 — Verificação: `stores.spec.ts` ("funciona com localStorage indisponível"); acesso sempre em `try/catch` (`safe-storage.ts`).
 - [ ] Moeda e tema voltam do servidor ao entrar noutro dispositivo.
+  > ⏳ 2026-10-27 — Parcial: depende do módulo de preferências. Falta: F10.
 - [ ] Salvar um lançamento em EUR com BRL selecionado passa a selecionar EUR e mostra os dados de EUR.
+  > ⏳ 2026-10-27 — Parcial: depende de lançamentos. Falta: F5.
 - [ ] Sair descarta o estado; um segundo utilizador não vê dados do primeiro.
+  > ⏳ 2026-10-27 — Parcial: sessão e mês descartados no logout (teste e navegador; rota protegida volta a `/entrar`). Falta: moeda e tema continuam no navegador até a F10 (decisão de preferências de dispositivo, a confirmar); sem dados financeiros para validar a troca de conta.
 - [ ] Nenhum saldo ou progresso é guardado no cliente além do último resultado da API.
+  > ⏳ 2026-10-27 — Parcial: sem saldos ainda. Falta: conferir nas fatias de dados.
 
 ### Skills de implementação
 
@@ -90,11 +99,14 @@ Estado duplicado entre páginas se cada uma guardar o mês próprio; manter um �
 ### Front-end
 
 - [ ] Implementar o estado global em `core` e as consultas dependentes.
+  > ⏳ 2026-10-27 — Parcial: estado global (`SessionStore`, mês, moeda, tema) implementado. Falta: consultas dependentes (fatias de dados).
 - [ ] Implementar a invalidação por mutação.
+  > ⏳ 2026-10-27 — Parcial: `AppStateReset` com callbacks. Falta: invalidação real quando houver mutações.
 
 ### Validação
 
 - [ ] Testar persistência, padrões, cancelamento e invalidação.
+  > ⏳ 2026-10-27 — Parcial: persistência e padrões testados. Falta: cancelamento e invalidação.
 
 ## Resultado esperado
 

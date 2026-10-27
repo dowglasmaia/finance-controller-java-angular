@@ -26,7 +26,9 @@ Regras completas em [.spec/memory/produto.md](.spec/memory/produto.md).
 ```text
 .
 ├── api-finance-controller/   Backend: Java 25, Spring Boot 4.1, Spring Modulith, Maven Wrapper
-├── app-finance-controller/   Frontend: Angular 21, TypeScript estrito, Tailwind CSS
+├── app-finance-controller/   Frontend: Angular 21, TypeScript estrito, Tailwind CSS (Dockerfile + nginx)
+├── scripts/                  Scripts PowerShell para subir backend, frontend ou tudo
+├── compose.yml               Orquestração local: db, api e web
 ├── .spec/                    Specs, decisões, templates e roadmap (fonte de verdade do que construir)
 ├── .docs/                    Diagrama de arquitetura (projeto.excalidraw)
 ├── .claude/skills/           Skills de IA do projeto (Angular e análise do app Flutter)
@@ -52,29 +54,74 @@ O diagrama da solução está em [.docs/projeto.excalidraw](.docs/projeto.excali
 
 ### Pré-requisitos
 
-- JDK 25 com `JAVA_HOME` configurado.
-- Node.js 20.19+ ou 22.12+ (com npm).
-- Docker, apenas para testes de integração com Testcontainers (a partir da F1).
+- Docker (Docker Desktop no Windows): banco de dados, execução em contentores e testes de integração (Testcontainers).
+- JDK 25 com `JAVA_HOME` configurado (só para rodar o backend fora do Docker ou os testes).
+- Node.js 20.19+, 22.12+ ou 24 (com npm), só para rodar o frontend fora do Docker.
 
-### Backend
+### Scripts (Windows PowerShell)
 
-```bash
-cd api-finance-controller
-./mvnw clean verify
-./mvnw spring-boot:run
+Os scripts ficam em [scripts/](scripts/) e criam o `.env` a partir de [.env.example](.env.example) na primeira execução (valores fictícios de desenvolvimento; ajuste ao seu ambiente). O [compose.yml](compose.yml) na raiz define os serviços `db` (PostgreSQL 18.1), `api` (backend) e `web` (frontend estático com nginx).
+
+| Quero | Comando | Resultado |
+|---|---|---|
+| Só o backend | `.\scripts\up-back.ps1` | Banco + API em Docker: API em `http://localhost:8080` |
+| Só o backend, API na minha máquina | `.\scripts\up-back.ps1 -Local` | Banco em Docker; API por `mvnw spring-boot:run` (depuração) |
+| Só o frontend (desenvolvimento) | `.\scripts\up-front.ps1` | `npm start` em `http://localhost:4200`, com proxy de `/api` para `localhost:8080` |
+| Só o frontend em Docker | `.\scripts\up-front.ps1 -Docker` | Imagem estática em `http://localhost:8081` (a API precisa estar no ar) |
+| Tudo junto | `.\scripts\up-all.ps1` | Banco + API + frontend em Docker: aplicação em `http://localhost:8081` |
+| Parar | `.\scripts\down.ps1` (`-Volumes` apaga os dados) | Para os contentores; os dados do banco ficam no volume |
+| Ver logs | `.\scripts\logs.ps1 [db, api ou web]` | Acompanha os logs |
+
+Use `-NoBuild` nos scripts de Docker para reaproveitar as imagens já construídas. Se mudar `WEB_PORT` para 4200, não rode ao mesmo tempo o servidor de desenvolvimento do frontend.
+
+No frontend em Docker, o nginx serve os arquivos com fallback para `index.html` e encaminha `/api` para a API no mesmo domínio (o cookie de renovação funciona sem CORS). A imagem do frontend aceita `API_UPSTREAM` para apontar para outra API.
+
+### Comandos do Docker Compose (equivalentes aos scripts)
+
+Execute na **raiz** do repositório. Antes da primeira vez, crie o `.env` (os scripts fazem isso sozinhos):
+
+```powershell
+Copy-Item .env.example .env
 ```
 
-No Windows, use `.\mvnw.cmd` no lugar de `./mvnw`. A API sobe em `http://localhost:8080`; teste `GET /actuator/health` e `GET /api/v1/examples/1`. Variáveis de ambiente em [api-finance-controller/.env.example](api-finance-controller/.env.example). Detalhes em [api-finance-controller/README.md](api-finance-controller/README.md).
-
-### Frontend
+Subir:
 
 ```bash
-cd app-finance-controller
-npm install
-npm start
+# Tudo junto (banco + API + frontend); aplicação em http://localhost:8081
+docker compose up -d --build --wait
+
+# Só o backend (banco + API); API em http://localhost:8080
+docker compose up -d --build --wait db api
+
+# Só o banco (para rodar a API pelo Maven ou pela IDE)
+docker compose up -d --wait db
+
+# Só o frontend em Docker (a API precisa estar no ar)
+docker compose up -d --build --no-deps web
 ```
 
-A aplicação abre em `http://localhost:4200`. Para gerar o build de produção: `npm run build`.
+Acompanhar e conferir:
+
+```bash
+docker compose ps                  # estado dos serviços
+docker compose logs -f api         # logs de um serviço (db, api ou web)
+curl http://localhost:8080/actuator/health
+```
+
+Reconstruir e parar:
+
+```bash
+docker compose build api           # reconstrói só a imagem da API (ou web)
+docker compose up -d --force-recreate api   # recria um serviço
+docker compose down                # para e remove os contentores; os dados do banco ficam no volume
+docker compose down -v             # também apaga os dados do banco
+```
+
+Sem `-d` os logs ficam presos ao terminal (`Ctrl+C` para parar). Sem o `.env` o Compose recusa subir e pede `POSTGRES_PASSWORD` e `APP_JWT_SECRET`.
+
+### Sem scripts
+
+Backend: `cd api-finance-controller` e `.\mvnw.cmd clean verify` (Windows) ou `./mvnw clean verify`; o banco precisa estar no ar (`docker compose up -d db` na raiz). Frontend: `cd app-finance-controller`, `npm install`, `npm start`; build de produção com `npm run build` e testes com `npm test`. Variáveis do backend em [api-finance-controller/.env.example](api-finance-controller/.env.example).
 
 ## Como o trabalho é conduzido (SDD)
 

@@ -1,0 +1,197 @@
+openapi: 3.1.0
+info:
+    title: Identity API
+    version: 1.0.0
+paths:
+    /api/v1/auth/register:
+        post:
+            tags:
+                - Identity
+            summary: Cadastrar utilizador
+            operationId: registerUser
+            description: Cria o utilizador e devolve o token de acesso; o cookie de
+                renovação é definido na resposta.
+            security: []
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: "#/components/schemas/RegisterRequest"
+                required: true
+            responses:
+                "201":
+                    description: Utilizador criado
+                    headers:
+                        Set-Cookie:
+                            description: Cookie de renovação refresh_token (HttpOnly, Secure, SameSite).
+                            schema:
+                                type: string
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/AuthResponse"
+                "400":
+                    $ref: ../common/responses.yaml#/components/responses/BadRequestResponse
+                "409":
+                    $ref: ../common/responses.yaml#/components/responses/ConflictResponse
+    /api/v1/auth/login:
+        post:
+            tags:
+                - Identity
+            summary: Entrar
+            operationId: login
+            description: Autentica por e-mail e senha e devolve o token de acesso; o cookie
+                de renovação é definido na resposta.
+            security: []
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: "#/components/schemas/LoginRequest"
+                required: true
+            responses:
+                "200":
+                    description: Autenticado
+                    headers:
+                        Set-Cookie:
+                            description: Cookie de renovação refresh_token (HttpOnly, Secure, SameSite).
+                            schema:
+                                type: string
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/AuthResponse"
+                "400":
+                    $ref: ../common/responses.yaml#/components/responses/BadRequestResponse
+                "401":
+                    $ref: ../common/responses.yaml#/components/responses/UnauthorizedResponse
+                "429":
+                    $ref: ../common/responses.yaml#/components/responses/TooManyRequestsResponse
+    /api/v1/auth/refresh:
+        post:
+            tags:
+                - Identity
+            summary: Renovar o token de acesso
+            operationId: refreshToken
+            description: Troca o cookie de renovação por um novo token de acesso e rotaciona
+                o cookie.
+            security: []
+            parameters:
+                - name: refresh_token
+                  in: cookie
+                  schema:
+                      type: string
+                  description: Token de renovação enviado em cookie HttpOnly.
+            responses:
+                "200":
+                    description: Token renovado
+                    headers:
+                        Set-Cookie:
+                            description: Cookie de renovação rotacionado.
+                            schema:
+                                type: string
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/AccessTokenResponse"
+                "401":
+                    $ref: ../common/responses.yaml#/components/responses/UnauthorizedResponse
+    /api/v1/auth/logout:
+        post:
+            tags:
+                - Identity
+            summary: Sair e revogar a renovação
+            operationId: logout
+            description: Revoga o token de renovação e limpa o cookie.
+            security: []
+            parameters:
+                - name: refresh_token
+                  in: cookie
+                  schema:
+                      type: string
+                  description: Token de renovação enviado em cookie HttpOnly.
+            responses:
+                "204":
+                    description: Sessão encerrada
+                    headers:
+                        Set-Cookie:
+                            description: Cookie de renovação expirado.
+                            schema:
+                                type: string
+    /api/v1/auth/me:
+        get:
+            tags:
+                - Identity
+            summary: Obter o utilizador atual
+            operationId: getCurrentUser
+            description: Devolve o utilizador autenticado pelo token de acesso.
+            security:
+                - bearerAuth: []
+            responses:
+                "200":
+                    description: Utilizador atual
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/UserResponse"
+                "401":
+                    $ref: ../common/responses.yaml#/components/responses/UnauthorizedResponse
+components:
+    securitySchemes:
+        bearerAuth:
+            $ref: ../common/security.yaml#/components/securitySchemes/bearerAuth
+    schemas:
+        RegisterRequest:
+            type: object
+            required:
+                - email
+                - password
+            properties:
+                email:
+                    type: string
+                    format: email
+                password:
+                    type: string
+                    minLength: 8
+                    maxLength: 128
+        LoginRequest:
+            type: object
+            required:
+                - email
+                - password
+            properties:
+                email:
+                    type: string
+                    format: email
+                password:
+                    type: string
+                    maxLength: 128
+        UserResponse:
+            type: object
+            required:
+                - id
+                - email
+            properties:
+                id:
+                    type: string
+                    format: uuid
+                email:
+                    type: string
+                    format: email
+        AuthResponse:
+            type: object
+            required:
+                - user
+                - accessToken
+            properties:
+                user:
+                    $ref: "#/components/schemas/UserResponse"
+                accessToken:
+                    type: string
+        AccessTokenResponse:
+            type: object
+            required:
+                - accessToken
+            properties:
+                accessToken:
+                    type: string

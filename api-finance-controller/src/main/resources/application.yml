@@ -3,6 +3,18 @@ spring:
     name: api-finance-controller
   profiles:
     default: local
+  # Connection comes from SPRING_DATASOURCE_URL / _USERNAME / _PASSWORD (required outside local; no secrets here).
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        jdbc:
+          time_zone: UTC
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
 management:
   endpoints:
     web:
@@ -40,3 +52,22 @@ logging:
   level:
     root: ${LOG_LEVEL_ROOT:INFO}
     com.dowglasmaia.financecontroller: ${LOG_LEVEL_APP:INFO}
+# Identity (BACKEND-SPEC-11, ADR-012). The JWT signing secret comes ONLY from the environment (APP_JWT_SECRET,
+# at least 32 bytes); startup fails when it is missing or short. Never commit a real value.
+app:
+  identity:
+    jwt:
+      secret: ${APP_JWT_SECRET:}
+      issuer: ${APP_JWT_ISSUER:https://api.finance-controller.local}
+      access-token-ttl: ${APP_JWT_ACCESS_TTL:15m}
+    refresh-token-ttl: ${APP_REFRESH_TTL:30d}
+    limiter:
+      max-failures: ${APP_LOGIN_MAX_FAILURES:5}
+      window: ${APP_LOGIN_WINDOW:15m}
+      max-tracked-keys: 10000
+    cors:
+      # Comma-separated explicit frontend origins (no wildcard); empty denies every cross-origin request.
+      allowed-origins: ${APP_CORS_ALLOWED_ORIGINS:}
+    max-request-body: 1MB
+    # Refresh-token cookie, read by the controller: app.identity.cookie.secure (default true; false only in the
+    # local profile, plain HTTP) and app.identity.cookie.same-site (Strict|Lax|None).

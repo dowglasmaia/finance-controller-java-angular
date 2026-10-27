@@ -6,7 +6,7 @@ import com.dowglasmaia.financecontroller.example.application.port.out.ExampleRep
 import com.dowglasmaia.financecontroller.example.domain.model.Example;
 
 @Repository
-public final class InMemoryExampleRepository implements ExampleRepository {
+public class InMemoryExampleRepository implements ExampleRepository {
     @Override
     public Optional<Example> findById(long id) {
         return id == 1 ? Optional.of(new Example(1, "Example", "ACTIVE")) : Optional.empty();

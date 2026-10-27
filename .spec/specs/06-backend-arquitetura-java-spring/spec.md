@@ -76,11 +76,17 @@ ADR-001, ADR-004, ADR-005. Risco: o `ModularityTests` aceita o módulo `generate
 ## Regras e critérios de aceitação
 
 - [ ] Todo módulo segue a estrutura acima e declara `@ApplicationModule` com interface nomeada.
-- [ ] O domínio de cada módulo compila sem dependência de Spring, JPA ou tipos de `generated`.
-- [ ] `ModularityTests` passa e não há dependência cíclica.
-- [ ] Controllers só mapeiam e delegam; nenhuma regra financeira neles.
+  > ⏳ 2026-10-27 — Parcial: o módulo `identity` segue `api`/`application`/`domain`/`infrastructure` e declara `@ApplicationModule` (`package-info.java`). Falta: a interface nomeada do módulo é só `CurrentOwner`; os demais módulos (F4–F10) e o `example`, que será removido na F4.
+- [x] O domínio de cada módulo compila sem dependência de Spring, JPA ou tipos de `generated`.
+  > ✅ 2026-10-27 — Verificação: busca de imports de `org.springframework`, `jakarta.persistence` e `generated` em `identity/domain` sem ocorrências; os testes de domínio rodam sem contexto Spring. Revalidar a cada módulo novo.
+- [x] `ModularityTests` passa e não há dependência cíclica.
+  > ✅ 2026-10-27 — `ModularityTests` verde. Verificação: `./mvnw clean verify` com Docker: 159 testes, 0 falhas, BUILD SUCCESS.
+- [x] Controllers só mapeiam e delegam; nenhuma regra financeira neles.
+  > ✅ 2026-10-27 — `IdentityController` só converte, chama `execute` do caso de uso e trata cookie e cabeçalhos HTTP; nenhuma regra de negócio. Verificação: revisão do código e `IdentityControllerTest` (16 testes).
 - [ ] Operações atómicas listadas têm teste de falha parcial que comprova o rollback.
+  > ⏳ 2026-10-27 — Parcial: nenhuma operação atómica listada existe ainda (movimentação de cofrinho e semeadura chegam nas F4 e F8). Falta: testes de rollback nessas fatias.
 - [ ] O módulo `example` foi removido com o seu contrato e testes.
+  > ⏳ 2026-10-27 — Parcial: mantido de propósito até a F4 (spec 47); `GET /api/v1/examples/{id}` agora exige token e `InMemoryExampleRepository` deixou de ser `final`. Falta: remoção na F4.
 
 ### Skills de implementação
 
@@ -99,12 +105,15 @@ ADR-001, ADR-004, ADR-005. Risco: o `ModularityTests` aceita o módulo `generate
 
 ### Back-end
 
-- [ ] Criar o esqueleto de pacotes e `package-info` do primeiro módulo real seguindo a estrutura.
+- [x] Criar o esqueleto de pacotes e `package-info` do primeiro módulo real seguindo a estrutura.
+  > ✅ 2026-10-27 — Módulo `identity` criado com `package-info` por camada. Verificação: compilação e `ModularityTests`.
 - [ ] Remover o módulo `example` e o seu contrato quando substituído.
+  > ⏳ 2026-10-27 — Parcial: adiado para a F4 (spec 47). Falta: remoção e dos testes `GetExampleUseCaseTest`.
 
 ### Validação
 
-- [ ] Executar `mvnw clean verify` incluindo `ModularityTests` e registar o resultado.
+- [x] Executar `mvnw clean verify` incluindo `ModularityTests` e registar o resultado.
+  > ✅ 2026-10-27 — `./mvnw clean verify` com Docker: 159 testes, 0 falhas, BUILD SUCCESS, incluindo `ModularityTests`.
 
 ## Resultado esperado
 

@@ -44,6 +44,7 @@ Padronizar as validações, os códigos de erro e o tratamento de exceções do 
 | `CURRENCY_LOCKED` | 409 | Não é possível alterar a moeda de um cofrinho com aportes. | DESC-BOX-05 |
 | `MONEY_BOX_NOT_FOUND` | 404 | Cofrinho não encontrado. | DESC-BOX-04 |
 | `INSUFFICIENT_BALANCE` | 409 | Saldo insuficiente: o saque excede o saldo do cofrinho (ou o saldo é zero). A mesma regra recusa editar/excluir movimentação que deixaria o saldo negativo. | P-04 (decidida) |
+| `REQUEST_NOT_SUPPORTED` | 405 / 406 / 415 | Requisição não suportada. (mantém o estado HTTP do framework: método, formato de resposta ou tipo de conteúdo não aceito) | Aprovado pelo utilizador em 2026-10-27 (o `ProblemDetail` exige `code`) |
 | `INTERNAL_ERROR` | 500 | Erro inesperado. Tente novamente. (sem detalhes internos) | contexto técnico global |
 
 Todas as mensagens ficam em português do Brasil e podem vir de um catálogo de mensagens (`messages_pt_BR`).
@@ -70,10 +71,15 @@ Mensagens de erro em português ficam no backend; o frontend precisa de um mapea
 ## Regras e critérios de aceitação
 
 - [ ] Toda resposta de erro validada contra `ProblemDetail` com `code` do catálogo.
+  > ⏳ 2026-10-27 — Parcial: respostas de erro verificadas em `GlobalExceptionHandlerTest` (36 testes) e nos testes de fluxo (`application/problem+json` com `code`). Falta: validação automática contra o esquema OpenAPI.
 - [ ] Cada código tem pelo menos um teste que o provoca e confere estado HTTP e mensagem.
-- [ ] Nenhuma resposta 4xx/5xx expõe pilha, SQL ou nomes internos.
+  > ⏳ 2026-10-27 — Parcial: `GlobalExceptionHandlerTest` e os testes do `identity` exercitam a maior parte do catálogo (entre eles `VALIDATION_FAILED`, `INVALID_CREDENTIALS`, `EMAIL_ALREADY_REGISTERED`, `TOO_MANY_ATTEMPTS`, `UNAUTHENTICATED`, `RESOURCE_NOT_FOUND`, `INTERNAL_ERROR`, `REQUEST_NOT_SUPPORTED` e os de categoria e cofrinho). Falta: conferir um a um que todos os códigos têm um teste que confere estado HTTP e mensagem, e provocá-los pelos módulos reais (F4–F9).
+- [x] Nenhuma resposta 4xx/5xx expõe pilha, SQL ou nomes internos.
+  > ✅ 2026-10-27 — `GlobalExceptionHandlerTest` aciona exceções com SQL, nome de restrição e pilha e confere que nada vaza na resposta. Verificação: `./mvnw clean verify` com Docker: 159 testes, 0 falhas, BUILD SUCCESS. Observação: a mensagem da exceção inesperada é registada no log do servidor.
 - [ ] Pedido sobre recurso de outro utilizador devolve 404 `RESOURCE_NOT_FOUND`.
+  > ⏳ 2026-10-27 — Parcial: o tratador devolve 404 `RESOURCE_NOT_FOUND` (testado). Falta: exercitar por módulo de dados (F4 em diante).
 - [ ] Violação concorrente de unicidade de categoria resulta em `CATEGORY_NAME_DUPLICATED`, não em 500.
+  > ⏳ 2026-10-27 — Parcial: o mecanismo `ConstraintErrorMapping` existe e é usado para `uq_app_user_email`. Falta: categorias (F4).
 
 ### Skills de implementação
 
@@ -88,15 +94,19 @@ Mensagens de erro em português ficam no backend; o frontend precisa de um mapea
 
 ### Contrato e dados
 
-- [ ] Incluir `ProblemDetail` e as respostas comuns no contrato (prévia aprovada).
+- [x] Incluir `ProblemDetail` e as respostas comuns no contrato (prévia aprovada).
+  > ✅ 2026-10-27 — `openapi/common/responses.yaml` com `ProblemDetail` (RFC 9457, `code` obrigatório) e respostas comuns, aprovado em prévia. Verificação: `redocly lint` e geração Maven; consumido por `identity.yaml`.
 
 ### Back-end
 
-- [ ] Implementar exceções de domínio e o tratador global com o catálogo acima.
+- [x] Implementar exceções de domínio e o tratador global com o catálogo acima.
+  > ✅ 2026-10-27 — Catálogo `ErrorCode`, `DomainException`, `ResourceNotFoundException`, `GlobalExceptionHandler` e mensagens `messages_pt_BR.properties`. Verificação: `./mvnw clean verify` com Docker: 159 testes, 0 falhas, BUILD SUCCESS.
+  > ⏳ 2026-10-27 — Parcial: implementado em `shared/error` (`ErrorCode`, `DomainException`, `GlobalExceptionHandler`, registo de restrições, `messages_pt_BR.properties`). Verificação: `mvnw test` com `GlobalExceptionHandlerTest` (MockMvc standalone, 41 testes no conjunto sem Docker) e `ModularityTests` verdes. Desvio: código extra `REQUEST_NOT_SUPPORTED` (405/406/415), aprovado pelo utilizador em 2026-10-27 e registado no catálogo. Falta: tratamento de Spring Security (`UNAUTHENTICATED`) e `mvnw clean verify` completo (exige Docker). Próxima ação: tratar `UNAUTHENTICATED` com a segurança do `identity`.
 
 ### Validação
 
 - [ ] Testar cada código de erro e a tradução de violações do banco.
+  > ⏳ 2026-10-27 — Parcial: ver o critério correspondente: códigos do `identity` e do tratador testados. Falta: códigos dos módulos financeiros.
 
 ## Resultado esperado
 

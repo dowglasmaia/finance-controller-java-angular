@@ -63,11 +63,17 @@ Rótulo visível em todo campo; `aria-describedby` para ajuda e erro; `aria-inva
 ## Regras e critérios de aceitação
 
 - [ ] Digitar `123456` no campo de valor mostra `1.234,56` e envia `"1234.56"`.
+  > ⏳ 2026-10-27 — Parcial: `MoneyInput` não implementado (F5, primeiro formulário com valor).
 - [ ] Enviar valor vazio, `0,00` ou texto inválido mostra a mensagem correspondente da tabela e não chama a API.
+  > ⏳ 2026-10-27 — Parcial: validadores `requiredValue`, `decimalValue`, `positiveAmount` com as mensagens exatas testados (`validators.spec.ts`). Falta: ligação ao `MoneyInput` e ao formulário de lançamento (F5).
 - [ ] Trocar ENTRADA por SAÍDA limpa a categoria se ela não aceita o novo tipo.
+  > ⏳ 2026-10-27 — Parcial: formulário de lançamento é da F5.
 - [ ] Ao editar um cofrinho com movimentações, o campo de moeda está desabilitado.
+  > ⏳ 2026-10-27 — Parcial: formulário de cofrinho é da F8.
 - [ ] Um erro `CATEGORY_NAME_DUPLICATED` aparece no campo Nome e mantém o diálogo aberto.
+  > ⏳ 2026-10-27 — Parcial: `applyServerErrors` marca erros do servidor por campo (testado). Falta: formulário de categoria (F4).
 - [ ] Todo campo tem rótulo acessível e o primeiro inválido recebe o foco.
+  > ⏳ 2026-10-27 — Parcial: formulários de entrada e cadastro com rótulo visível, `aria-describedby`/`aria-invalid` e foco no primeiro campo inválido (teste e navegador). Falta: demais formulários.
 
 ### Skills de implementação
 
@@ -83,11 +89,14 @@ Rótulo visível em todo campo; `aria-describedby` para ajuda e erro; `aria-inva
 ### Front-end
 
 - [ ] Implementar `MoneyInput` e os validadores compartilhados.
+  > ⏳ 2026-10-27 — Parcial: validadores compartilhados em `shared/forms/validators.ts`. Falta: `MoneyInput` (F5).
 - [ ] Implementar os formulários da tabela e o mapeamento de erros do servidor.
+  > ⏳ 2026-10-27 — Parcial: formulários de Entrada e Cadastro e `applyServerErrors` entregues. Falta: Lançamento, Categoria, Cofrinho, Movimentação, metas (F4–F9) e recuperação de senha (F11).
 
 ### Validação
 
 - [ ] Testar a máscara, cada mensagem e as dependências entre campos.
+  > ⏳ 2026-10-27 — Parcial: cada mensagem dos validadores testada. Falta: máscara e dependências entre campos.
 
 ## Resultado esperado
 

@@ -57,11 +57,16 @@ Metas de GLOBAL-SPEC-01 (p95 < 500 ms para 50 000 lançamentos) com índices de 
 ## Regras e critérios de aceitação
 
 - [ ] A aplicação arranca em `local`, `test` e `prod` com a configuração correspondente e falha de forma clara se faltar variável obrigatória.
+  > ⏳ 2026-10-27 — Parcial: arranque em `local` (API real) e `test` (suíte) verificado; segredo JWT ausente ou curto é recusado na validação das propriedades (`IdentityPropertiesTest`). Falta: arranque no perfil `prod`.
 - [ ] `/actuator/health` indica `UP` com banco disponível e `DOWN` sem ele.
+  > ⏳ 2026-10-27 — Parcial: `UP` verificado na API real com PostgreSQL. Falta: `DOWN` sem banco.
 - [ ] Nenhum log contém valores financeiros ou segredos (verificação por teste de log).
+  > ⏳ 2026-10-27 — Parcial: auditoria manual dos logs sem segredos (ver spec 11). Falta: teste automatizado de logs; valores financeiros só existem a partir da F5.
 - [ ] Cada resposta traz identificador de correlação presente nos logs do pedido.
+  > ⏳ 2026-10-27 — Parcial: `TracingCorrelationTests` verde (`traceId` no MDC) e `ProblemDetail` com `traceId` e `correlationId`. Falta: conferir o identificador em respostas de sucesso e nos logs do pedido.
 - [ ] Medições de desempenho dos três pontos candidatos são registadas.
-- [ ] Logs não contêm e-mails, senhas, tokens nem valores financeiros.
+- [x] Logs não contêm e-mails, senhas, tokens nem valores financeiros.
+  > ✅ 2026-10-27 — Verificação: busca por e-mail de teste, senhas, JWT, cookie de renovação e segredo nos logs de uma execução real (cadastro, login, saída, 409, 429) e do `verify`: 0 ocorrências. Limitação: auditoria manual; ainda não há valores financeiros. Os logs do `verify` incluem a mensagem de uma exceção provocada de propósito pelo teste de vazamento.
 
 ### Skills de implementação
 

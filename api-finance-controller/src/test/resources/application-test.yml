@@ -1,4 +1,11 @@
 spring:
+  # Datasource is supplied by the Testcontainers PostgreSQL container (@ServiceConnection).
+  flyway:
+    enabled: true
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate
   ai:
     model:
       chat: none
@@ -10,3 +17,11 @@ logging:
   structured:
     format:
       console: ""
+app:
+  identity:
+    jwt:
+      secret: test-only-fictitious-secret-0123456789abcdef
+    cors:
+      allowed-origins: http://localhost:4200
+    cookie:
+      secure: false

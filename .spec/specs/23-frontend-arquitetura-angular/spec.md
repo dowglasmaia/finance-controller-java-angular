@@ -55,11 +55,16 @@ ADR-010, ADR-013, ADR-014. O scaffold não inclui testes: introduzir o executor 
 
 ## Regras e critérios de aceitação
 
-- [ ] O projeto foi gerado por `angular-frontend-scaffold` com o nome aprovado e `node validate.mjs` da skill passa (build de produção).
-- [ ] `strict` e `strictTemplates` ativos; não há `any` nem `ts-ignore` no código gerado ou novo.
-- [ ] Toda funcionalidade vive em `features/<modulo>` com `routes`, `doc.md` e, quando aplicável, `pages`, `ui`, `data-access`.
-- [ ] Nenhum componente faz HTTP ou calcula valores financeiros oficiais.
-- [ ] A URL da API vem de configuração; `ng serve` usa a porta 4200 e o proxy para `/api`.
+- [x] O projeto foi gerado por `angular-frontend-scaffold` com o nome aprovado e `node validate.mjs` da skill passa (build de produção).
+  > ✅ 2026-10-27 — Projeto `app-finance-controller` gerado na F0 (commit `3135bd8`). Verificação: `node .claude/skills/angular-frontend-scaffold/scripts/validate.mjs app-finance-controller` concluiu o build, saída 0.
+- [x] `strict` e `strictTemplates` ativos; não há `any` nem `ts-ignore` no código gerado ou novo.
+  > ✅ 2026-10-27 — Ativos em `tsconfig.json`. Verificação: `ngc --noEmit` sem erros de template; busca por `any`, `@ts-ignore` e `!` não-nulo sem ocorrências no código não gerado nem nos tipos gerados.
+- [x] Toda funcionalidade vive em `features/<modulo>` com `routes`, `doc.md` e, quando aplicável, `pages`, `ui`, `data-access`.
+  > ✅ 2026-10-27 — Módulo `features/auth` com `auth.routes.ts`, `doc.md`, `pages/`, `data-access/` e `guards/`. Desvio: `coming-soon` e `not-found` são páginas provisórias carregadas por `loadComponent` (sem `routes.ts`; `doc.md` em `coming-soon`).
+- [x] Nenhum componente faz HTTP ou calcula valores financeiros oficiais.
+  > ✅ 2026-10-27 — Verificação: busca por `HttpClient` só encontra `auth-api.service.ts` (`data-access`) e `app.config.ts`; `formatMoney` só formata strings, sem cálculo.
+- [x] A URL da API vem de configuração; `ng serve` usa a porta 4200 e o proxy para `/api`.
+  > ✅ 2026-10-27 — `API_BASE_URL` (padrão `/api/v1`), `proxy.conf.json` para `/api` → `localhost:8080` e `npm start` na porta 4200. Verificação no navegador: as chamadas `/api/v1/auth/*` feitas a partir de `localhost:4200` chegaram à API simulada em 8080.
 
 ### Skills de implementação
 
@@ -74,16 +79,20 @@ ADR-010, ADR-013, ADR-014. O scaffold não inclui testes: introduzir o executor 
 
 ### Descoberta e decisão
 
-- [ ] Obter o nome do projeto Angular (P-28) e confirmar a compatibilidade de ApexCharts/`ng-apexcharts` e Lucide com Angular 21.
+- [x] Obter o nome do projeto Angular (P-28) e confirmar a compatibilidade de ApexCharts/`ng-apexcharts` e Lucide com Angular 21.
+  > ✅ 2026-10-27 — Nome `app-finance-controller` já definido (P-28). Lucide: `lucide-angular@1.0.0` instalado e em uso (build, testes e navegador). ApexCharts: `ng-apexcharts@3.2.0` declara `@angular/core >=20` nos `peerDependencies`; não instalado nem testado (entra na F7). Desvio: compatibilidade do ApexCharts confirmada só por metadados.
 
 ### Front-end
 
-- [ ] Executar o scaffold com o nome `app-finance-controller`, na raiz do projeto (ao lado de `.claude`) e rodar o validador da skill.
-- [ ] Criar `core/` e `shared/` mínimos e a configuração de ambiente e proxy.
+- [x] Executar o scaffold com o nome `app-finance-controller`, na raiz do projeto (ao lado de `.claude`) e rodar o validador da skill.
+  > ✅ 2026-10-27 — Scaffold gerado na F0 (commit `3135bd8`); validador da skill executado em 2026-10-27, build concluído.
+- [x] Criar `core/` e `shared/` mínimos e a configuração de ambiente e proxy.
+  > ✅ 2026-10-27 — `core/` (http, state, layout, api) e `shared/` (ui, forms, money) criados; ambiente por `API_BASE_URL` e `proxy.conf.json`. Verificação: build e testes.
 
 ### Validação
 
-- [ ] Build de produção sem erros e sem avisos de template estrito; registar o resultado.
+- [x] Build de produção sem erros e sem avisos de template estrito; registar o resultado.
+  > ✅ 2026-10-27 — `npm run build` sem erros nem avisos; `ngc -p tsconfig.app.json --noEmit` sem erros de template. `npm run build` e `npm test` (72 testes Vitest, 11 arquivos) verdes.
 
 ## Resultado esperado
 

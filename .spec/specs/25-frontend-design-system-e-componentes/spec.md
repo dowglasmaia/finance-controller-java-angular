@@ -26,6 +26,8 @@ Definir os tokens visuais (Neon Graphite) e os componentes compartilhados reais 
 | `neutral` | `#64748B` | texto secundário |
 | `webCardDark`, `webBorderDark` | `#131C30`, `#24304A` | superfícies e bordas no escuro |
 
+**Decisão (aprovada pelo utilizador em 2026-10-27):** no tema claro os papéis `accent`, `income`, `expense` e `warning` usam variantes mais escuras (`#0E7490`, `#047857`, `#BE123C`, `#B45309`) para ganhar contraste sobre fundos claros; no tema escuro valem os valores da tabela (`#22D3EE`, `#34D399`, `#FB7185`, `#FBBF24`). A razão de contraste ainda deve ser medida (task de descoberta abaixo).
+
 Os tokens são mapeados para nomes semânticos do Tailwind (`bg-surface`, `text-income`, `text-expense`, `text-warning`) seguindo `references/neon-graphite-tokens.md` da skill de UI; cores nunca fixas em templates. Fonte Inter. Espaçamento em escala de 4 px.
 
 ### Componentes compartilhados (origem → destino)
@@ -69,10 +71,16 @@ Contraste do ciano sobre fundo claro precisa de verificação (a origem não med
 ## Regras e critérios de aceitação
 
 - [ ] Todos os tokens existem como variáveis e nomes semânticos, com valores equivalentes nos dois temas.
-- [ ] Nenhum template usa cor literal.
+  > ⏳ 2026-10-27 — Parcial: tokens como variáveis CSS e nomes semânticos Tailwind em `styles.scss`, com claro e escuro. Desvio a aprovar: no tema claro `accent`, `income`, `expense` e `warning` foram escurecidos (`#0e7490`, `#047857`, `#be123c`, `#b45309`) em vez dos valores da spec, para contraste; razão de contraste não medida numericamente.
+  > ✅ 2026-10-27 — Decisão: o utilizador aprovou as cores escurecidas do tema claro (ver "Decisão" em Tokens). Resta medir o contraste e percorrer a lista de revisão de UI; este critério continua aberto até lá.
+- [x] Nenhum template usa cor literal.
+  > ✅ 2026-10-27 — Verificação: busca por cores hexadecimais em `.ts` e `.html` de `src/app` sem ocorrências.
 - [ ] `KpiCard`, `MoneyInput`, `ConfirmDialog` e `Toast` têm nome acessível, estados desabilitado/inválido e funcionam por teclado.
+  > ⏳ 2026-10-27 — Parcial: `Toast` (com `aria-live`) implementado. Falta: `KpiCard`, `MoneyInput` e `ConfirmDialog` (F5/F7 e fatias que os usam; escopo da F2 aprovado pelo utilizador).
 - [ ] Estados financeiros (entrada, saída, aviso, estourado) usam ícone ou texto além da cor.
-- [ ] A formatação reproduz exemplos da origem: `R$ 1.234,56`, `€ 1.234,56`, `+R$ 100,00`, `-R$ 100,00`.
+  > ⏳ 2026-10-27 — Parcial: o `Toast` usa ícone e cor. Falta: demais estados nas fatias com dados.
+- [x] A formatação reproduz exemplos da origem: `R$ 1.234,56`, `€ 1.234,56`, `+R$ 100,00`, `-R$ 100,00`.
+  > ✅ 2026-10-27 — `formatMoney`/`formatDate` testados com `R$ 1.234,56`, `€ 1.234,56`, `+R$ 100,00`, `-R$ 100,00` (`format-money.spec.ts`, 7 testes), sem converter para `number`. Desvio: o `Intl` usa espaço sem quebra entre o símbolo e o valor.
 
 ### Skills de implementação
 
@@ -88,14 +96,18 @@ Contraste do ciano sobre fundo claro precisa de verificação (a origem não med
 ### Descoberta e decisão
 
 - [ ] Confirmar a compatibilidade de ApexCharts/`ng-apexcharts` e Lucide com Angular 21 e validar o contraste dos tokens.
+  > ✅ 2026-10-27 — Decisão registada: cores do tema claro escurecidas, aprovadas pelo utilizador. A task continua aberta: falta medir a razão de contraste dos tokens nos dois temas e testar o ApexCharts (F7).
+  > ⏳ 2026-10-27 — Parcial: Lucide verificado em uso; ApexCharts por `peerDependencies`. Falta: validar o contraste dos tokens com medição.
 
 ### Front-end
 
 - [ ] Implementar tokens, tema claro/escuro e os componentes da tabela.
+  > ⏳ 2026-10-27 — Parcial: tokens, tema (`ThemeStore`), `PageHeader`, `AppPanel`, `EmptyState`, `Toast`, `CurrencySelector`, `MonthSwitcher`, `ThemeToggle`, `FormField`. Falta: `KpiCard`, `MoneyInput`, `ConfirmDialog`, `DataTable`, `ProgressBar`, pickers, `TypeToggle` e gráficos, adiados para as fatias que os usam (escopo F2 aprovado).
 
 ### Validação
 
 - [ ] Percorrer a lista de revisão de UI da skill nos dois temas e em 320 px.
+  > ⏳ 2026-10-27 — Parcial: 320 px sem rolagem horizontal verificado em `/entrar` e no shell; temas claro e escuro vistos no navegador. Falta: percorrer a lista completa da skill.
 
 ## Resultado esperado
 

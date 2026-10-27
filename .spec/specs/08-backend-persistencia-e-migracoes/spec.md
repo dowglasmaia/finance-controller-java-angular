@@ -85,6 +85,7 @@ Isolamento depende de todos os repositórios filtrarem por `owner_id`: coberto p
 - [ ] Excluir subcategoria com lançamentos deixa os lançamentos sem subcategoria.
 - [ ] Nenhuma coluna armazena saldo ou total derivado.
 - [ ] As migrações aplicam-se do zero num PostgreSQL real.
+  > ⏳ 2026-10-27 — Parcial: `V1__identity.sql` aplicada do zero em PostgreSQL 18.1 (Testcontainers em `IdentityMigrationTests`, 7 testes; e no `compose`). Verificação: `./mvnw clean verify` com Docker, 159 testes, BUILD SUCCESS. Falta: V2…V6 (F4–F10).
 - [ ] As três consultas quentes têm plano com uso de índice e sem N+1 comprovado por teste de contagem de consultas.
 - [ ] Dois saques simultâneos que juntos excederiam o saldo: apenas um é aceito.
 
@@ -106,6 +107,7 @@ Isolamento depende de todos os repositórios filtrarem por `owner_id`: coberto p
 ### Contrato e dados
 
 - [ ] Criar as migrações V1…V6 conforme o esquema.
+  > ⏳ 2026-10-27 — Parcial: V1 (`app_user`, `refresh_token`; sem `password_reset_token`, que é da F11) criada e testada. Falta: V2…V6, criadas com o módulo que as usa.
 
 ### Back-end
 

@@ -8,9 +8,12 @@ import org.junit.jupiter.api.Test;
 import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Import;
+import com.dowglasmaia.financecontroller.support.PostgresContainerConfiguration;
 
 /** Guards the wiring every log line relies on: an active span puts traceId into the MDC. */
 @SpringBootTest
+@Import(PostgresContainerConfiguration.class)
 class TracingCorrelationTests {
     @Autowired
     Tracer tracer;

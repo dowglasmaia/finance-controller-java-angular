@@ -46,11 +46,17 @@ Especificar como construir, empacotar e executar o backend, o frontend e o conju
 ## Regras e critérios de aceitação
 
 - [ ] `mvnw clean verify` e o build de produção do frontend terminam sem erros num ambiente limpo.
-- [ ] A imagem do backend constrói e `GET /actuator/health` responde `UP` no contentor com o banco.
-- [ ] O frontend servido estaticamente funciona com navegação direta em qualquer rota (fallback SPA).
-- [ ] `docker compose up` sobe banco, backend e frontend e a aplicação completa funciona de ponta a ponta.
+  > ⏳ 2026-10-27 — Parcial: `./mvnw clean verify` com Docker: 159 testes, 0 falhas, BUILD SUCCESS; `npm run build` sem erros nem avisos e validador da skill de scaffold. Falta: confirmar num ambiente limpo.
+- [x] A imagem do backend constrói e `GET /actuator/health` responde `UP` no contentor com o banco.
+  > ✅ 2026-10-27 — `docker compose build api` e `up`: `GET http://localhost:8080/actuator/health` → `UP` no contentor, com o PostgreSQL 18.1 do `compose` (`scripts/up-back.ps1` e `up-all.ps1`). Adicionado `api-finance-controller/.dockerignore`.
+- [x] O frontend servido estaticamente funciona com navegação direta em qualquer rota (fallback SPA).
+  > ✅ 2026-10-27 — Imagem `app-finance-controller/Dockerfile` (build Angular + nginx 1.29): `GET /categorias`, `/entrar` e `/lancamentos` → 200 com `index.html` (fallback SPA) e redirecionamento ao login pela aplicação; cabeçalhos `X-Content-Type-Options`, `X-Frame-Options`, `Referrer-Policy`.
+- [x] `docker compose up` sobe banco, backend e frontend e a aplicação completa funciona de ponta a ponta.
+  > ✅ 2026-10-27 — `.\scripts\up-all.ps1` (compose na raiz) subiu db, api e web; percurso ponta a ponta: cadastro, 409 repetido, login, recarga com cookie `HttpOnly` e rota protegida em `http://localhost:8081`. Desvio: o servidor SMTP de captura (Mailpit) entra com a F11. Correção feita ao testar: o nginx enviava `Host` sem porta e o Spring devolvia 403 "Invalid CORS request"; agora usa `$http_host`.
 - [ ] Nenhum artefacto contém segredos.
+  > ⏳ 2026-10-27 — Parcial: `.env` é ignorado pelo Git; `.env.example` e o `compose.yml` só têm valores fictícios de desenvolvimento e exigem `POSTGRES_PASSWORD` e `APP_JWT_SECRET`; os `.dockerignore` excluem `.env*`. Falta: inspeção das imagens por segredos.
 - [ ] Backend e frontend têm imagens Docker separadas e versionadas; cada uma constrói sem a outra.
+  > ⏳ 2026-10-27 — Parcial: imagens separadas, cada uma com Dockerfile e contexto próprios, construídas de forma independente (`finance-controller-api` e `finance-controller-web`). Falta: versionar por tag (hoje `latest`), previsto com o CI (F3).
 
 ### Skills de implementação
 
@@ -65,15 +71,18 @@ Especificar como construir, empacotar e executar o backend, o frontend e o conju
 
 ### Back-end
 
-- [ ] Validar a imagem do backend com o banco real.
+- [x] Validar a imagem do backend com o banco real.
+  > ✅ 2026-10-27 — Imagem do backend executada com o PostgreSQL do `compose`: Flyway aplicou a V1 e `/actuator/health` respondeu `UP`; cadastro e login reais via API.
 
 ### Front-end
 
-- [ ] Definir a imagem/entrega estática e o fallback SPA.
+- [x] Definir a imagem/entrega estática e o fallback SPA.
+  > ✅ 2026-10-27 — `app-finance-controller/Dockerfile` (multi-stage, `node:24-alpine` → `nginx:1.29-alpine`) e `nginx/default.conf.template`: fallback para `index.html`, cache longo para arquivos com hash, proxy de `/api` para `API_UPSTREAM` (padrão `http://api:8080`) no mesmo domínio.
 
 ### Validação
 
-- [ ] Subir o conjunto por `docker compose up` e percorrer o fluxo principal; registar o resultado.
+- [x] Subir o conjunto por `docker compose up` e percorrer o fluxo principal; registar o resultado.
+  > ✅ 2026-10-27 — Executado com `scripts/up-all.ps1`: cadastro, 409 repetido, login, recarga com cookie `HttpOnly` e rota protegida em `http://localhost:8081`. Também testados `up-back.ps1` (db+api), `up-back.ps1 -Local` (API pelo Maven), `up-front.ps1` (`npm start` na 4200), `up-front.ps1 -Docker` e `down.ps1`.
 
 ## Resultado esperado
 

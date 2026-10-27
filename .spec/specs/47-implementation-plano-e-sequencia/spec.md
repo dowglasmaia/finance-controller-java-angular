@@ -1,6 +1,6 @@
 # 47-implementation-plano-e-sequencia
 
-> **ID:** IMPLEMENTATION-SPEC-00 · **Categoria:** Planejamento · **Estado:** sequência por fatias verticais (F0–F12) aprovada pelo utilizador em 2026-10-25; nenhuma fatia executada. Detalhe em [roadmap](../../shared/roadmap.md).
+> **ID:** IMPLEMENTATION-SPEC-00 · **Categoria:** Planejamento · **Estado:** sequência por fatias verticais (F0–F12) aprovada pelo utilizador em 2026-10-25; F0 concluída; F1 e F2 concluídas em 2026-10-27 com pendências registadas (ver "Estado das fatias"). Detalhe em [roadmap](../../shared/roadmap.md).
 
 ## Objetivo
 
@@ -47,6 +47,29 @@ Cada fatia entrega o backend de um módulo e, em seguida, a página corresponden
 F8, F10 e F11 podem ser antecipadas após F2; F3 pode esperar até depois de F4 se não houver repositório remoto.
 
 Hospedagem e deploy ficam fora da sequência até P-18 ser decidida.
+
+### Estado das fatias (atualizado em 2026-10-27)
+
+| Fatia | Estado | Evidência e pendências |
+|---|---|---|
+| F0 | ✅ Concluída | Commits `3135bd8` e `7a03399`; backend e frontend scaffold na raiz. Remoto ainda não verificado (entrada da F3). |
+| F1 | ✅ Concluída em 2026-10-27, com pendências registadas | Contrato, migração V1, domínio, casos de uso, persistência, segurança e controller do `identity`. Verificação (2026-10-27): `./mvnw clean verify` com Docker, 159 testes, 0 falhas, incluindo migração, persistência e `IdentityFlowIntegrationTest` (rotação, reuso, 429, isolamento entre utilizadores). Correções feitas ao verificar: `InMemoryExampleRepository` deixou de ser `final`; o teste de fluxo passou a exigir cookie `Secure` por propriedade. Pendências: semeadura das 11 categorias (F4), recuperação de senha (F11), auditoria dos logs, isolamento nos módulos de dados, specs 10, 13 e INFRA 39–41 ainda sem fechamento formal, matriz de rastreabilidade. |
+| F2 | ✅ Concluída em 2026-10-27 (escopo reduzido aprovado), com pendências registadas | Frontend base (specs 23, 29 e as partes de 24–28 e 30 usadas pelo shell e pela autenticação): build de produção e 72 testes Vitest verdes; percurso real no navegador contra o backend com PostgreSQL (cadastro, recarga com cookie rotativo, saída, login com `returnUrl`, 409 e 429). Escopo reduzido aprovado em 2026-10-27: `KpiCard`, `MoneyInput`, `ConfirmDialog`, `DataTable`, `ProgressBar`, pickers, gráficos e os formulários de lançamento, categoria, cofrinho, movimentação e metas passam para as fatias que os usam (F4–F9); consultas dependentes de mês/moeda, invalidação por mutação e preferências no servidor (F10) idem. Desvio a aprovar: cores do tema claro escurecidas para contraste. |
+| F3–F12 | Não iniciadas | — |
+
+Fechamento de F1 e F2 (2026-10-27): critérios de conclusão verificados no que cabe a cada fatia (`mvnw clean verify` e build do frontend verdes, contratos validados, isolamento do `identity` testado, matriz de rastreabilidade atualizada, sem bloqueios abertos). Os critérios das specs que dependem de módulos ou páginas de fatias posteriores permanecem com ⏳ nas respectivas specs e **não** bloqueiam F3 em diante; ficam atribuídos assim:
+
+| Pendência | Fatia que fecha |
+|---|---|
+| Semeadura das 11 categorias; remoção do módulo `example`; V2 e correlatos | F4 |
+| Teste de isolamento entre utilizadores em cada módulo de dados; códigos de erro dos módulos; rollback das operações atómicas | F4–F10 (cada módulo na sua fatia) |
+| `MoneyInput`, `KpiCard`, `ConfirmDialog`, `DataTable`, `ProgressBar`, pickers, gráficos; formulários de lançamento, categoria, cofrinho, movimentação e metas; consultas por mês/moeda; invalidação por mutação | F4–F9, na fatia que os usa |
+| Preferências (moeda, tema) no servidor; limpeza de preferências de dispositivo no logout | F10 |
+| Recuperação de senha (`password_reset_token`, e-mail, páginas) | F11 |
+| CI, repositório remoto verificado; versionar as imagens Docker por tag (hoje `latest`) | F3 |
+| Inspeção das imagens por segredos; Mailpit no `compose` | F12 e F11 |
+| Teste automatizado de logs; `DOWN` do health sem banco; perfil `prod`; medições de desempenho; validação de ProblemDetail contra o OpenAPI; verificador de acessibilidade; percurso completo por teclado; 768 e 1280 px; imagens Docker e fallback SPA; máquina limpa; verificação de dependências (QUALITY-SPEC-05) | F12 |
+| ~~Aprovação das cores escurecidas do tema claro (spec 25) e da moeda/tema como preferência de dispositivo até a F10~~ | aprovado pelo utilizador em 2026-10-27 (registado nas specs 25 e 27); resta medir o contraste |
 
 ### Alterações em relação à proposta anterior (aprovadas em 2026-10-25)
 
@@ -113,10 +136,14 @@ O template exige uma spec curta por entrega: as specs desta análise são o **co
 
 ## Regras e critérios de aceitação
 
-- [ ] Nenhuma fatia começa sem as condições de entrada da tabela.
-- [ ] A ordem respeita as dependências do diagrama.
+- [x] Nenhuma fatia começa sem as condições de entrada da tabela.
+  > ✅ 2026-10-27 — F1 começou após a F0 (commits `3135bd8` e `7a03399`); F2 começou com o contrato `identity` da F1 aprovado e gerado. Verificação: histórico desta execução e `git log`.
+- [x] A ordem respeita as dependências do diagrama.
+  > ✅ 2026-10-27 — Executadas F0 → F1 → F2 em série, sem fatia fora de ordem. Verificação: comparação com o diagrama e a tabela de condições de entrada.
 - [ ] Cada fatia termina com evidência registada conforme "Como executar".
+  > ⏳ 2026-10-27 — Parcial: F1 e F2 com evidência nas specs 06, 08, 10, 11, 13, 23–30, 39–41 e na tabela "Estado das fatias". Falta: F3–F12.
 - [ ] Alterações no plano (nova fatia, divisão de spec) mantêm a rastreabilidade na matriz.
+  > ⏳ 2026-10-27 — Parcial: o escopo reduzido da F2 (componentes e formulários para F4–F10) está registado nesta spec e na matriz, secção "Estado da implementação por funcionalidade". Falta: manter nas próximas alterações.
 
 ### Skills de implementação
 
@@ -133,11 +160,13 @@ O template exige uma spec curta por entrega: as specs desta análise são o **co
 
 - [x] Aprovar o plano.
   > ✅ 2026-10-25 — Sequência por fatias F0–F12 aprovada pelo utilizador em conversa. Verificação: decisão registada nesta spec e em [roadmap](../../shared/roadmap.md).
-- [ ] Criar o repositório do projeto e o primeiro commit (manual — P-23). A renomeação do backend (spec 01) já foi feita.
+- [x] Criar o repositório do projeto e o primeiro commit (manual — P-23). A renomeação do backend (spec 01) já foi feita.
+  > ✅ 2026-10-27 — Repositório Git com commits `3135bd8` (first commit) e `7a03399` (README) na `main`. Verificação: `git log`. Repositório remoto ainda não verificado (condição de entrada da F3).
 
 ### Validação
 
 - [ ] Rever o plano ao fim de cada fatia e registar ajustes.
+  > ⏳ 2026-10-27 — Parcial: plano revisto após a F2 (tabela "Estado das fatias"; ajuste: escopo reduzido da F2, itens transferidos para F4–F10). Falta: rever ao fim das próximas fatias. Atualização no mesmo dia: F1 e F2 verificadas com Docker e API real. Próxima ação: fechar formalmente F1 e F2 (matriz de rastreabilidade e pendências listadas) e iniciar a F3 ou F4.
 
 ## Resultado esperado
 

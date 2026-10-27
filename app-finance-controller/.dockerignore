@@ -1,0 +1,10 @@
+node_modules
+dist
+.angular
+out-tsc
+coverage
+.git
+.vscode
+npm-debug.log*
+Dockerfile
+.dockerignore

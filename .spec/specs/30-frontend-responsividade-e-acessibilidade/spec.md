@@ -53,10 +53,15 @@ Tabelas largas de lançamentos (6 colunas) são o ponto mais frágil em celular;
 ## Regras e critérios de aceitação
 
 - [ ] Em 320, 768 e 1280 px não há rolagem horizontal da página e a ação principal de cada página está visível.
+  > ⏳ 2026-10-27 — Parcial: 320 px sem rolagem horizontal verificado em `/entrar` e no shell. Falta: 768 e 1280 px e as páginas de dados.
 - [ ] O menu é totalmente operável por teclado e por toque em todas as larguras.
+  > ⏳ 2026-10-27 — Parcial: gaveta abre, prende o foco, fecha com Esc e devolve o foco (teste e navegador); alvos de 44 px. Falta: percurso completo por teclado e por toque.
 - [ ] Diálogos prendem o foco, fecham com Esc e devolvem o foco ao elemento de origem.
+  > ⏳ 2026-10-27 — Parcial: a gaveta cumpre o requisito; os diálogos de formulário e de confirmação vêm nas fatias de dados.
 - [ ] Os estados de carregamento, erro, sucesso e alerta são anunciados por leitores de tela.
+  > ⏳ 2026-10-27 — Parcial: `Toast` com região `aria-live` e erros de formulário com `role="alert"`. Falta: estados das páginas de dados.
 - [ ] Um verificador automático de acessibilidade não reporta violações críticas nas páginas principais.
+  > ⏳ 2026-10-27 — Parcial: não executado. Falta: rodar nas páginas principais (F12 ou por fatia).
 
 ### Skills de implementação
 
@@ -72,11 +77,14 @@ Tabelas largas de lançamentos (6 colunas) são o ponto mais frágil em celular;
 ### Front-end
 
 - [ ] Implementar gaveta de menu, grades responsivas e variantes de tabela.
-- [ ] Implementar foco, `aria-live` e redução de movimento.
+  > ⏳ 2026-10-27 — Parcial: gaveta de menu entregue. Falta: grades de KPIs e variantes de tabela (fatias de dados).
+- [x] Implementar foco, `aria-live` e redução de movimento.
+  > ✅ 2026-10-27 — Foco no `h1` após navegar (teste e navegador), foco da gaveta, região `aria-live` no `Toast`, regra CSS `prefers-reduced-motion` e `lang="pt-BR"`. Desvio: a redução de movimento é regra CSS, sem teste automatizado.
 
 ### Validação
 
 - [ ] Executar a lista de revisão de UI e a verificação de acessibilidade nas páginas principais.
+  > ⏳ 2026-10-27 — Parcial: verificação visual em 320 px e nos dois temas. Falta: lista completa e verificador de acessibilidade.
 
 ## Resultado esperado
 

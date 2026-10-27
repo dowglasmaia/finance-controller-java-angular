@@ -1,6 +1,6 @@
 # Roadmap de Execução por Fatias Verticais
 
-> **Estado:** ordem aprovada em 2026-10-25 e refletida na spec 47; nenhuma fatia iniciada. Deriva de [47-implementation-plano-e-sequencia](../specs/47-implementation-plano-e-sequencia/spec.md) e das dependências das specs; ver "Diferenças em relação à spec 47".
+> **Estado (2026-10-27):** ordem aprovada em 2026-10-25 e refletida na spec 47; F0, F1 e F2 concluídas (F1 e F2 com pendências atribuídas a fatias posteriores, ver "Estado das fatias" na spec 47); próxima: F3 (exige repositório remoto) ou F4. Deriva de [47-implementation-plano-e-sequencia](../specs/47-implementation-plano-e-sequencia/spec.md) e das dependências das specs; ver "Alterações em relação à proposta anterior da spec 47".
 
 ## Princípio
 
@@ -35,9 +35,10 @@ Cada **fatia** entrega um pedaço utilizável do produto: primeiro o backend do 
 flowchart LR
     F0 --> F1 --> F2 --> F3
     F2 --> F4 --> F5 --> F6 --> F7
-    F5 --> F8
-    F7 --> F9
+    F2 --> F8
+    F5 --> F9
     F8 --> F9
+    F7 -.->|se reutilizar consultas| F9
     F2 --> F10
     F2 --> F11
     F9 --> F12
@@ -116,16 +117,16 @@ F8, F10 e F11 só dependem das fatias indicadas; podem trocar de lugar sem viola
 6. Teste ponta a ponta manual (o "Você consegue testar" da tabela) e registo da evidência na spec.
 7. Atualizar matriz de rastreabilidade e rever este roadmap.
 
-## Diferenças em relação à spec 47
+## Alterações em relação à proposta anterior da spec 47
 
-| Spec 47 | Este roadmap | Motivo |
+Aprovadas em 2026-10-25 e já refletidas na spec 47 (que agora usa F0–F12); a spec 47 é a fonte da sequência.
+
+| Proposta anterior (M0–M10) | Atual | Motivo |
 |---|---|---|
 | Backend (M1) e frontend base (M2) em paralelo | Em série: F1 depois F2 | Você quer ver progresso e testar a cada passo; um só fio de trabalho. |
 | Recuperação de senha logo após M1 (M1b/M2b) | F11, mais adiante | Não bloqueia nenhum módulo financeiro; depende de SMTP. |
 | Metas+dashboard num marco (M6) | Metas (F6) e dashboard (F7) separados | Entregas menores e verificáveis. |
-| Testes só no M10 | Testes por fatia, M10 só consolida | Detecta regressões cedo. |
-
-Se aprovar, essas diferenças devem ser refletidas na spec 47 (alteração de plano exige a sua autorização — regras de "Como executar").
+| Testes só no M10 | Testes por fatia, F12 só consolida | Detecta regressões cedo. |
 
 ## Flexibilidade
 

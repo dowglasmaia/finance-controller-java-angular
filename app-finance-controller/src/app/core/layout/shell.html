@@ -1,0 +1,142 @@
+<a
+  href="#conteudo"
+  class="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[60] focus:rounded-lg focus:bg-accent focus:px-4 focus:py-3 focus:text-on-accent"
+  (click)="skipToContent($event)"
+>
+  Ir para o conteúdo
+</a>
+
+<ng-template #navContent>
+  <div class="flex items-start justify-between gap-2 px-5 py-5">
+    <div class="min-w-0">
+      <p class="text-lg font-semibold text-on-brand">Finance Controller</p>
+      <p class="text-xs text-on-brand/80">{{ version }}</p>
+    </div>
+  </div>
+  <nav aria-label="Principal" class="flex-1 overflow-y-auto px-3 pb-4">
+    <ul class="flex flex-col gap-1">
+      @for (item of items; track item.path) {
+        <li>
+          <a
+            [routerLink]="item.path"
+            routerLinkActive="is-active"
+            [routerLinkActiveOptions]="item.match"
+            ariaCurrentWhenActive="page"
+            class="flex min-h-11 items-center gap-3 rounded-lg px-3 text-sm font-medium text-on-brand hover:bg-on-brand/10 aria-[current=page]:bg-accent aria-[current=page]:text-on-accent"
+            (click)="closeDrawer(false)"
+          >
+            <lucide-icon [img]="item.icon" [size]="20" aria-hidden="true" />
+            {{ item.label }}
+          </a>
+        </li>
+      }
+    </ul>
+  </nav>
+</ng-template>
+
+<!-- Menu lateral fixo em lg+ -->
+<aside class="hidden bg-brand lg:fixed lg:inset-y-0 lg:left-0 lg:z-30 lg:flex lg:w-64 lg:flex-col">
+  <ng-container [ngTemplateOutlet]="navContent" />
+</aside>
+
+<!-- Gaveta abaixo de lg -->
+@if (drawerOpen()) {
+  <div class="fixed inset-0 z-40 lg:hidden">
+    <div class="absolute inset-0 bg-brand/60" aria-hidden="true" (click)="closeDrawer()"></div>
+    <div
+      #drawerPanel
+      id="menu-gaveta"
+      role="dialog"
+      aria-modal="true"
+      aria-label="Menu de navegação"
+      class="drawer-enter absolute inset-y-0 left-0 flex w-72 max-w-[85vw] flex-col bg-brand shadow-xl"
+      (keydown)="onDrawerKeydown($event)"
+    >
+      <button
+        #drawerClose
+        type="button"
+        class="absolute right-2 top-2 inline-flex h-11 w-11 items-center justify-center rounded-lg text-on-brand hover:bg-on-brand/10"
+        aria-label="Fechar menu"
+        (click)="closeDrawer()"
+      >
+        <lucide-icon [img]="closeIcon" [size]="20" aria-hidden="true" />
+      </button>
+      <ng-container [ngTemplateOutlet]="navContent" />
+    </div>
+  </div>
+}
+
+<div class="min-w-0 lg:pl-64">
+  <header
+    class="sticky top-0 z-20 flex flex-wrap items-center gap-2 border-b border-border-subtle bg-surface-raised px-4 py-2"
+  >
+    <button
+      #menuButton
+      type="button"
+      class="inline-flex h-11 w-11 items-center justify-center rounded-lg border border-border-subtle text-content hover:bg-surface lg:hidden"
+      aria-label="Abrir menu"
+      aria-controls="menu-gaveta"
+      [attr.aria-expanded]="drawerOpen()"
+      (click)="openDrawer()"
+    >
+      <lucide-icon [img]="menuIcon" [size]="20" aria-hidden="true" />
+    </button>
+
+    @if (showMonth()) {
+      <div class="order-last w-full sm:order-none sm:w-auto">
+        <app-month-switcher
+          [label]="month.label()"
+          (previous)="month.previous()"
+          (next)="month.next()"
+          (reset)="month.reset()"
+        />
+      </div>
+    }
+
+    <div class="flex-1"></div>
+
+    <app-currency-selector />
+    <app-theme-toggle />
+
+    <div #userMenu class="relative" (focusout)="onUserMenuFocusOut($event)">
+      <button
+        #userButton
+        type="button"
+        class="inline-flex h-11 min-w-11 items-center justify-center gap-2 rounded-lg border border-border-subtle bg-surface-raised px-3 text-sm text-content hover:bg-surface"
+        aria-controls="menu-usuario"
+        [attr.aria-expanded]="userMenuOpen()"
+        (click)="toggleUserMenu()"
+      >
+        <lucide-icon [img]="userIcon" [size]="20" aria-hidden="true" />
+        <span class="sr-only">Menu do utilizador:</span>
+        <span class="hidden max-w-40 truncate md:inline">{{ session.user()?.email }}</span>
+      </button>
+      @if (userMenuOpen()) {
+        <div
+          id="menu-usuario"
+          class="absolute right-0 z-30 mt-2 w-64 max-w-[calc(100vw-2rem)] rounded-lg border border-border-subtle bg-surface-raised p-2 shadow-lg"
+        >
+          <p class="px-3 pt-2 text-xs text-content-muted">Sessão iniciada como</p>
+          <p class="break-all px-3 pb-2 text-sm font-medium text-content">{{ session.user()?.email }}</p>
+          <button
+            type="button"
+            class="flex min-h-11 w-full items-center gap-2 rounded-lg px-3 text-sm text-content hover:bg-surface"
+            (click)="signOut()"
+          >
+            <lucide-icon [img]="logoutIcon" [size]="18" aria-hidden="true" />
+            Sair
+          </button>
+        </div>
+      }
+    </div>
+  </header>
+
+  <main
+    #main
+    id="conteudo"
+    tabindex="-1"
+    class="mx-auto w-full max-w-6xl px-4 py-6 focus:outline-none sm:px-6"
+  >
+    <router-outlet />
+  </main>
+</div>

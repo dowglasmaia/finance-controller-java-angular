@@ -64,11 +64,16 @@ Troca de mês ou moeda cancela a consulta em curso (`switchMap`/`takeUntilDestro
 
 ## Regras e critérios de aceitação
 
-- [ ] Nenhum serviço usa operação ou campo fora do contrato aprovado.
+- [x] Nenhum serviço usa operação ou campo fora do contrato aprovado.
+  > ✅ 2026-10-27 — `AuthApiService` usa só `registerUser`, `login`, `refreshToken`, `logout`, `getCurrentUser`, com tipos gerados de `identity.yaml` por `openapi-typescript` (`npm run generate:api`).
 - [ ] Cada resposta de erro vira `ApiError` e é apresentada conforme a tabela, sem mostrar `detail` técnico.
+  > ⏳ 2026-10-27 — Parcial: `api-error.interceptor` converte problem+json em `ApiError` sem `detail` (`api-error.spec.ts`); códigos de autenticação apresentados nas páginas. Falta: demais códigos da tabela (nas fatias dos módulos).
 - [ ] Trocar o mês durante uma consulta pendente descarta a resposta antiga.
-- [ ] Valores monetários não passam por `parseFloat` nem aritmética de ponto flutuante no cliente.
+  > ⏳ 2026-10-27 — Parcial: ainda não há consultas dependentes de mês. Falta: implementar com `switchMap` nas fatias de dados.
+- [x] Valores monetários não passam por `parseFloat` nem aritmética de ponto flutuante no cliente.
+  > ✅ 2026-10-27 — Verificação: busca por `parseFloat` e `Number(` no código não-teste sem ocorrências; formatação por `Intl` sobre string decimal.
 - [ ] Falha de rede resulta em estado de erro com repetição, não em tela vazia.
+  > ⏳ 2026-10-27 — Parcial: `NETWORK_ERROR` mapeado e testado; formulários de auth mostram mensagem e mantêm os dados. Falta: estados de erro com "Tentar novamente" nas páginas de dados.
 
 ### Skills de implementação
 
@@ -83,12 +88,15 @@ Troca de mês ou moeda cancela a consulta em curso (`switchMap`/`takeUntilDestro
 
 ### Front-end
 
-- [ ] Implementar o interceptor de erros e o tipo `ApiError`.
+- [x] Implementar o interceptor de erros e o tipo `ApiError`.
+  > ✅ 2026-10-27 — `apiErrorInterceptor`, `ApiError`, `isApiError`, `NETWORK_ERROR`/`INTERNAL_ERROR`; interceptor de autenticação com renovação única. Verificação: `api-error.spec.ts` e `auth.interceptor.spec.ts` (10 testes) verdes.
 - [ ] Criar os serviços de dados por módulo com tipos do contrato.
+  > ⏳ 2026-10-27 — Parcial: serviço do módulo `identity` criado. Falta: serviços dos demais módulos (F4–F10).
 
 ### Validação
 
 - [ ] Testar o mapeamento de cada `code` e o cancelamento por troca de mês.
+  > ⏳ 2026-10-27 — Parcial: testados `problem+json`, rede, 401 com renovação. Falta: códigos dos módulos financeiros e o cancelamento por troca de mês.
 
 ## Resultado esperado
 

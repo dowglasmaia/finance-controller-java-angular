@@ -63,10 +63,15 @@ A origem não tinha rota de erro nem de login; a autenticação (P-01) acrescent
 ## Regras e critérios de aceitação
 
 - [ ] Cada rota da tabela abre a página correspondente e é carregada sob demanda; sem sessão, as rotas de dados levam a `/entrar`.
+  > ⏳ 2026-10-27 — Parcial: rotas lazy criadas (`/`, `/lancamentos`, `/relatorios`, `/categorias`, `/cofrinhos`, `/metas`, `/entrar`, `/cadastrar`, `**`); sem sessão, `/lancamentos` levou a `/entrar?returnUrl=%2Flancamentos` (navegador, API simulada). Falta: as páginas reais das rotas de dados (hoje página provisória "Em breve"; F4–F9) e `/esqueci-senha`, `/redefinir-senha` (F11). Próxima ação: cada fatia substitui a sua rota.
 - [ ] O item de menu da página atual fica ativo, inclusive em subrotas.
+  > ⏳ 2026-10-27 — Parcial: `aria-current="page"` e destaque verificados em teste (`shell.spec.ts`) e no navegador. Falta: conferir subrotas (ainda não existem).
 - [ ] Rota desconhecida mostra a página não encontrada, sem erro de consola.
+  > ⏳ 2026-10-27 — Parcial: `NotFoundPage` criada como `**` dentro do shell. Falta: verificar a ausência de erro de consola.
 - [ ] O mês e a moeda escolhidos persistem ao navegar entre páginas (mês só durante a sessão; moeda entre sessões — DESC-MES-01, DESC-CUR-03).
+  > ⏳ 2026-10-27 — Parcial: estado global em `ReferenceMonthStore` (sessão) e `CurrencyStore` (`localStorage`), testados em `stores.spec.ts`. Falta: verificar a persistência ao navegar entre páginas com dados (F5 em diante).
 - [ ] Todos os itens de menu são alcançáveis por teclado e anunciam o estado "página atual".
+  > ⏳ 2026-10-27 — Parcial: menu com `a`/`button` nativos, `aria-current` e gaveta com Esc e foco devolvido (teste e navegador). Falta: percurso completo por Tab/Enter.
 
 ### Skills de implementação
 
@@ -81,11 +86,13 @@ A origem não tinha rota de erro nem de login; a autenticação (P-01) acrescent
 
 ### Front-end
 
-- [ ] Implementar o shell, as rotas lazy e a página não encontrada.
+- [x] Implementar o shell, as rotas lazy e a página não encontrada.
+  > ✅ 2026-10-27 — Shell (menu lateral, gaveta, seletores de moeda/mês/tema, menu do utilizador com `Sair`), rotas lazy e `NotFoundPage` entregues; `AppTitleStrategy` define o título. Verificação: build e `shell.spec.ts`; navegador. Desvio: as rotas de dados apontam para `ComingSoonPage` até as fatias respectivas.
 
 ### Validação
 
 - [ ] Testar a navegação por teclado e a rota ativa; build de produção.
+  > ⏳ 2026-10-27 — Parcial: rota ativa e build verificados. Falta: navegação por teclado completa.
 
 ## Resultado esperado
 

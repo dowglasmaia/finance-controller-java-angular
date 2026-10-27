@@ -6,10 +6,16 @@ Java 25, Spring Boot 4.1.1, Spring Modulith 2.1.1.
 
 Requires JDK 25 or newer. Maven Wrapper downloads Maven 3.9.16 on first use (internet required). On Windows use `mvnw.cmd` in place of `./mvnw`.
 
+PostgreSQL 18.1 is required (Docker). Copy `.env.example` to `.env` (ignored by Git), then start the database with `docker compose up -d db` **from the repository root** (the `compose.yml` lives there and also builds the API and frontend images; see the root README and `scripts/`); the `db-data` volume keeps data between restarts. Export the datasource variables before running the app (`SPRING_DATASOURCE_PASSWORD` must match `POSTGRES_PASSWORD`; URL and user default to the compose values in the `local` profile). Flyway applies `db/migration` at startup and JPA only validates the schema (`ddl-auto=validate`). Integration tests start their own PostgreSQL through Testcontainers, so Docker must be running for `./mvnw clean verify`.
+
 ```sh
+# from the repository root: docker compose up -d db   (or .\scripts\up-back.ps1 -Local)
+export SPRING_DATASOURCE_PASSWORD=<same as POSTGRES_PASSWORD>   # PowerShell: $env:SPRING_DATASOURCE_PASSWORD="..."
 ./mvnw clean verify
 ./mvnw spring-boot:run
 ```
+
+Authentication: `APP_JWT_SECRET` (at least 32 bytes) is required outside the `local` and `test` profiles and the app refuses to start without it; `.env.example` and the `local` profile carry a fictitious development value that must never be used in production. Set `APP_CORS_ALLOWED_ORIGINS` to the frontend origin. Every route except `POST /api/v1/auth/{register,login,refresh,logout}` and `GET /actuator/health` requires `Authorization: Bearer <accessToken>`, so the example endpoint below now returns 401 without a token.
 
 Then request `GET http://localhost:8080/api/v1/examples/1` for `{"id":1,"name":"Example","status":"ACTIVE"}` and `GET http://localhost:8080/actuator/health` for an UP status. Missing examples return 404. Set `PORT` to change the port.
 

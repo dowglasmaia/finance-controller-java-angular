@@ -77,6 +77,8 @@ Risco: `java` fora do `PATH` e Docker desligado atrapalharam a spec 01; document
 ## Regras e critérios de aceitação
 
 - [ ] Um desenvolvedor novo executa backend, frontend e banco só com o `README` e sem alterar ficheiros versionados.
+  > ⏳ 2026-10-27 — Parcial: o `README` da raiz agora descreve os scripts `up-back`, `up-front`, `up-all`, `down` e `logs` (PowerShell) e o `.env` é criado a partir do `.env.example`; todos os modos foram executados com sucesso em 2026-10-27. Falta: reproduzir numa máquina limpa; scripts só para Windows PowerShell.
+  > ⏳ 2026-10-27 — Parcial: banco por `docker compose up -d db`, backend por `./mvnw spring-boot:run` com variáveis de ambiente e frontend por `npm start` executados com sucesso (2026-10-27), e o `README` do backend descreve a execução. Falta: reprodução numa máquina limpa e `README` da raiz/frontend cobrindo o conjunto.
 - [ ] Todas as variáveis da tabela estão documentadas no `.env.example` sem valores reais.
 - [ ] Nenhum ficheiro versionado contém credencial, token ou dado financeiro real.
 - [ ] A aplicação falha com mensagem clara se uma variável obrigatória de `prod` faltar.
@@ -96,14 +98,17 @@ Risco: `java` fora do `PATH` e Docker desligado atrapalharam a spec 01; document
 ### Descoberta e decisão
 
 - [ ] Fixar a versão estável do PostgreSQL na data da implementação e documentar `JAVA_HOME`/PATH.
+  > ⏳ 2026-10-27 — Parcial: PostgreSQL 18.1 fixado em `compose.yml` e no Testcontainers. Falta: documentar `JAVA_HOME`/PATH e as versões das ferramentas no `README`.
 
 ### Back-end
 
 - [ ] Externalizar propriedades por perfil e atualizar `.env.example`.
+  > ⏳ 2026-10-27 — Parcial: `app.identity.*`, `APP_JWT_SECRET`, `APP_CORS_ALLOWED_ORIGINS` e `POSTGRES_*` externalizados e documentados no `.env.example`/`compose.yml`. Falta: variáveis obrigatórias de `prod` e revisão da tabela completa.
 
 ### Front-end
 
-- [ ] Configurar URL da API e proxy de desenvolvimento.
+- [x] Configurar URL da API e proxy de desenvolvimento.
+  > ✅ 2026-10-27 — `API_BASE_URL` (`/api/v1`) e `proxy.conf.json` (`/api` → `localhost:8080`) no frontend. Verificação: chamadas a partir de `localhost:4200` alcançaram o backend real.
 
 ### Validação
 

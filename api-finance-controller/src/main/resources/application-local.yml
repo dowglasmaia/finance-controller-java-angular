@@ -1,3 +1,8 @@
+spring:
+  # Development defaults matching the root compose.yml; the password must come from SPRING_DATASOURCE_PASSWORD (.env.example).
+  datasource:
+    url: jdbc:postgresql://localhost:5432/finance_controller
+    username: finance
 server:
   port: ${PORT:8080}
 # Readable single-line logs for the terminal; every other profile emits JSON.
@@ -13,3 +18,12 @@ logging:
       console: ""
   level:
     com.dowglasmaia.financecontroller: ${LOG_LEVEL_APP:DEBUG}
+app:
+  identity:
+    jwt:
+      # Development-only placeholder, NOT a production secret. Real environments must set APP_JWT_SECRET.
+      secret: ${APP_JWT_SECRET:dev-only-not-a-secret-change-me-0123456789abcdef}
+    cors:
+      allowed-origins: ${APP_CORS_ALLOWED_ORIGINS:http://localhost:4200}
+    cookie:
+      secure: false

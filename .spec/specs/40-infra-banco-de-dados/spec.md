@@ -60,8 +60,11 @@ Sem política de backup o servidor torna-se ponto único de falha para dados fin
 
 ## Regras e critérios de aceitação
 
-- [ ] O banco `local` sobe por um comando e persiste dados entre reinícios.
-- [ ] Os testes de integração usam PostgreSQL real em contentor efémero.
+- [x] O banco `local` sobe por um comando e persiste dados entre reinícios.
+  > ✅ 2026-10-27 — O utilizador criado numa execução continuou a existir depois de `down.ps1` (contentores removidos, volume `db-data` mantido) e novo `up`: o cadastro repetido devolveu 409. O `compose.yml` agora está na raiz e o volume pertence ao projeto `finance-controller` (o volume do compose anterior, `api-finance-controller_db-data`, não é reaproveitado).
+  > ⏳ 2026-10-27 — Parcial: `docker compose up -d db` sobe o PostgreSQL 18.1 com *healthcheck* e volume; o utilizador criado numa execução continuou a existir após reiniciar a API (volume do `compose`). Falta: confirmar a persistência após reiniciar o contentor do banco.
+- [x] Os testes de integração usam PostgreSQL real em contentor efémero.
+  > ✅ 2026-10-27 — Testcontainers com `postgres:18.1` (`PostgresContainerConfiguration`); migração, persistência e fluxo executados. Verificação: `./mvnw clean verify` com Docker: 159 testes, 0 falhas, BUILD SUCCESS.
 - [ ] Em `prod` o utilizador da aplicação não tem privilégios de DDL.
 - (Fora do escopo — P-27) Rotina de backup e teste de restauração do banco não são exigidos.
 - [ ] O banco não aceita ligações da internet pública.
@@ -79,7 +82,8 @@ Sem política de backup o servidor torna-se ponto único de falha para dados fin
 
 ### Descoberta e decisão
 
-- [ ] Fixar a versão estável do PostgreSQL na data da implementação.
+- [x] Fixar a versão estável do PostgreSQL na data da implementação.
+  > ✅ 2026-10-27 — PostgreSQL 18.1 em `compose.yml` e no Testcontainers (2026-10-27).
 
 ### Contrato e dados
 
@@ -87,7 +91,8 @@ Sem política de backup o servidor torna-se ponto único de falha para dados fin
 
 ### Validação
 
-- [ ] Subir o banco local e rodar as migrações do zero; registar o resultado.
+- [x] Subir o banco local e rodar as migrações do zero; registar o resultado.
+  > ✅ 2026-10-27 — Banco novo pelo `compose` e API em `local`: Flyway migrou o esquema `public` para a versão 1 (`identity`) e a aplicação arrancou. Verificação: log do arranque e uso do cadastro/login reais.
 
 ## Resultado esperado
 

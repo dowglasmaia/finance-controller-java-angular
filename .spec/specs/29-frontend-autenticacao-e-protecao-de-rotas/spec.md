@@ -48,12 +48,18 @@ Sem `innerHTML` com dados do utilizador; sem credenciais nem dados financeiros e
 
 ## Regras e critérios de aceitação
 
-- [ ] Sem sessão, qualquer rota de funcionalidade redireciona para `/entrar` e, após entrar, volta à rota pedida.
-- [ ] Recarregar a página com sessão válida mantém o utilizador autenticado sem nova digitação.
-- [ ] Uma resposta 401 provoca uma renovação; se falhar, o utilizador volta a `/entrar` e o estado local é limpo.
-- [ ] Sair limpa todo o estado em memória; um segundo utilizador no mesmo navegador não vê dados do primeiro.
-- [ ] O token de acesso não é gravado em `localStorage`, `sessionStorage` nem URL.
-- [ ] Os formulários têm rótulos, mensagens de erro acessíveis e bloqueio durante o envio.
+- [x] Sem sessão, qualquer rota de funcionalidade redireciona para `/entrar` e, após entrar, volta à rota pedida.
+  > ✅ 2026-10-27 — Verificação no navegador (API simulada): `/lancamentos` → `/entrar?returnUrl=%2Flancamentos` → após entrar volta a `/lancamentos`; `auth.guard.spec.ts` (6 testes) e `auth-pages.spec.ts` (`returnUrl` externo ignorado).
+- [x] Recarregar a página com sessão válida mantém o utilizador autenticado sem nova digitação.
+  > ✅ 2026-10-27 — Verificação no navegador (API simulada): recarregar `/categorias` manteve a sessão pelo `refresh` do arranque; `auth.service.spec.ts`. Desvio: o cookie `HttpOnly` real do backend não foi exercitado.
+- [x] Uma resposta 401 provoca uma renovação; se falhar, o utilizador volta a `/entrar` e o estado local é limpo.
+  > ✅ 2026-10-27 — `auth.interceptor.spec.ts`: 401 → renovação única compartilhada → repetição; falha limpa o estado e navega a `/entrar`.
+- [x] Sair limpa todo o estado em memória; um segundo utilizador no mesmo navegador não vê dados do primeiro.
+  > ✅ 2026-10-27 — Verificação no navegador (API simulada): `Sair` levou a `/entrar` e `/categorias` voltou a redirecionar; testes de `logout` mesmo com erro. Sem dados financeiros ainda para validar a troca de conta.
+- [x] O token de acesso não é gravado em `localStorage`, `sessionStorage` nem URL.
+  > ✅ 2026-10-27 — Verificação no navegador após entrar: `localStorage` e `sessionStorage` vazios; token só em `SessionStore` (signal); `auth.service.spec.ts`.
+- [x] Os formulários têm rótulos, mensagens de erro acessíveis e bloqueio durante o envio.
+  > ✅ 2026-10-27 — Rótulos, `role="alert"`, foco no primeiro campo inválido e botão desabilitado durante o envio; `auth-pages.spec.ts` (9 testes) e navegador (mensagem genérica de credencial inválida).
 
 ### Skills de implementação
 
@@ -68,12 +74,16 @@ Sem `innerHTML` com dados do utilizador; sem credenciais nem dados financeiros e
 
 ### Front-end
 
-- [ ] Criar `features/auth` com páginas, serviço de dados, guard e interceptor.
-- [ ] Integrar a renovação no arranque e a limpeza de estado ao sair.
+- [x] Criar `features/auth` com páginas, serviço de dados, guard e interceptor.
+  > ✅ 2026-10-27 — Módulo `features/auth` com `LoginPage`, `RegisterPage`, `AuthApiService`, `AuthService`, `authGuard`, `guestGuard` e `authInterceptor`; `doc.md` atualizado. Verificação: build e testes.
+- [x] Integrar a renovação no arranque e a limpeza de estado ao sair.
+  > ✅ 2026-10-27 — `provideSessionInitializer()` em `app.config.ts` restaura a sessão no arranque; `AppStateReset.resetAll()` limpa o estado ao sair. Verificação: testes e navegador (API simulada).
 
 ### Validação
 
-- [ ] Testar redirecionamento, renovação, 401, saída e isolamento entre contas.
+- [x] Testar redirecionamento, renovação, 401, saída e isolamento entre contas.
+  > ✅ 2026-10-27 — Percurso na API real (navegador, `localhost:4200` com proxy para o backend com PostgreSQL): cadastro (e-mail normalizado em minúsculas), recarga mantém a sessão pelo cookie `HttpOnly` rotativo, `Sair` revoga e a rota protegida volta a `/entrar?returnUrl=`, login volta à rota pedida, `localStorage`/`sessionStorage` vazios; 409 para e-mail repetido e 429 após 5 falhas. Testes unitários: 72 verdes. Limitação: 401 por expiração do token de 15 min não esperado na API real (coberto por `auth.interceptor.spec.ts`); troca de conta sem dados financeiros ainda.
+  > ⏳ 2026-10-27 — Parcial: testes unitários e verificação manual com API simulada concluídos. Falta: percurso real contra o backend `identity` (cookie `HttpOnly`, rotação, 429, isolamento entre contas), bloqueado pela verificação do backend na F1 (Docker).
 
 ## Resultado esperado
 
