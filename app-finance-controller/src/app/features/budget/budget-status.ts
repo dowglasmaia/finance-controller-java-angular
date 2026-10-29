@@ -12,7 +12,7 @@ export interface StatusPresentation {
 
 /** Cada estado tem texto e ícone além da cor (acessibilidade). */
 export const STATUS_PRESENTATION: Record<BudgetStatus, StatusPresentation> = {
-  OK: { label: 'Dentro da meta', icon: CircleCheck, textClass: 'text-income', barClass: 'bg-income' },
+  OK: { label: 'Dentro da meta', icon: CircleCheck, textClass: 'text-success', barClass: 'bg-success' },
   WARNING: { label: 'Perto da meta', icon: TriangleAlert, textClass: 'text-warning', barClass: 'bg-warning' },
   EXCEEDED: { label: 'Meta estourada', icon: CircleAlert, textClass: 'text-expense', barClass: 'bg-expense' },
   NONE: { label: 'Sem meta definida', icon: Minus, textClass: 'text-content-muted', barClass: 'bg-content-muted' },

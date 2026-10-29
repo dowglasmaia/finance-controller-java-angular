@@ -324,6 +324,21 @@ class TransactionUseCaseTests {
         }
 
         @Override
+        public Totals totals(UUID ownerId, java.time.LocalDate from, java.time.LocalDate to, Currency currency) {
+            return Totals.ZERO;
+        }
+
+        @Override
+        public List<com.dowglasmaia.financecontroller.transaction.TransactionQuery.DailyTotals> dailyTotals(UUID ownerId, java.time.LocalDate from, java.time.LocalDate to, Currency currency) {
+            return List.of();
+        }
+
+        @Override
+        public Map<UUID, BigDecimal> sumExpensesByCategory(UUID ownerId, java.time.LocalDate from, java.time.LocalDate to, Currency currency) {
+            return Map.of();
+        }
+
+        @Override
         public void lockMonth(UUID ownerId, YearMonth month, Currency currency) {
         }
 

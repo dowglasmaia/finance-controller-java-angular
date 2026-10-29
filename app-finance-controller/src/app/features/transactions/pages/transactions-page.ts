@@ -65,7 +65,7 @@ import { TransactionsList } from '../ui/transactions-list';
             </div>
             <div>
               <dt class="text-content-muted">Saldo</dt>
-              <dd class="font-semibold" [class]="balanceNegative(totals.balance) ? 'text-expense' : 'text-income'">
+              <dd class="font-semibold" [class]="balanceNegative(totals.balance) ? 'text-expense' : 'text-success'">
                 {{ money(totals.balance) }}
               </dd>
             </div>

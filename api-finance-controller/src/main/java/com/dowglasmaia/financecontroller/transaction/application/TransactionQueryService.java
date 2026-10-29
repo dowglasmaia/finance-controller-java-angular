@@ -7,6 +7,7 @@ import com.dowglasmaia.financecontroller.transaction.application.port.out.Transa
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.List;
 import java.util.UUID;
@@ -32,6 +33,19 @@ class TransactionQueryService implements TransactionQuery {
     @Transactional(readOnly = true)
     public List<DailyTotals> dailyTotals(UUID ownerId, Currency currency, YearMonth month) {
         return transactions.dailyTotals(ownerId, month, currency);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public MonthTotals rangeTotals(UUID ownerId, Currency currency, LocalDate from, LocalDate to) {
+        var totals = transactions.totals(ownerId, from, to, currency);
+        return new MonthTotals(totals.income(), totals.expense());
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<DailyTotals> dailyTotals(UUID ownerId, Currency currency, LocalDate from, LocalDate to) {
+        return transactions.dailyTotals(ownerId, from, to, currency);
     }
 
     @Override

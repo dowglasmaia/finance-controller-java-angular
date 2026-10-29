@@ -95,7 +95,7 @@ describe('DashboardPage', () => {
     expect(first.request.params.get('currency')).toBe('BRL');
     const balance = Array.from(root.querySelectorAll('app-kpi-card')).find((k) => k.textContent?.includes('Saldo'));
     expect(balance?.textContent).toMatch(/R\$\s750,00/);
-    expect(balance?.querySelector('p.text-income')).not.toBeNull();
+    expect(balance?.querySelector('p.text-success')).not.toBeNull();
     expect(text(root)).toMatch(/Entradas.*R\$\s1\.000,00/);
     expect(text(root)).toMatch(/Saídas.*R\$\s250,00/);
   });
@@ -119,7 +119,17 @@ describe('DashboardPage', () => {
     expect(income?.textContent).toContain('+25,0%');
     expect(income?.textContent).toContain('aumento de 25,0% sobre o mês anterior');
     expect(expense?.textContent).toContain('-10,5%');
-    expect(expense?.querySelector('p.text-income')).not.toBeNull();
+    expect(expense?.querySelector('p.text-success')).not.toBeNull();
+  });
+
+  it('cada valor tem a sua cor: Entradas azul, Saídas vermelho, Reservas violeta e Saldo verde', async () => {
+    const { root } = await setup();
+
+    const card = (label: string) => Array.from(root.querySelectorAll('app-kpi-card')).find((k) => k.textContent?.includes(label));
+    expect(card('Entradas')?.querySelector('p.text-2xl.text-income')).not.toBeNull();
+    expect(card('Saídas')?.querySelector('p.text-2xl.text-expense')).not.toBeNull();
+    expect(card('Reservas')?.querySelector('p.text-2xl.text-reserve')).not.toBeNull();
+    expect(card('Saldo')?.querySelector('p.text-2xl.text-success')).not.toBeNull();
   });
 
   it('variação "0" mostra 0%', async () => {

@@ -1,7 +1,7 @@
 {
   "info": {
     "name": "Finance Controller API",
-    "description": "Collection de testes da API. Atualizada a cada fatia entregue (atual: F7 - dashboard).\n\nUso: execute 'Register' ou 'Login'; o script de teste guarda o accessToken na variável de coleção {{accessToken}} e o cookie refresh_token fica no cookie jar do Postman (domínio localhost). Em ambiente local o cookie não é Secure (perfil local).",
+    "description": "Collection de testes da API. Atualizada a cada fatia entregue (atual: F9 - relatórios).\n\nUso: execute 'Register' ou 'Login'; o script de teste guarda o accessToken na variável de coleção {{accessToken}} e o cookie refresh_token fica no cookie jar do Postman (domínio localhost). Em ambiente local o cookie não é Secure (perfil local).",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "auth": {
@@ -57,6 +57,16 @@
     },
     {
       "key": "transactionId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "moneyBoxId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "moneyBoxEntryId",
       "value": "",
       "type": "string"
     }
@@ -937,6 +947,601 @@
               ]
             },
             "description": "Visão geral do mês e da moeda. 200 com `summary` e `previous` (entradas, saídas, saldo), `incomeDeltaPercent?`/`expenseDeltaPercent?` (1 casa; \"0\" se menor que 0,5; ausente sem base), `reservesTotal` (provisório \"0.00\" até a F8), `bars` (faixas S1…S5 de 7 dias), `expenseByCategory` (maior primeiro, `percentage` com 4 casas), `latestTransactions` (até 8) e `budgetProgress` (meta global do mês; `NONE` sem meta). Mês sem lançamentos devolve zeros e listas vazias. 400 parâmetros inválidos."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "MoneyBoxes",
+      "item": [
+        {
+          "name": "listMoneyBoxes",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('200 OK', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}{{apiPath}}/money-boxes?currency=BRL",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "{{apiPath}}",
+                "money-boxes"
+              ],
+              "query": [
+                {
+                  "key": "currency",
+                  "value": "BRL"
+                }
+              ]
+            },
+            "description": "Cofrinhos da moeda por data de criação, com `balance` (depósitos - saques) e `progress` (`clamp(saldo/meta, 0, 1)`, 4 casas) calculados na leitura. 400 moeda inválida."
+          },
+          "response": []
+        },
+        {
+          "name": "createMoneyBox",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('201', () => pm.response.to.have.status(201));",
+                  "if (pm.response.code === 201) pm.collectionVariables.set('moneyBoxId', pm.response.json().id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}{{apiPath}}/money-boxes",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "{{apiPath}}",
+                "money-boxes"
+              ]
+            },
+            "description": "Cria o cofrinho (guarda o `id` em `{{moneyBoxId}}`). `goal` opcional (>= 0; 0 = sem meta). 400 campo inválido.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Reserva de emergência\",\n  \"description\": \"Conta remunerada\",\n  \"icon\": \"piggy-bank\",\n  \"color\": \"#22C55E\",\n  \"goal\": \"5000.00\",\n  \"currency\": \"BRL\"\n}"
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "getMoneyBox",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('200 OK', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}{{apiPath}}/money-boxes/{{moneyBoxId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "{{apiPath}}",
+                "money-boxes",
+                "{{moneyBoxId}}"
+              ]
+            },
+            "description": "Um cofrinho com saldo e progresso. 404 se não existe ou é de outro utilizador."
+          },
+          "response": []
+        },
+        {
+          "name": "updateMoneyBox",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('200 OK', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}{{apiPath}}/money-boxes/{{moneyBoxId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "{{apiPath}}",
+                "money-boxes",
+                "{{moneyBoxId}}"
+              ]
+            },
+            "description": "Atualiza o cofrinho. A moeda só muda sem movimentações: 409 `CURRENCY_LOCKED`. 400 campo inválido; 404.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Reserva de emergência\",\n  \"icon\": \"piggy-bank\",\n  \"color\": \"#22C55E\",\n  \"goal\": \"6000.00\",\n  \"currency\": \"BRL\"\n}"
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "deleteMoneyBox",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('204 No Content', () => pm.response.to.have.status(204));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}{{apiPath}}/money-boxes/{{moneyBoxId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "{{apiPath}}",
+                "money-boxes",
+                "{{moneyBoxId}}"
+              ]
+            },
+            "description": "Remove o cofrinho e as suas movimentações numa só transação. 204; 404."
+          },
+          "response": []
+        },
+        {
+          "name": "listMoneyBoxEntries",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('200 OK', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}{{apiPath}}/money-boxes/{{moneyBoxId}}/entries",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "{{apiPath}}",
+                "money-boxes",
+                "{{moneyBoxId}}",
+                "entries"
+              ]
+            },
+            "description": "Movimentações do cofrinho por data decrescente (depois criação). 404."
+          },
+          "response": []
+        },
+        {
+          "name": "createMoneyBoxEntry",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('201', () => pm.response.to.have.status(201));",
+                  "if (pm.response.code === 201) pm.collectionVariables.set('moneyBoxEntryId', pm.response.json().id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}{{apiPath}}/money-boxes/{{moneyBoxId}}/entries",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "{{apiPath}}",
+                "money-boxes",
+                "{{moneyBoxId}}",
+                "entries"
+              ]
+            },
+            "description": "Registra `DEPOSIT` ou `WITHDRAWAL` (guarda o `id` em `{{moneyBoxEntryId}}`). A moeda é a do cofrinho: `currency` opcional, se diferente -> 409 `CURRENCY_MISMATCH`. Saque com saldo zero ou acima do saldo -> 409 `INSUFFICIENT_BALANCE` e nada é gravado. 400 valor <= 0 ou data fora de 2000-2100.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"kind\": \"DEPOSIT\",\n  \"amount\": \"1000.00\",\n  \"date\": \"2026-10-01\",\n  \"note\": \"Aporte inicial\"\n}"
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "updateMoneyBoxEntry",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('200 OK', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}{{apiPath}}/money-boxes/{{moneyBoxId}}/entries/{{moneyBoxEntryId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "{{apiPath}}",
+                "money-boxes",
+                "{{moneyBoxId}}",
+                "entries",
+                "{{moneyBoxEntryId}}"
+              ]
+            },
+            "description": "Altera tipo, valor, data e nota (não troca de cofrinho). 409 `INSUFFICIENT_BALANCE` se o saldo ficaria negativo em qualquer ponto do histórico. 400; 404.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"kind\": \"DEPOSIT\",\n  \"amount\": \"1200.00\",\n  \"date\": \"2026-10-01\",\n  \"note\": \"Aporte corrigido\"\n}"
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "deleteMoneyBoxEntry",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('204 No Content', () => pm.response.to.have.status(204));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}{{apiPath}}/money-boxes/{{moneyBoxId}}/entries/{{moneyBoxEntryId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "{{apiPath}}",
+                "money-boxes",
+                "{{moneyBoxId}}",
+                "entries",
+                "{{moneyBoxEntryId}}"
+              ]
+            },
+            "description": "Exclui a movimentação. 409 `INSUFFICIENT_BALANCE` se a exclusão deixaria o saldo negativo (ex.: apagar um depósito já gasto por saques posteriores). 204; 404."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Reserves",
+      "item": [
+        {
+          "name": "getReservesSummary",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('200 OK', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}{{apiPath}}/reserves/BRL/summary",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "{{apiPath}}",
+                "reserves",
+                "BRL",
+                "summary"
+              ]
+            },
+            "description": "Total guardado na moeda (soma dos saldos), meta geral (`goal`, ausente sem meta), `progress` = `min(total/meta, 1)` e `boxCount`. Não depende de mês."
+          },
+          "response": []
+        },
+        {
+          "name": "saveReserveGoal",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('200 OK', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}{{apiPath}}/reserves/BRL/goal",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "{{apiPath}}",
+                "reserves",
+                "BRL",
+                "goal"
+              ]
+            },
+            "description": "Grava a meta geral da moeda e devolve o resumo; `0` remove a meta. Independente da soma das metas individuais. 400 valor negativo ou ausente.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"amount\": \"10000.00\"\n}"
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Reports",
+      "item": [
+        {
+          "name": "getReport - mês",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('200 OK', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}{{apiPath}}/reports?period=MONTH&anchorDate=2026-10-15&currency=BRL",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "{{apiPath}}",
+                "reports"
+              ],
+              "query": [
+                {
+                  "key": "period",
+                  "value": "MONTH"
+                },
+                {
+                  "key": "anchorDate",
+                  "value": "2026-10-15"
+                },
+                {
+                  "key": "currency",
+                  "value": "BRL"
+                }
+              ]
+            },
+            "description": "Relatório do mês de `anchorDate` (o cliente envia o dia 15 do mês de referência). `summary` e `bars` (faixas S1…S5 de 7 dias) vêm do mesmo intervalo. `expenseByCategory` traz todas as categorias com despesa; `ranking` são as `rankingSize` (padrão 7, 1 a 50) primeiras. Só a moeda pedida; cofrinhos não entram. 400 parâmetro ausente/inválido ou `anchorDate` fora de 2000-2100."
+          },
+          "response": []
+        },
+        {
+          "name": "getReport - semana",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('200 OK', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}{{apiPath}}/reports?period=WEEK&anchorDate=2026-10-15&currency=BRL",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "{{apiPath}}",
+                "reports"
+              ],
+              "query": [
+                {
+                  "key": "period",
+                  "value": "WEEK"
+                },
+                {
+                  "key": "anchorDate",
+                  "value": "2026-10-15"
+                },
+                {
+                  "key": "currency",
+                  "value": "BRL"
+                }
+              ]
+            },
+            "description": "Domingo a sábado que contém `anchorDate`; 7 barras `Dom`…`Sáb` (o intervalo pode cruzar mês e ano)."
+          },
+          "response": []
+        },
+        {
+          "name": "getReport - ano",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('200 OK', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}{{apiPath}}/reports?period=YEAR&anchorDate=2026-10-15&currency=BRL",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "{{apiPath}}",
+                "reports"
+              ],
+              "query": [
+                {
+                  "key": "period",
+                  "value": "YEAR"
+                },
+                {
+                  "key": "anchorDate",
+                  "value": "2026-10-15"
+                },
+                {
+                  "key": "currency",
+                  "value": "BRL"
+                }
+              ]
+            },
+            "description": "1/jan a 31/dez; 12 barras `Jan`…`Dez` e `monthlySummary` com 12 itens (`changePercent` = (saldo - anterior)/|anterior| x 100 com 1 casa; ausente em janeiro e com saldo anterior 0)."
+          },
+          "response": []
+        },
+        {
+          "name": "getReport - ranking de 3",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('200 OK', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}{{apiPath}}/reports?period=MONTH&anchorDate=2026-10-15&currency=BRL&rankingSize=3",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "{{apiPath}}",
+                "reports"
+              ],
+              "query": [
+                {
+                  "key": "period",
+                  "value": "MONTH"
+                },
+                {
+                  "key": "anchorDate",
+                  "value": "2026-10-15"
+                },
+                {
+                  "key": "currency",
+                  "value": "BRL"
+                },
+                {
+                  "key": "rankingSize",
+                  "value": "3"
+                }
+              ]
+            },
+            "description": "`rankingSize=3` limita só o `ranking`; o percentual continua sobre o total de todas as despesas."
           },
           "response": []
         }

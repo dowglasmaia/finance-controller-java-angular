@@ -161,8 +161,7 @@ As skills de backend (`java-spring-scaffold`, `java-spring-create-module`, `open
 | F1 | Backend base e módulo `identity` |
 | F2 | Frontend base e autenticação |
 | F3 | CI mínimo |
-| F4–F7 | Categorias, lançamentos, metas de gastos e dashboard |
-| F8–F9 | Cofrinhos e relatórios |
+| F4–F9 | Categorias, lançamentos, metas de gastos, dashboard, cofrinhos e relatórios |
 | F10–F11 | Preferências e recuperação de senha |
 | F12 | Endurecimento: testes, segurança, E2E e observabilidade |
 

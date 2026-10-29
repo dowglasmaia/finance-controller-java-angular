@@ -1,6 +1,6 @@
 # 20-backend-modulo-relatorios
 
-> **ID:** BACKEND-SPEC-15 · **Categoria:** Backend (módulo `report`, relatórios) · **Estado:** proposta para revisão — não aprovada, não executada.
+> **ID:** BACKEND-SPEC-15 · **Categoria:** Backend (módulo `report`, relatórios) · **Estado:** executada na F9 (2026-10-29); comparação literal com `report_service_test` pendente — ver evidências.
 
 ## Objetivo
 
@@ -49,13 +49,20 @@ Fuso e fronteira de dia: com `LocalDate`, os limites inclusivos por dia eliminam
 
 ## Regras e critérios de aceitação
 
-- [ ] `period=WEEK` com `anchorDate=2026-06-24` → `range` 2026-06-21…2026-06-27 e 7 barras.
-- [ ] `period=MONTH` junho de 2026 → `range` 01…30 e 5 barras (30 dias); fevereiro de 2026 (28 dias) → 4 barras.
-- [ ] `period=YEAR` → 12 barras e `monthlySummary` com 12 itens; `changePercent` ausente no primeiro mês e quando o saldo anterior é 0.
-- [ ] Com mês de referência diferente do atual, a soma das barras de entradas = `summary.income` (regressão de DESC-REP-03, aprovada em P-09).
-- [ ] Os relatórios somam apenas dados do utilizador autenticado.
-- [ ] Ranking e distribuição ignoram entradas e outra moeda; sem despesas → listas vazias.
-- [ ] Lançamento em 2026-06-21 00:00 e em 2026-06-27 23:59 entram na semana de 24/06.
+- [x] `period=WEEK` com `anchorDate=2026-06-24` → `range` 2026-06-21…2026-06-27 e 7 barras.
+  > ✅ 2026-10-29 13:50 +00:00 — `ReportsFlowIntegrationTest.weekIsSundayToSaturdayWithSevenBarsAndInclusiveEdges` (PostgreSQL: `range` 2026-06-21…2026-06-27, 7 barras `Dom`…`Sáb`) e `ReportCalculationsTests.weekIsSundayToSaturdayAroundTheAnchor` (âncora no domingo, no sábado e no meio da semana); `weekAcrossTheTurnOfYearIsOneContinuousRange` (âncora 2026-12-31 → 2026-12-27…2027-01-02).
+- [x] `period=MONTH` junho de 2026 → `range` 01…30 e 5 barras (30 dias); fevereiro de 2026 (28 dias) → 4 barras.
+  > ✅ 2026-10-29 13:50 +00:00 — `monthBarsAddUpToTheTotalsForAnyReferenceMonthAndLengthOfMonth` (junho: 01…30 e 5 barras; fevereiro/2026: 4; fevereiro/2028 bissexto: 5, com o dia 29 em S5) e `ReportCalculationsTests.monthBarsHaveCeilOfDaysOverSevenBands`.
+- [x] `period=YEAR` → 12 barras e `monthlySummary` com 12 itens; `changePercent` ausente no primeiro mês e quando o saldo anterior é 0.
+  > ✅ 2026-10-29 13:50 +00:00 — `yearHasTwelveBarsAndAMonthlySummaryWithBalanceChange`: 12 barras `Jan`…`Dez` e `monthlySummary` com 12 itens; `changePercent` ausente em janeiro e quando o saldo anterior é 0 (fev +50.0, mar -100.0, abr ausente, mai ausente porque abril é 0, jun +200.0 sobre saldo anterior negativo `-50`); lançamentos de 2025 e 2027 ficam de fora. `ReportCalculationsTests.balanceChangeUsesTheAbsolutePreviousBalanceAndIsAbsentFromZero`.
+- [x] Com mês de referência diferente do atual, a soma das barras de entradas = `summary.income` (regressão de DESC-REP-03, aprovada em P-09).
+  > ✅ 2026-10-29 13:50 +00:00 — `monthBarsAddUpToTheTotalsForAnyReferenceMonthAndLengthOfMonth`: junho/2026 e fevereiro/2028 (o servidor está em outubro/2026) com soma das barras de entradas e de saídas igual a `summary` (1250.50 e 75.25). No navegador, junho/2026: entradas R$ 3.250,00 e as faixas S1…S5 somam o mesmo valor. Corrige DESC-REP-03 (P-09).
+- [x] Os relatórios somam apenas dados do utilizador autenticado.
+  > ✅ 2026-10-29 13:50 +00:00 — `reportsOnlyCountTheAuthenticatedUsersData`: outro utilizador vê `0.00` nas entradas e saídas e ranking vazio; `requiresAuthentication` (401 sem token).
+- [x] Ranking e distribuição ignoram entradas e outra moeda; sem despesas → listas vazias.
+  > ✅ 2026-10-29 13:50 +00:00 — `distributionAndRankingCountOnlyExpensesOfTheCurrencyAndRankingIsLimited` (10 categorias de despesa de 100 a 10 mais uma entrada de 5000 e uma despesa em EUR: `expenseByCategory` com 10 itens e total 550.00; ranking padrão com 7 (100…40) e com `rankingSize=3`; 18.1818% na primeira; percentuais somam 100 com tolerância de 0.01; EUR separado com 100.0000%) e `emptyPeriodIsZerosAndEmptyListsNotAnError` (listas vazias, zeros, 5 barras). Movimentações de cofrinho não entram (`moneyBoxMovementsAreNotPartOfTheReport`).
+- [x] Lançamento em 2026-06-21 00:00 e em 2026-06-27 23:59 entram na semana de 24/06.
+  > ✅ 2026-10-29 13:50 +00:00 — O período é por `LocalDate` inclusivo (sem hora): `weekIsSundayToSaturdayWithSevenBarsAndInclusiveEdges` inclui 06-21 e 06-27 e deixa 06-20 e 06-28 de fora; a dependência de `dayEnd` 23:59:59.999 da origem (DESC-DAT-04) deixou de existir.
 
 ### Cenários de teste
 
@@ -74,15 +81,18 @@ Semana na virada de mês e de ano; mês de 28/29/30/31 dias; ano com meses vazio
 
 ### Contrato e dados
 
-- [ ] Prévia aprovada e contrato `reports`.
+- [x] Prévia aprovada e contrato `reports`.
+  > ✅ 2026-10-29 13:50 +00:00 — Prévia aprovada pelo utilizador em conversa (1 operação, schemas e 8 decisões: `GET /api/v1/reports`, rótulos pt-BR vindos do servidor, `changePercent` com 1 casa, `anchorDate` 2000–2100, semana cruzando mês/ano, cofrinhos fora, consultas de leitura por intervalo, SVG próprio, âncora no dia 15) e gerada em `openapi/modules/reports.yaml` + execução `generate-reports-api`. Desvio: YAML escrito à mão.
 
 ### Back-end
 
-- [ ] Implementar `ReportPeriod`/intervalos, agrupamentos, ranking e resumo mensal; controller `getReport`.
+- [x] Implementar `ReportPeriod`/intervalos, agrupamentos, ranking e resumo mensal; controller `getReport`.
+  > ✅ 2026-10-29 13:50 +00:00 — Módulo `report`: `ReportPeriod`, `ReportRange` (semana domingo–sábado, mês, ano; âncora validada), `PeriodBars`, `Percentage.change`, `GetReportUseCase` e `ReportsController`. Só APIs públicas de leitura: `TransactionQuery.rangeTotals/dailyTotals` e `ExpenseQuery.expenseTotalsByCategory` por intervalo (as versões por mês passaram a delegar às de intervalo). 4 consultas por chamada (totais, totais por dia, despesas por categoria, categorias), qualquer que seja o volume. `./mvnw clean verify` com Docker: 339 testes, 0 falhas (18 novos).
 
 ### Validação
 
 - [ ] Executar os cenários e comparar com `report_service_test`.
+  > ⏳ 2026-10-29 13:50 +00:00 — Cenários da spec executados em PostgreSQL real (acima): semana na virada de ano, mês de 28/29/30 dias, ano com meses vazios, ranking com mais de 7 categorias, percentuais somando ~100%, BRL × EUR. Falta: comparar caso a caso com `report_service_test`, que é do projeto de origem e não está no repositório. Os meses de 31 dias só têm teste unitário de contagem de faixas (julho).
 
 ## Resultado esperado
 

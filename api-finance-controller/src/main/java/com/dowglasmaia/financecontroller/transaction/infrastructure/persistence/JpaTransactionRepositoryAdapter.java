@@ -52,9 +52,15 @@ class JpaTransactionRepositoryAdapter implements TransactionRepository {
     @Override
     @Transactional(readOnly = true)
     public Totals totals(UUID ownerId, YearMonth month, Currency currency) {
+        return totals(ownerId, month.atDay(1), month.atEndOfMonth(), currency);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Totals totals(UUID ownerId, LocalDate from, LocalDate to, Currency currency) {
         BigDecimal income = Totals.ZERO.income();
         BigDecimal expense = Totals.ZERO.expense();
-        for (Object[] row : transactions.sumByKind(ownerId, currency.name(), month.atDay(1), month.atEndOfMonth())) {
+        for (Object[] row : transactions.sumByKind(ownerId, currency.name(), from, to)) {
             var sum = ((BigDecimal) row[1]).setScale(2);
             if (TransactionKind.INCOME.name().equals(row[0])) {
                 income = sum;
@@ -89,8 +95,14 @@ class JpaTransactionRepositoryAdapter implements TransactionRepository {
     @Override
     @Transactional(readOnly = true)
     public List<TransactionQuery.DailyTotals> dailyTotals(UUID ownerId, YearMonth month, Currency currency) {
+        return dailyTotals(ownerId, month.atDay(1), month.atEndOfMonth(), currency);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<TransactionQuery.DailyTotals> dailyTotals(UUID ownerId, LocalDate from, LocalDate to, Currency currency) {
         Map<LocalDate, BigDecimal[]> byDay = new HashMap<>();
-        for (Object[] row : transactions.sumByDayAndKind(ownerId, currency.name(), month.atDay(1), month.atEndOfMonth())) {
+        for (Object[] row : transactions.sumByDayAndKind(ownerId, currency.name(), from, to)) {
             BigDecimal[] sums = byDay.computeIfAbsent((LocalDate) row[0],
                 d -> new BigDecimal[] {BigDecimal.ZERO.setScale(2), BigDecimal.ZERO.setScale(2)});
             int slot = TransactionKind.INCOME.name().equals(row[1]) ? 0 : 1;
@@ -104,8 +116,14 @@ class JpaTransactionRepositoryAdapter implements TransactionRepository {
     @Override
     @Transactional(readOnly = true)
     public Map<UUID, BigDecimal> sumExpensesByCategory(UUID ownerId, YearMonth month, Currency currency) {
+        return sumExpensesByCategory(ownerId, month.atDay(1), month.atEndOfMonth(), currency);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Map<UUID, BigDecimal> sumExpensesByCategory(UUID ownerId, LocalDate from, LocalDate to, Currency currency) {
         Map<UUID, BigDecimal> totals = new HashMap<>();
-        for (Object[] row : transactions.sumExpensesByCategory(ownerId, currency.name(), month.atDay(1), month.atEndOfMonth())) {
+        for (Object[] row : transactions.sumExpensesByCategory(ownerId, currency.name(), from, to)) {
             totals.put((UUID) row[0], ((BigDecimal) row[1]).setScale(2));
         }
         return totals;

@@ -21,7 +21,7 @@ const LABEL_Y = 138;
         role="img"
         [attr.viewBox]="'0 0 ' + width() + ' 146'"
         class="h-auto w-full"
-        aria-label="Entradas e saídas por faixa de 7 dias do mês"
+        [attr.aria-label]="ariaLabel()"
       >
         <line [attr.x1]="0" [attr.x2]="width()" [attr.y1]="baseline" [attr.y2]="baseline" class="stroke-line" stroke-width="1" />
         @for (band of layout(); track band.label) {
@@ -41,9 +41,9 @@ const LABEL_Y = 138;
         <span class="inline-flex items-center gap-1.5"><span class="size-3 rounded-sm bg-expense" aria-hidden="true"></span>Saídas</span>
       </figcaption>
       <table class="sr-only">
-        <caption>Entradas e saídas por faixa de 7 dias</caption>
+        <caption>{{ caption() }}</caption>
         <thead>
-          <tr><th scope="col">Faixa</th><th scope="col">Entradas</th><th scope="col">Saídas</th></tr>
+          <tr><th scope="col">{{ columnHeader() }}</th><th scope="col">Entradas</th><th scope="col">Saídas</th></tr>
         </thead>
         <tbody>
           @for (band of layout(); track band.label) {
@@ -57,6 +57,10 @@ const LABEL_Y = 138;
 export class IncomeExpenseBars {
   readonly bars = input.required<readonly Bar[]>();
   readonly currency = input.required<CurrencyCode>();
+  /** Textos para leitor de tela; o padrão é o do dashboard (faixas de 7 dias do mês). */
+  readonly ariaLabel = input('Entradas e saídas por faixa de 7 dias do mês');
+  readonly caption = input('Entradas e saídas por faixa de 7 dias');
+  readonly columnHeader = input('Faixa');
 
   protected readonly barWidth = BAR_WIDTH;
   protected readonly baseline = CHART_HEIGHT;

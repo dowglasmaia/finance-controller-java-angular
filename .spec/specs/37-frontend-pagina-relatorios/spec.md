@@ -1,6 +1,6 @@
 # 37-frontend-pagina-relatorios
 
-> **ID:** FRONTEND-SPEC-14 · **Categoria:** Frontend (`features/reports`) · **Estado:** proposta para revisão — não aprovada, não executada.
+> **ID:** FRONTEND-SPEC-14 · **Categoria:** Frontend (`features/reports`) · **Estado:** executada na F9 (2026-10-29); teclado completo, tema claro e 320/768 px pendentes (F12) — ver evidências.
 
 ## Objetivo
 
@@ -43,11 +43,16 @@ Mantém-se o comportamento atual: as **7** maiores categorias de despesa (a docu
 
 ## Regras e critérios de aceitação
 
-- [ ] Em Mês, a soma das barras de entradas é igual ao KPI Entradas, mesmo com o mês de referência diferente do atual (P-09 aprovada).
-- [ ] Em Semana há 7 barras Dom…Sáb; em Ano há 12 barras e a tabela `Resumo Mensal`.
-- [ ] Pizza e ranking só incluem despesas da moeda selecionada.
-- [ ] `% vs anterior` aparece como `—` na primeira linha e quando o saldo anterior é 0.
+- [x] Em Mês, a soma das barras de entradas é igual ao KPI Entradas, mesmo com o mês de referência diferente do atual (P-09 aprovada).
+  > ✅ 2026-10-29 13:50 +00:00 — `reports-page.spec.ts` (tabela de leitor de tela com as 5 faixas e soma igual ao KPI) e no navegador contra a API real, junho/2026 com o app em outubro: Entradas R$ 3.250,00 e faixas S1 R$ 3.000,00 + S4 R$ 250,00; Saídas R$ 2.339,50 = 800,00 + 320,50 + 160,00 + 1.059,00.
+- [x] Em Semana há 7 barras Dom…Sáb; em Ano há 12 barras e a tabela `Resumo Mensal`.
+  > ✅ 2026-10-29 13:50 +00:00 — `reports-page.spec.ts` (Semana: pede `WEEK` e mostra Dom…Sáb sem `Resumo Mensal`; Ano: 12 barras e a tabela) e no navegador: semana 14/06 a 20/06 com 7 barras (saída de R$ 10,00 em Sáb) e ano 2026 com 12 barras e `Resumo Mensal`.
+- [x] Pizza e ranking só incluem despesas da moeda selecionada.
+  > ✅ 2026-10-29 13:50 +00:00 — Servidor: `distributionAndRankingCountOnlyExpensesOfTheCurrencyAndRankingIsLimited`. No navegador: BRL (Saúde 42,7%, Moradia 34,2%, …) e, ao trocar para EUR, só os valores em euro (entradas € 100,00 e saídas € 40,00 no ano); `reports-page.spec.ts` cobre a nova consulta ao trocar a moeda, descartando a resposta antiga.
+- [x] `% vs anterior` aparece como `—` na primeira linha e quando o saldo anterior é 0.
+  > ✅ 2026-10-29 13:50 +00:00 — `reports-page.spec.ts` (primeira linha e base zero mostram `—`; `+50,0%` e `-100,0%` com cor e sinal) e no navegador (ano 2026: Mai `—` com abril zerado, Jun `-39,3%`, Jul `-100,0%`).
 - [ ] Gráficos têm alternativa textual; vazio, carregando e erro tratados.
+  > ⏳ 2026-10-29 13:50 +00:00 — Barras: `role="img"` com `aria-label` por período e tabela para leitor de tela (`Dia`/`Faixa`/`Mês`); pizza com legenda por extenso e ranking com texto. Estados testados em `reports-page.spec.ts`: carregando, vazio (`Sem despesas no período.`), erro com `Tentar novamente`. Falta: leitor de tela de verdade, teclado completo e tema claro (F12).
 
 ### Skills de implementação
 
@@ -62,11 +67,13 @@ Mantém-se o comportamento atual: as **7** maiores categorias de despesa (a docu
 
 ### Front-end
 
-- [ ] Criar `features/reports` com página, gráficos, ranking, tabela anual e serviço de dados.
+- [x] Criar `features/reports` com página, gráficos, ranking, tabela anual e serviço de dados.
+  > ✅ 2026-10-29 13:50 +00:00 — `features/reports` (`reports.routes.ts`, `pages/reports-page.ts`, `data-access/` com `ReportsApiService` e `ReportsStore`, `ui/` com `RankingList` e `MonthlySummaryTable`, `reports-format.ts`, `doc.md`); tipos gerados em `core/api/generated/reports.ts`; rota `/relatorios` real no lugar do último placeholder. Reaproveita `KpiCard`, `IncomeExpenseBars` e `ExpensePie` do dashboard (as barras ganharam rótulos de acessibilidade configuráveis, com o padrão do dashboard). Gráficos em SVG próprio, sem ApexCharts (ADR-013 não foi seguida: o dashboard da F7 já nasceu sem biblioteca).
 
 ### Validação
 
 - [ ] Testar coerência totais × barras, os três períodos e os estados vazios.
+  > ⏳ 2026-10-29 13:50 +00:00 — `npm test`: 196 testes Vitest verdes (10 novos em `reports-page.spec.ts` e `reports-format`), `ng build` verde e percurso no navegador contra a API real (tema escuro, desktop; mês, semana, ano e EUR). Falta: tema claro, 320/768 px, teclado completo e leitor de tela (F12).
 
 ## Resultado esperado
 

@@ -1,0 +1,384 @@
+openapi: 3.1.0
+info:
+    title: Money Boxes API
+    version: 1.0.0
+paths:
+    /api/v1/money-boxes:
+        get:
+            tags:
+                - MoneyBoxes
+            summary: Listar cofrinhos da moeda
+            operationId: listMoneyBoxes
+            description: Cofrinhos da moeda pedida, por data de criação crescente, com saldo e progresso calculados.
+            security:
+                - bearerAuth: []
+            parameters:
+                - name: currency
+                  in: query
+                  required: true
+                  schema:
+                      $ref: "#/components/schemas/Currency"
+            responses:
+                "200":
+                    description: Cofrinhos da moeda
+                    content:
+                        application/json:
+                            schema:
+                                type: array
+                                items:
+                                    $ref: "#/components/schemas/MoneyBox"
+                "400":
+                    $ref: ../common/responses.yaml#/components/responses/BadRequestResponse
+                "401":
+                    $ref: ../common/responses.yaml#/components/responses/UnauthorizedResponse
+        post:
+            tags:
+                - MoneyBoxes
+            summary: Criar cofrinho
+            operationId: createMoneyBox
+            security:
+                - bearerAuth: []
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: "#/components/schemas/SaveMoneyBoxRequest"
+            responses:
+                "201":
+                    description: Cofrinho criado
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/MoneyBox"
+                "400":
+                    $ref: ../common/responses.yaml#/components/responses/BadRequestResponse
+                "401":
+                    $ref: ../common/responses.yaml#/components/responses/UnauthorizedResponse
+    /api/v1/money-boxes/{moneyBoxId}:
+        get:
+            tags:
+                - MoneyBoxes
+            summary: Obter cofrinho
+            operationId: getMoneyBox
+            security:
+                - bearerAuth: []
+            parameters:
+                - $ref: "#/components/parameters/MoneyBoxId"
+            responses:
+                "200":
+                    description: Cofrinho
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/MoneyBox"
+                "401":
+                    $ref: ../common/responses.yaml#/components/responses/UnauthorizedResponse
+                "404":
+                    $ref: ../common/responses.yaml#/components/responses/NotFoundResponse
+        put:
+            tags:
+                - MoneyBoxes
+            summary: Atualizar cofrinho
+            operationId: updateMoneyBox
+            description: A moeda só pode mudar enquanto o cofrinho não tem movimentações (CURRENCY_LOCKED).
+            security:
+                - bearerAuth: []
+            parameters:
+                - $ref: "#/components/parameters/MoneyBoxId"
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: "#/components/schemas/SaveMoneyBoxRequest"
+            responses:
+                "200":
+                    description: Cofrinho atualizado
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/MoneyBox"
+                "400":
+                    $ref: ../common/responses.yaml#/components/responses/BadRequestResponse
+                "401":
+                    $ref: ../common/responses.yaml#/components/responses/UnauthorizedResponse
+                "404":
+                    $ref: ../common/responses.yaml#/components/responses/NotFoundResponse
+                "409":
+                    $ref: ../common/responses.yaml#/components/responses/ConflictResponse
+        delete:
+            tags:
+                - MoneyBoxes
+            summary: Excluir cofrinho
+            operationId: deleteMoneyBox
+            description: Remove também as movimentações, na mesma transação.
+            security:
+                - bearerAuth: []
+            parameters:
+                - $ref: "#/components/parameters/MoneyBoxId"
+            responses:
+                "204":
+                    description: Cofrinho excluído
+                "401":
+                    $ref: ../common/responses.yaml#/components/responses/UnauthorizedResponse
+                "404":
+                    $ref: ../common/responses.yaml#/components/responses/NotFoundResponse
+    /api/v1/money-boxes/{moneyBoxId}/entries:
+        get:
+            tags:
+                - MoneyBoxes
+            summary: Listar movimentações do cofrinho
+            operationId: listMoneyBoxEntries
+            description: Por data decrescente (depois criação decrescente).
+            security:
+                - bearerAuth: []
+            parameters:
+                - $ref: "#/components/parameters/MoneyBoxId"
+            responses:
+                "200":
+                    description: Movimentações
+                    content:
+                        application/json:
+                            schema:
+                                type: array
+                                items:
+                                    $ref: "#/components/schemas/MoneyBoxEntry"
+                "401":
+                    $ref: ../common/responses.yaml#/components/responses/UnauthorizedResponse
+                "404":
+                    $ref: ../common/responses.yaml#/components/responses/NotFoundResponse
+        post:
+            tags:
+                - MoneyBoxes
+            summary: Registrar depósito ou saque
+            operationId: createMoneyBoxEntry
+            description: A moeda é a do cofrinho. O saldo nunca fica negativo - saque com saldo zero ou acima do saldo
+                devolve INSUFFICIENT_BALANCE e nada é gravado.
+            security:
+                - bearerAuth: []
+            parameters:
+                - $ref: "#/components/parameters/MoneyBoxId"
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: "#/components/schemas/SaveMoneyBoxEntryRequest"
+            responses:
+                "201":
+                    description: Movimentação registrada
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/MoneyBoxEntry"
+                "400":
+                    $ref: ../common/responses.yaml#/components/responses/BadRequestResponse
+                "401":
+                    $ref: ../common/responses.yaml#/components/responses/UnauthorizedResponse
+                "404":
+                    $ref: ../common/responses.yaml#/components/responses/NotFoundResponse
+                "409":
+                    $ref: ../common/responses.yaml#/components/responses/ConflictResponse
+    /api/v1/money-boxes/{moneyBoxId}/entries/{entryId}:
+        put:
+            tags:
+                - MoneyBoxes
+            summary: Atualizar movimentação
+            operationId: updateMoneyBoxEntry
+            description: Altera tipo, valor, data e nota. Recusada (INSUFFICIENT_BALANCE) se o saldo ficaria negativo
+                em qualquer ponto do histórico.
+            security:
+                - bearerAuth: []
+            parameters:
+                - $ref: "#/components/parameters/MoneyBoxId"
+                - $ref: "#/components/parameters/EntryId"
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: "#/components/schemas/SaveMoneyBoxEntryRequest"
+            responses:
+                "200":
+                    description: Movimentação atualizada
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/MoneyBoxEntry"
+                "400":
+                    $ref: ../common/responses.yaml#/components/responses/BadRequestResponse
+                "401":
+                    $ref: ../common/responses.yaml#/components/responses/UnauthorizedResponse
+                "404":
+                    $ref: ../common/responses.yaml#/components/responses/NotFoundResponse
+                "409":
+                    $ref: ../common/responses.yaml#/components/responses/ConflictResponse
+        delete:
+            tags:
+                - MoneyBoxes
+            summary: Excluir movimentação
+            operationId: deleteMoneyBoxEntry
+            description: Recusada (INSUFFICIENT_BALANCE) se a exclusão deixaria o saldo negativo em algum ponto.
+            security:
+                - bearerAuth: []
+            parameters:
+                - $ref: "#/components/parameters/MoneyBoxId"
+                - $ref: "#/components/parameters/EntryId"
+            responses:
+                "204":
+                    description: Movimentação excluída
+                "401":
+                    $ref: ../common/responses.yaml#/components/responses/UnauthorizedResponse
+                "404":
+                    $ref: ../common/responses.yaml#/components/responses/NotFoundResponse
+                "409":
+                    $ref: ../common/responses.yaml#/components/responses/ConflictResponse
+components:
+    securitySchemes:
+        bearerAuth:
+            $ref: ../common/security.yaml#/components/securitySchemes/bearerAuth
+    parameters:
+        MoneyBoxId:
+            name: moneyBoxId
+            in: path
+            required: true
+            schema:
+                type: string
+                format: uuid
+        EntryId:
+            name: entryId
+            in: path
+            required: true
+            schema:
+                type: string
+                format: uuid
+    schemas:
+        Currency:
+            type: string
+            enum:
+                - BRL
+                - EUR
+        MoneyBoxEntryKind:
+            type: string
+            enum:
+                - DEPOSIT
+                - WITHDRAWAL
+        SaveMoneyBoxRequest:
+            type: object
+            required:
+                - name
+                - icon
+                - color
+                - currency
+            properties:
+                name:
+                    type: string
+                    minLength: 1
+                    maxLength: 100
+                description:
+                    type: string
+                    maxLength: 255
+                icon:
+                    type: string
+                    minLength: 1
+                    maxLength: 40
+                color:
+                    type: string
+                    pattern: "^#[0-9A-Fa-f]{6}$"
+                goal:
+                    type: string
+                    description: Objetivo (>= 0); 0 ou ausente significa sem meta.
+                    pattern: "^\\d{1,10}(\\.\\d{1,2})?$"
+                currency:
+                    $ref: "#/components/schemas/Currency"
+        MoneyBox:
+            type: object
+            required:
+                - id
+                - name
+                - icon
+                - color
+                - currency
+                - balance
+                - progress
+                - createdAt
+            properties:
+                id:
+                    type: string
+                    format: uuid
+                name:
+                    type: string
+                description:
+                    type: string
+                icon:
+                    type: string
+                color:
+                    type: string
+                currency:
+                    $ref: "#/components/schemas/Currency"
+                goal:
+                    type: string
+                    description: Ausente quando não há meta.
+                balance:
+                    type: string
+                    description: Soma dos depósitos menos a soma dos saques; nunca negativo.
+                progress:
+                    type: string
+                    description: clamp(saldo / meta, 0, 1) com 4 casas decimais; 0.0000 sem meta.
+                createdAt:
+                    type: string
+                    format: date-time
+        SaveMoneyBoxEntryRequest:
+            type: object
+            required:
+                - kind
+                - amount
+                - date
+            properties:
+                kind:
+                    $ref: "#/components/schemas/MoneyBoxEntryKind"
+                amount:
+                    type: string
+                    description: Maior que zero.
+                    pattern: "^\\d{1,10}(\\.\\d{1,2})?$"
+                date:
+                    type: string
+                    format: date
+                note:
+                    type: string
+                    maxLength: 255
+                currency:
+                    description: Opcional; se informada e diferente da do cofrinho, devolve CURRENCY_MISMATCH.
+                    $ref: "#/components/schemas/Currency"
+        MoneyBoxEntry:
+            type: object
+            required:
+                - id
+                - moneyBoxId
+                - kind
+                - amount
+                - currency
+                - date
+                - createdAt
+            properties:
+                id:
+                    type: string
+                    format: uuid
+                moneyBoxId:
+                    type: string
+                    format: uuid
+                kind:
+                    $ref: "#/components/schemas/MoneyBoxEntryKind"
+                amount:
+                    type: string
+                currency:
+                    $ref: "#/components/schemas/Currency"
+                date:
+                    type: string
+                    format: date
+                note:
+                    type: string
+                createdAt:
+                    type: string
+                    format: date-time

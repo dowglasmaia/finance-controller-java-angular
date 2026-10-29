@@ -1,6 +1,6 @@
 # 17-backend-modulo-resumo-e-dashboard
 
-> **ID:** BACKEND-SPEC-12 · **Categoria:** Backend (módulo `report`, consulta de visão geral) · **Estado:** executada na F7 (2026-10-29); `reservesTotal` devolve `0.00` até o módulo de cofrinhos (F8) — ver evidências.
+> **ID:** BACKEND-SPEC-12 · **Categoria:** Backend (módulo `report`, consulta de visão geral) · **Estado:** executada na F7 (2026-10-29); `reservesTotal` real desde a F8 (2026-10-29) — ver evidências.
 
 ## Objetivo
 
@@ -53,6 +53,7 @@ Fornecer a consulta de visão geral mensal que alimenta o dashboard — saldo, e
   > ✅ 2026-10-29 12:45 +00:00 — `variationUsesThePreviousMonthAsBaseAndIsAbsentWithoutIt` (25,0 e "0" com base; ausente sem base) e `OverviewCalculationsTests.variationFollowsRnSal02` (base 0 ou negativa ausente; 1004/1000 e 996/1000 → "0"; 1005/1000 → 0,5; 995/1000 → −0,5; 1 casa `HALF_UP`; o corte de 0,5 é sobre o valor exato).
 - [x] `reservesTotal` não muda ao trocar o mês.
   > ✅ 2026-10-29 12:45 +00:00 — `reservesTotalDoesNotDependOnTheMonth`. Desvio: o valor é `0.00` (porta `ReservesPort` com implementação provisória) porque cofrinhos só chegam na F8; a F8 troca a implementação sem mudar o contrato.
+  > ✅ 2026-10-29 13:10 +00:00 — F8: `NoReservesPort` removida; `MoneyBoxReservesPort` (em `report.infrastructure`) soma os saldos pela API pública `moneybox.ReservesQuery`; `reservesTotalAppearsOnTheDashboardWithoutChangingMonthlyBalance` (depósito 700 e saque 200 → `reservesTotal` 500.00, saldo mensal 0.00, EUR 0.00) e no navegador (`Reservas R$ 1.200,00`). O contrato `overview` não mudou.
 - [x] `bars` tem `ceil(últimoDia/7)` itens; dia 29 de fevereiro cai em S5.
   > ✅ 2026-10-29 12:45 +00:00 — `barsAreSevenDayBandsAndLeapDayFallsInS5` (fev/2028: 5 faixas e o dia 29 em S5; fev/2026: 4; fronteira 01/03 só em março) e `OverviewCalculationsTests` (contagem por mês, faixas de 7 dias, resto na última faixa, 31/01 × 01/02).
 - [x] `latestTransactions` tem no máximo 8 itens do mês e da moeda.

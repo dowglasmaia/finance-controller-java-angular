@@ -19,14 +19,14 @@ Página `/` (FRONTEND-SPEC-09, fatia F7): resumo do mês e da moeda selecionados
 
 - `OverviewStore` (`@Injectable()` sem `providedIn`, fornecido pela página): consulta dependente de `ReferenceMonthStore.monthKey` e `CurrencyStore`; `switchMap` cancela a anterior, então a resposta de um mês antigo nunca sobrescreve a do atual. Ao recarregar, limpa o dado anterior (esqueletos). `refresh()` = "Tentar novamente".
 - `DashboardPage`: compõe os blocos. `dashboard-format.ts`: `greetingFor`, `deltaFor` (texto `+25,0%`, tom e ícone; para saídas, menor é melhor) e `formatPercent`.
-- Componentes: `KpiCard` (`shared/ui`, genérico), `IncomeExpenseBars`, `ExpensePie` e `LatestTransactions` (`ui/`). O bloco de meta reutiliza `BudgetProgressCard` de `features/budget` (mostra `Restam`/`Excedeu`).
+- Componentes: `KpiCard` (`shared/ui`, genérico), `IncomeExpenseBars` (reaproveitado pelos relatórios, com textos de acessibilidade configuráveis), `ExpensePie` e `LatestTransactions` (`ui/`). O bloco de meta reutiliza `BudgetProgressCard` de `features/budget` (mostra `Restam`/`Excedeu`).
 - Gráficos em SVG puro, sem biblioteca (nenhuma dependência nova): a altura das barras e o comprimento das fatias são só geometria; os valores exibidos são o texto do servidor formatado.
 
 ## Regras e decisões
 
-- Saldo verde se `>= 0` e coral se negativo. Variação ausente (sem base) não é mostrada; `"0"` mostra `0%`.
+- Cores por natureza do valor: `Entradas` em azul (`text-income`), `Saídas` em vermelho (`text-expense`), `Reservas` em violeta (`text-reserve`) e `Saldo` em verde (`text-success`) se `>= 0` ou vermelho se negativo. A variação mostra verde (favorável) ou vermelho (desfavorável). Variação ausente (sem base) não é mostrada; `"0"` mostra `0%`.
 - Acessibilidade: cada gráfico tem `role="img"` com `aria-label`, e uma alternativa textual (tabela para leitor de tela nas barras; legenda com ícone, nome, percentual e valor na pizza); a variação tem sinal, ícone e frase por extenso; os estados de meta têm ícone e texto.
-- Reservas: o servidor devolve `0.00` até o módulo de cofrinhos (F8) existir; o contrato não muda quando ele chegar.
+- Reservas: o servidor soma os saldos dos cofrinhos da moeda (módulo `moneybox`, F8), independente do mês; o contrato não mudou com a F8.
 - Sem meta global: convite com link para `/metas` (P-14).
 
 ## Validação

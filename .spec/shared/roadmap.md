@@ -1,6 +1,6 @@
 # Roadmap de Execução por Fatias Verticais
 
-> **Estado (2026-10-27):** ordem aprovada em 2026-10-25 e refletida na spec 47; F0, F1 e F2 concluídas e F4, F5, F6 e F7 implementadas (com pendências atribuídas a fatias posteriores, ver "Estado das fatias" na spec 47); F3 com fluxos criados, aguardando execução verde no GitHub Actions; próxima: F8 (Cofrinhos). Deriva de [47-implementation-plano-e-sequencia](../specs/47-implementation-plano-e-sequencia/spec.md) e das dependências das specs; ver "Alterações em relação à proposta anterior da spec 47".
+> **Estado (2026-10-27):** ordem aprovada em 2026-10-25 e refletida na spec 47; F0, F1 e F2 concluídas e F4 a F9 implementadas (com pendências atribuídas a fatias posteriores, ver "Estado das fatias" na spec 47); F3 com fluxos criados, aguardando execução verde no GitHub Actions; próxima: F10 (Preferências). Deriva de [47-implementation-plano-e-sequencia](../specs/47-implementation-plano-e-sequencia/spec.md) e das dependências das specs; ver "Alterações em relação à proposta anterior da spec 47".
 
 ## Princípio
 

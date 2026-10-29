@@ -18,14 +18,14 @@ const ICONS: Record<ToastKind, LucideIconData> = {
 };
 
 const ICON_COLORS: Record<ToastKind, string> = {
-  success: 'text-income',
+  success: 'text-success',
   error: 'text-expense',
   warning: 'text-warning',
   info: 'text-accent',
 };
 
 const BORDER_COLORS: Record<ToastKind, string> = {
-  success: 'border-l-income',
+  success: 'border-l-success',
   error: 'border-l-expense',
   warning: 'border-l-warning',
   info: 'border-l-accent',

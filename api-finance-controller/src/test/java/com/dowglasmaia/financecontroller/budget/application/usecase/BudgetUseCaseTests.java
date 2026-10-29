@@ -184,6 +184,12 @@ class BudgetUseCaseTests {
         public Map<UUID, BigDecimal> expenseTotalsByCategory(UUID ownerId, Currency currency, YearMonth month) {
             return byCategory;
         }
+
+        @Override
+        public Map<UUID, BigDecimal> expenseTotalsByCategory(UUID ownerId, Currency currency, java.time.LocalDate from,
+                                                             java.time.LocalDate to) {
+            return byCategory;
+        }
     }
 
     private static final class Directory implements CategoryDirectory {

@@ -1,0 +1,199 @@
+openapi: 3.1.0
+info:
+    title: Reports API
+    version: 1.0.0
+paths:
+    /api/v1/reports:
+        get:
+            tags:
+                - Reports
+            summary: Obter o relatório do período
+            operationId: getReport
+            description: Relatório da moeda por semana (domingo a sábado), mês ou ano que contém a data âncora - resumo,
+                barras, despesas por categoria, ranking e, só no ano, o resumo mensal. Resumo e barras vêm do mesmo
+                intervalo. Movimentações de cofrinhos não entram.
+            security:
+                - bearerAuth: []
+            parameters:
+                - name: period
+                  in: query
+                  required: true
+                  schema:
+                      $ref: "#/components/schemas/ReportPeriod"
+                - name: anchorDate
+                  in: query
+                  required: true
+                  description: Data que define o período (o cliente envia o dia 15 do mês de referência). Entre 2000-01-01 e 2100-12-31.
+                  schema:
+                      type: string
+                      format: date
+                - name: currency
+                  in: query
+                  required: true
+                  schema:
+                      $ref: "#/components/schemas/Currency"
+                - name: rankingSize
+                  in: query
+                  required: false
+                  description: Quantidade de categorias do ranking (padrão 7).
+                  schema:
+                      type: integer
+                      format: int32
+                      minimum: 1
+                      maximum: 50
+            responses:
+                "200":
+                    description: Relatório do período
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Report"
+                "400":
+                    $ref: ../common/responses.yaml#/components/responses/BadRequestResponse
+                "401":
+                    $ref: ../common/responses.yaml#/components/responses/UnauthorizedResponse
+components:
+    securitySchemes:
+        bearerAuth:
+            $ref: ../common/security.yaml#/components/securitySchemes/bearerAuth
+    schemas:
+        Currency:
+            type: string
+            enum:
+                - BRL
+                - EUR
+        ReportPeriod:
+            type: string
+            enum:
+                - WEEK
+                - MONTH
+                - YEAR
+        DateRange:
+            type: object
+            required:
+                - start
+                - end
+            properties:
+                start:
+                    type: string
+                    format: date
+                end:
+                    type: string
+                    format: date
+        Summary:
+            type: object
+            required:
+                - income
+                - expense
+                - balance
+            properties:
+                income:
+                    type: string
+                expense:
+                    type: string
+                balance:
+                    type: string
+                    description: Entradas menos saídas; pode ser negativo.
+        ReportBar:
+            type: object
+            required:
+                - label
+                - income
+                - expense
+            properties:
+                label:
+                    type: string
+                    description: Dom a Sáb (semana), S1 a S5 (mês, faixas de 7 dias) ou Jan a Dez (ano).
+                income:
+                    type: string
+                expense:
+                    type: string
+        CategoryRef:
+            type: object
+            required:
+                - id
+                - name
+                - color
+                - icon
+            properties:
+                id:
+                    type: string
+                    format: uuid
+                name:
+                    type: string
+                color:
+                    type: string
+                icon:
+                    type: string
+        CategoryShare:
+            type: object
+            required:
+                - category
+                - amount
+                - percentage
+            properties:
+                category:
+                    $ref: "#/components/schemas/CategoryRef"
+                amount:
+                    type: string
+                percentage:
+                    type: string
+                    description: Parte do total de despesas do período, em unidades de percentual com 4 casas.
+        MonthlySummaryItem:
+            type: object
+            required:
+                - month
+                - income
+                - expense
+                - balance
+            properties:
+                month:
+                    type: string
+                    description: YYYY-MM.
+                income:
+                    type: string
+                expense:
+                    type: string
+                balance:
+                    type: string
+                changePercent:
+                    type: string
+                    description: (saldo - saldo anterior) / |saldo anterior| x 100 com 1 casa; ausente no primeiro mês e quando o saldo anterior é 0.
+        Report:
+            type: object
+            required:
+                - period
+                - currency
+                - range
+                - summary
+                - bars
+                - expenseByCategory
+                - ranking
+            properties:
+                period:
+                    $ref: "#/components/schemas/ReportPeriod"
+                currency:
+                    $ref: "#/components/schemas/Currency"
+                range:
+                    $ref: "#/components/schemas/DateRange"
+                summary:
+                    $ref: "#/components/schemas/Summary"
+                bars:
+                    type: array
+                    items:
+                        $ref: "#/components/schemas/ReportBar"
+                expenseByCategory:
+                    type: array
+                    description: Todas as categorias com despesa, da maior para a menor.
+                    items:
+                        $ref: "#/components/schemas/CategoryShare"
+                ranking:
+                    type: array
+                    description: As primeiras rankingSize de expenseByCategory.
+                    items:
+                        $ref: "#/components/schemas/CategoryShare"
+                monthlySummary:
+                    type: array
+                    description: Só quando period = YEAR (12 itens).
+                    items:
+                        $ref: "#/components/schemas/MonthlySummaryItem"

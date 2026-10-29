@@ -2,14 +2,6 @@ import { Routes } from '@angular/router';
 import { AUTH_ROUTES } from './features/auth/auth.routes';
 import { authGuard } from './features/auth/guards/auth.guard';
 
-const comingSoon = () =>
-  import('./features/coming-soon/coming-soon-page').then((module) => module.ComingSoonPage);
-
-/** Fatia futura ainda sem página: cada fatia substitui a sua rota por `loadChildren`/`loadComponent` reais. */
-function placeholder(path: string, title: string, showMonth: boolean) {
-  return { path, title, data: { title, showMonth }, loadComponent: comingSoon };
-}
-
 export const routes: Routes = [
   ...AUTH_ROUTES,
   {
@@ -28,13 +20,20 @@ export const routes: Routes = [
         loadChildren: () =>
           import('./features/transactions/transactions.routes').then((module) => module.TRANSACTIONS_ROUTES),
       },
-      placeholder('relatorios', 'Relatórios', true),
+      {
+        path: 'relatorios',
+        loadChildren: () => import('./features/reports/reports.routes').then((module) => module.REPORTS_ROUTES),
+      },
       {
         path: 'categorias',
         loadChildren: () =>
           import('./features/categories/categories.routes').then((module) => module.CATEGORIES_ROUTES),
       },
-      placeholder('cofrinhos', 'Cofrinhos', false),
+      {
+        path: 'cofrinhos',
+        loadChildren: () =>
+          import('./features/money-boxes/money-boxes.routes').then((module) => module.MONEY_BOXES_ROUTES),
+      },
       {
         path: 'metas',
         loadChildren: () => import('./features/budget/budget.routes').then((module) => module.BUDGET_ROUTES),

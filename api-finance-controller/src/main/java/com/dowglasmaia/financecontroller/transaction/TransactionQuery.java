@@ -20,6 +20,12 @@ public interface TransactionQuery {
     /** Entradas e saídas por dia do mês; só os dias com lançamentos, sem ordem garantida. */
     List<DailyTotals> dailyTotals(UUID ownerId, Currency currency, YearMonth month);
 
+    /** Entradas e saídas do intervalo {@code from..to} (inclusivo por dia); zeros se não há lançamentos. */
+    MonthTotals rangeTotals(UUID ownerId, Currency currency, LocalDate from, LocalDate to);
+
+    /** Entradas e saídas por dia do intervalo; só os dias com lançamentos, sem ordem garantida. */
+    List<DailyTotals> dailyTotals(UUID ownerId, Currency currency, LocalDate from, LocalDate to);
+
     /** Os {@code limit} lançamentos mais recentes do mês na ordem RN-TXN-08 (data, criação e id decrescentes). */
     List<RecentTransaction> latest(UUID ownerId, Currency currency, YearMonth month, int limit);
 

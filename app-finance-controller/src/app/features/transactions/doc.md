@@ -31,7 +31,7 @@ Página `/lancamentos` (FRONTEND-SPEC-10, fatia F5): lista mensal por moeda, fil
 - Ao salvar um lançamento em moeda diferente da selecionada, a interface passa a selecionar essa moeda (P-15).
 - As categorias do diálogo vêm do `CategoriesStore` (a mesma fonte da página de categorias), filtradas pelo tipo (`Ambos` nos dois); trocar o tipo limpa uma categoria incompatível e trocar a categoria limpa a subcategoria.
 - Erros do servidor: `CATEGORY_TYPE_MISMATCH` e `SUBCATEGORY_NOT_IN_CATEGORY` aparecem no campo; `VALIDATION_FAILED` por campo (`errors[]`); categoria removida em outra aba (404) recarrega os seletores.
-- Valor com sinal e cor (entrada `+` verde, saída `-` vermelha), sem depender só da cor.
+- Valor com sinal e cor (entrada `+` azul, saída `-` vermelha; subtotais `Entradas` azul, `Saídas` vermelho e `Saldo` verde, vermelho se negativo), sem depender só da cor.
 - Pendente: edição por `getTransaction` não é necessária; o saldo/aggregates do dashboard (F7) leem os mesmos lançamentos.
 
 ## Validação

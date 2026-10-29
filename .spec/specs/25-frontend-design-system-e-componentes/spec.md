@@ -29,13 +29,15 @@ Definir os tokens visuais (Grafite Ciano, evolução do Neon Graphite) e os comp
 | `content` / `content-muted` | `#E6EDF7` / `#9AA8BF` | `#0F172A` / `#4B5A70` | texto primário e secundário |
 | `accent` / `on-accent` | `#38BDF8` / `#06121F` | `#0369A1` / `#FFFFFF` | ação principal, foco, seleção |
 | `accent-on-brand` | `#38BDF8` | `#38BDF8` | item ativo no menu lateral |
-| `income` | `#34D399` | `#047857` | entradas e "dentro da meta" |
-| `expense` | `#FB7185` | `#BE123C` | saídas, erro e "estourada" |
+| `income` | `#60A5FA` | `#1D4ED8` | entradas (azul) |
+| `expense` | `#F87171` | `#B91C1C` | saídas, erro e "estourada" (vermelho) |
+| `reserve` | `#A78BFA` | `#6D28D9` | reservas / cofrinhos (violeta) |
+| `success` | `#34D399` | `#047857` | saldo positivo, "dentro da meta", variação favorável e toast de sucesso (verde) |
 | `warning` | `#FBBF24` | `#92400E` | "perto da meta" |
 
-Regras: `income`, `expense` e `warning` só têm significado financeiro (nunca decoração) e vêm sempre com ícone ou texto; fundos suaves de estado usam o modificador de opacidade (`bg-expense/10`), sem tokens extras. Cores literais nunca aparecem em templates. Fonte Inter (com *fallback* do sistema; sem carregar fonte externa). Espaçamento em escala de 4 px.
+Regras: `income`, `expense`, `reserve`, `success` e `warning` só têm significado financeiro (nunca decoração) e vêm sempre com ícone ou texto; fundos suaves de estado usam o modificador de opacidade (`bg-expense/10`), sem tokens extras. Cores literais nunca aparecem em templates. Fonte Inter (com *fallback* do sistema; sem carregar fonte externa). Espaçamento em escala de 4 px.
 
-**Contraste medido (WCAG 2.x, 2026-10-27):** texto/fundo 16,3:1 (escuro) e 16,5:1 (claro); `content-muted` sobre cartão 7,2:1 e 7,0:1; `accent` sobre cartão 8,1:1 e 5,9:1; `on-accent` sobre `accent` 8,8:1 e 5,9:1; receita 9,0:1 e 5,5:1; despesa 6,5:1 e 6,3:1; aviso 10,4:1 e 7,1:1; `line-input` sobre o campo rebaixado 3,1:1 (claro) e 3,5:1 (escuro), acima dos 3:1 exigidos para limites de controles; foco `accent` sobre o fundo 5,5:1 e 8,9:1. Menor valor de texto: 5,5:1 (AA, ≥ 4,5:1).
+**Contraste medido (WCAG 2.x, 2026-10-27):** texto/fundo 16,3:1 (escuro) e 16,5:1 (claro); `content-muted` sobre cartão 7,2:1 e 7,0:1; `accent` sobre cartão 8,1:1 e 5,9:1; `on-accent` sobre `accent` 8,8:1 e 5,9:1; entradas 6,8:1 e 6,7:1; saídas 6,3:1 e 6,5:1; reservas 6,4:1 e 7,1:1; sucesso/saldo 9,0:1 e 5,5:1 (revistos em 2026-10-29 com as cores azul, vermelho e violeta); aviso 10,4:1 e 7,1:1; `line-input` sobre o campo rebaixado 3,1:1 (claro) e 3,5:1 (escuro), acima dos 3:1 exigidos para limites de controles; foco `accent` sobre o fundo 5,5:1 e 8,9:1. Menor valor de texto: 5,5:1 (AA, ≥ 4,5:1).
 
 ### Camadas, raios, sombras e movimento
 
@@ -100,6 +102,7 @@ Contraste medido (ver Tokens). Falta medir o contraste dos gráficos ApexCharts 
   > ✅ 2026-10-27 — Paleta Grafite Ciano (escolhida pelo utilizador) em `src/styles.scss`: variáveis `--app-*` nos temas claro e escuro (padrão) mapeadas para `@theme inline`, mais raios, sombras e movimento. Contraste medido por script (WCAG): texto ≥ 5,5:1 nos dois temas, `line-input` ≥ 3:1 (valores em Tokens).
 - [x] Nenhum template usa cor literal.
   > ✅ 2026-10-27 — Verificação após a refatoração: busca por cores hexadecimais, `bg-white/black/slate…` e valores arbitrários (`[..px]`, `z-[..]`) em `.ts` e `.html` de `src/app` sem ocorrências.
+  > ✅ 2026-10-29 14:25 +00:00 — Revisão pedida pelo utilizador: entradas em azul (`income`), saídas em vermelho (`expense`), reservas em violeta (novo `reserve`) e saldo em verde (novo `success`, com as cores que `income` tinha); "dentro da meta", variação favorável e toast de sucesso passaram a `success`. Aplicado no dashboard, relatórios, lançamentos e cofrinhos; 197 testes Vitest verdes.
 - [x] O tema escuro é o padrão numa sessão nova e o claro é uma paleta própria completa.
   > ✅ 2026-10-27 — `ThemeStore` inicia em `DARK` e `index.html` já traz a classe `dark`; teste "padrão é o tema escuro" e "respeita a escolha guardada (claro)" em `stores.spec.ts` (73 testes verdes). `/entrar` conferido nos dois temas no navegador.
 - [ ] `KpiCard`, `MoneyInput`, `ConfirmDialog` e `Toast` têm nome acessível, estados desabilitado/inválido e funcionam por teclado.

@@ -1,7 +1,8 @@
 import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
 import { LucideAngularModule, LucideIconData } from 'lucide-angular';
 
-export type KpiTone = 'positive' | 'negative' | 'neutral';
+/** `positive`/`negative` = bom/ruim (verde/vermelho); `income`, `expense` e `reserve` = a cor da natureza do valor. */
+export type KpiTone = 'positive' | 'negative' | 'neutral' | 'income' | 'expense' | 'reserve';
 
 export interface KpiDelta {
   /** Texto pronto, ex.: `+25,0%`. */
@@ -13,9 +14,12 @@ export interface KpiDelta {
 }
 
 const TONE_CLASS: Record<KpiTone, string> = {
-  positive: 'text-income',
+  positive: 'text-success',
   negative: 'text-expense',
   neutral: 'text-content',
+  income: 'text-income',
+  expense: 'text-expense',
+  reserve: 'text-reserve',
 };
 
 /**

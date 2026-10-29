@@ -24,8 +24,10 @@
   --app-accent-on-brand: #38bdf8;
   --app-accent: #0369a1;
   --app-on-accent: #ffffff;
-  --app-income: #047857;
-  --app-expense: #be123c;
+  --app-income: #1d4ed8;
+  --app-expense: #b91c1c;
+  --app-reserve: #6d28d9;
+  --app-success: #047857;
   --app-warning: #92400e;
   --app-shadow-card: 0 1px 2px rgb(15 23 42 / 0.06);
   --app-shadow-overlay: 0 8px 24px rgb(15 23 42 / 0.16);
@@ -47,8 +49,10 @@
   --app-accent-on-brand: #38bdf8;
   --app-accent: #38bdf8;
   --app-on-accent: #06121f;
-  --app-income: #34d399;
-  --app-expense: #fb7185;
+  --app-income: #60a5fa;
+  --app-expense: #f87171;
+  --app-reserve: #a78bfa;
+  --app-success: #34d399;
   --app-warning: #fbbf24;
   --app-shadow-card: none;
   --app-shadow-overlay: 0 12px 32px rgb(0 0 0 / 0.5);
@@ -74,6 +78,8 @@
   --color-on-accent: var(--app-on-accent);
   --color-income: var(--app-income);
   --color-expense: var(--app-expense);
+  --color-reserve: var(--app-reserve);
+  --color-success: var(--app-success);
   --color-warning: var(--app-warning);
   --shadow-card: var(--app-shadow-card);
   --shadow-overlay: var(--app-shadow-overlay);

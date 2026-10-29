@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.Map;
 import java.util.UUID;
@@ -31,5 +32,11 @@ class ExpenseQueryService implements ExpenseQuery {
     @Transactional(readOnly = true)
     public Map<UUID, BigDecimal> expenseTotalsByCategory(UUID ownerId, Currency currency, YearMonth month) {
         return transactions.sumExpensesByCategory(ownerId, month, currency);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Map<UUID, BigDecimal> expenseTotalsByCategory(UUID ownerId, Currency currency, LocalDate from, LocalDate to) {
+        return transactions.sumExpensesByCategory(ownerId, from, to, currency);
     }
 }

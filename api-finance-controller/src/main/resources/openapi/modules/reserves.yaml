@@ -1,0 +1,103 @@
+openapi: 3.1.0
+info:
+    title: Reserves API
+    version: 1.0.0
+paths:
+    /api/v1/reserves/{currency}/summary:
+        get:
+            tags:
+                - Reserves
+            summary: Resumo das reservas da moeda
+            operationId: getReservesSummary
+            description: Total guardado (soma dos saldos dos cofrinhos da moeda), meta geral e progresso. Não depende
+                de mês.
+            security:
+                - bearerAuth: []
+            parameters:
+                - $ref: "#/components/parameters/Currency"
+            responses:
+                "200":
+                    description: Resumo
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/ReservesSummary"
+                "400":
+                    $ref: ../common/responses.yaml#/components/responses/BadRequestResponse
+                "401":
+                    $ref: ../common/responses.yaml#/components/responses/UnauthorizedResponse
+    /api/v1/reserves/{currency}/goal:
+        put:
+            tags:
+                - Reserves
+            summary: Salvar a meta geral de reservas
+            operationId: saveReserveGoal
+            description: Valor 0 remove a meta. A meta geral é independente da soma das metas individuais.
+            security:
+                - bearerAuth: []
+            parameters:
+                - $ref: "#/components/parameters/Currency"
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: "#/components/schemas/SaveReserveGoalRequest"
+            responses:
+                "200":
+                    description: Resumo atualizado
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/ReservesSummary"
+                "400":
+                    $ref: ../common/responses.yaml#/components/responses/BadRequestResponse
+                "401":
+                    $ref: ../common/responses.yaml#/components/responses/UnauthorizedResponse
+components:
+    securitySchemes:
+        bearerAuth:
+            $ref: ../common/security.yaml#/components/securitySchemes/bearerAuth
+    parameters:
+        Currency:
+            name: currency
+            in: path
+            required: true
+            schema:
+                $ref: "#/components/schemas/Currency"
+    schemas:
+        Currency:
+            type: string
+            enum:
+                - BRL
+                - EUR
+        SaveReserveGoalRequest:
+            type: object
+            required:
+                - amount
+            properties:
+                amount:
+                    type: string
+                    description: Meta geral (>= 0); 0 remove.
+                    pattern: "^\\d{1,10}(\\.\\d{1,2})?$"
+        ReservesSummary:
+            type: object
+            required:
+                - currency
+                - total
+                - progress
+                - boxCount
+            properties:
+                currency:
+                    $ref: "#/components/schemas/Currency"
+                total:
+                    type: string
+                goal:
+                    type: string
+                    description: Ausente quando não há meta geral.
+                progress:
+                    type: string
+                    description: min(total / meta, 1) com 4 casas decimais; 0.0000 sem meta.
+                boxCount:
+                    type: integer
+                    format: int32

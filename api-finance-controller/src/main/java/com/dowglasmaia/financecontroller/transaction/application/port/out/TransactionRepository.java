@@ -6,6 +6,7 @@ import com.dowglasmaia.financecontroller.transaction.domain.Transaction;
 import com.dowglasmaia.financecontroller.transaction.TransactionKind;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.List;
 import java.util.Map;
@@ -38,6 +39,15 @@ public interface TransactionRepository {
 
     /** Despesas do mês e da moeda somadas por categoria (só categorias com gasto). */
     Map<UUID, BigDecimal> sumExpensesByCategory(UUID ownerId, YearMonth month, Currency currency);
+
+    /** Entradas e saídas do intervalo {@code from..to} (inclusivo por dia) e da moeda. */
+    Totals totals(UUID ownerId, LocalDate from, LocalDate to, Currency currency);
+
+    /** Entradas e saídas por dia do intervalo (só dias com lançamentos). */
+    List<com.dowglasmaia.financecontroller.transaction.TransactionQuery.DailyTotals> dailyTotals(UUID ownerId, LocalDate from, LocalDate to, Currency currency);
+
+    /** Despesas do intervalo e da moeda somadas por categoria (só categorias com gasto). */
+    Map<UUID, BigDecimal> sumExpensesByCategory(UUID ownerId, LocalDate from, LocalDate to, Currency currency);
 
     Optional<Transaction> findById(UUID ownerId, UUID transactionId);
 

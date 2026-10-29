@@ -63,7 +63,7 @@ Carregando (esqueletos nos KPIs e gráficos), erro com "Tentar novamente", vazio
 - [x] Com meta 1000 e gasto 850 o bloco mostra `Perto da meta`, 85% e 150 restantes; sem meta mostra o convite com link para `/metas`.
   > ✅ 2026-10-29 12:45 +00:00 — `dashboard-page.spec.ts` (`Perto da meta`, `85%`, `Restam R$ 150,00`; estourada mostra `Excedeu`; sem meta, convite com link para `/metas`) e no navegador (meta 2000: `53%`, `Restam R$ 949,50`).
 - [x] Trocar a moeda mostra o dashboard da outra moeda (saldo, metas e reservas daquela moeda).
-  > ✅ 2026-10-29 12:45 +00:00 — `dashboard-page.spec.ts` e no navegador (EUR: zeros, convite sem meta e mensagens de vazio). As reservas vêm do servidor por moeda (hoje `0.00`, F8).
+  > ✅ 2026-10-29 12:45 +00:00 — `dashboard-page.spec.ts` e no navegador (EUR: zeros, convite sem meta e mensagens de vazio). As reservas vêm do servidor por moeda (reais desde a F8: no navegador o dashboard mostrou `Reservas R$ 1.200,00` com os cofrinhos).
 
 ### Skills de implementação
 

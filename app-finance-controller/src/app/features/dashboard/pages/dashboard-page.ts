@@ -50,9 +50,9 @@ import { LatestTransactions } from '../ui/latest-transactions';
           <div class="flex flex-col gap-4">
             <section class="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4" aria-label="Indicadores do mês">
               <app-kpi-card label="Saldo" [value]="money(overview.summary.balance)" [tone]="overview.summary.balance.startsWith('-') ? 'negative' : 'positive'" />
-              <app-kpi-card label="Entradas" [value]="money(overview.summary.income)" [delta]="incomeDelta()" />
-              <app-kpi-card label="Saídas" [value]="money(overview.summary.expense)" [delta]="expenseDelta()" />
-              <app-kpi-card label="Reservas" [value]="money(overview.reservesTotal)" />
+              <app-kpi-card label="Entradas" tone="income" [value]="money(overview.summary.income)" [delta]="incomeDelta()" />
+              <app-kpi-card label="Saídas" tone="expense" [value]="money(overview.summary.expense)" [delta]="expenseDelta()" />
+              <app-kpi-card label="Reservas" tone="reserve" [value]="money(overview.reservesTotal)" />
             </section>
 
             @if (overview.budgetProgress.limit) {

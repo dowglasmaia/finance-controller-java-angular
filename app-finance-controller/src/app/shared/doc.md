@@ -1,11 +1,11 @@
 # shared
 
 Design system mínimo e utilitários reutilizáveis (FRONTEND-SPEC-02/05, fatia F2). Sem regra de negócio, sem HTTP.
-Só entra aqui o que a F2 usa; `DataTable`, `ProgressBar`, pickers e `TypeToggle` chegam nas fatias F8–F9 (`KpiCard` entrou na F7; os gráficos do dashboard são SVG próprio em `features/dashboard`) (`Modal` e `ConfirmDialog` entraram na F4).
+Só entra aqui o que a F2 usa; `DataTable`, `ProgressBar`, pickers e `TypeToggle` chegam nas fatias F10 em diante (`KpiCard` entrou na F7 e é reutilizado nos cofrinhos da F8; os gráficos do dashboard são SVG próprio em `features/dashboard`) (`Modal` e `ConfirmDialog` entraram na F4).
 
 ## Componentes (`ui/`)
 
-Standalone, `OnPush`, `input()`/`output()`, seletor `app-*`, cores só por tokens semânticos (`bg-surface`, `text-income`…), ícones Lucide (`[img]`, registrados por import nomeado, sem registro global).
+Standalone, `OnPush`, `input()`/`output()`, seletor `app-*`, cores só por tokens semânticos (`bg-surface`, `text-income` azul, `text-expense` vermelho, `text-reserve` violeta, `text-success` verde…), ícones Lucide (`[img]`, registrados por import nomeado, sem registro global).
 
 | Componente | Seletor | API |
 |---|---|---|
@@ -20,7 +20,7 @@ Standalone, `OnPush`, `input()`/`output()`, seletor `app-*`, cores só por token
 | `FormFieldComponent` + `FieldControlDirective` | `app-form-field` + `[appFieldControl]` | ver abaixo |
 | `Modal` | `app-modal` | `title` (obrigatório, `h2` do diálogo); output `closed` (Esc ou clique no fundo). `role="dialog"` `aria-modal`, foco inicial no primeiro controle (ou `[data-autofocus]`), foco preso e devolvido a quem abriu. Quem usa o destrói com `@if` |
 | `ConfirmDialog` | `app-confirm-dialog` | `title`, `message` (obrigatórios), `confirmLabel`, `busy`; outputs `confirmed`, `cancelled`. Foco inicial em Cancelar |
-| `KpiCard` | `app-kpi-card` | `label`, `value` (já formatado), `tone` (`positive`/`negative`/`neutral`), `delta` (`KpiDelta`: texto, tom, ícone e frase por extenso). A variação repete na forma (sinal e ícone) o que a cor diz |
+| `KpiCard` | `app-kpi-card` | `label`, `value` (já formatado), `tone` (`positive`/`negative` = bom/ruim em verde/vermelho; `neutral`; `income` azul, `expense` vermelho e `reserve` violeta = natureza do valor), `delta` (`KpiDelta`: texto, tom, ícone e frase por extenso). A variação repete na forma (sinal e ícone) o que a cor diz |
 | `MoneyInputDirective` | `input[appMoneyInput]` (em `shared/forms`) | Campo de valor: guarda o decimal da API como texto (`"1234.56"`), mostra com vírgula, aceita só dígitos e um separador, no máximo 2 casas; nunca usa `number`. Combine com `requiredValue`, `decimalValue`, `positiveAmount` |
 
 ### FormField
