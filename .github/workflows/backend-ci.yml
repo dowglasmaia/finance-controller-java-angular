@@ -60,4 +60,4 @@ jobs:
       - uses: actions/checkout@v4
       # Apenas constrói; nenhum envio a registo (P-18).
       - name: Construir imagem (sem enviar)
-        run: docker build --tag finance-controller-api:ci-${{ github.sha }} api-finance-controller
+        run: docker build --tag finance-controller-api:ci-${{ github.sha }} .
