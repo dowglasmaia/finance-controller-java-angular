@@ -49,6 +49,7 @@ jobs:
           path: |
             api-finance-controller/target/surefire-reports
             api-finance-controller/target/failsafe-reports
+            api-finance-controller/target/site/jacoco
           if-no-files-found: ignore
           retention-days: 7
 

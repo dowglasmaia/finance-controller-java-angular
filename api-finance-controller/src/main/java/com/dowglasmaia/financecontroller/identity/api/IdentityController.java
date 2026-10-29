@@ -3,15 +3,20 @@ package com.dowglasmaia.financecontroller.identity.api;
 import com.dowglasmaia.financecontroller.generated.identity.api.IdentityApi;
 import com.dowglasmaia.financecontroller.generated.identity.model.AccessTokenResponse;
 import com.dowglasmaia.financecontroller.generated.identity.model.AuthResponse;
+import com.dowglasmaia.financecontroller.generated.identity.model.ConfirmPasswordResetRequest;
 import com.dowglasmaia.financecontroller.generated.identity.model.LoginRequest;
+import com.dowglasmaia.financecontroller.generated.identity.model.PasswordResetRequestedResponse;
+import com.dowglasmaia.financecontroller.generated.identity.model.RequestPasswordResetRequest;
 import com.dowglasmaia.financecontroller.generated.identity.model.RegisterRequest;
 import com.dowglasmaia.financecontroller.generated.identity.model.UserResponse;
 import com.dowglasmaia.financecontroller.identity.application.usecase.AuthResult;
+import com.dowglasmaia.financecontroller.identity.application.usecase.ConfirmPasswordResetUseCase;
 import com.dowglasmaia.financecontroller.identity.application.usecase.GetCurrentUserUseCase;
 import com.dowglasmaia.financecontroller.identity.application.usecase.LoginUseCase;
 import com.dowglasmaia.financecontroller.identity.application.usecase.LogoutUseCase;
 import com.dowglasmaia.financecontroller.identity.application.usecase.RefreshTokenUseCase;
 import com.dowglasmaia.financecontroller.identity.application.usecase.RegisterUserUseCase;
+import com.dowglasmaia.financecontroller.identity.application.usecase.RequestPasswordResetUseCase;
 import com.dowglasmaia.financecontroller.identity.application.usecase.TokenRefreshResult;
 import com.dowglasmaia.financecontroller.identity.domain.UserId;
 import com.dowglasmaia.financecontroller.shared.error.DomainException;
@@ -35,22 +40,30 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 /** Só mapeia e delega; as regras vivem nos casos de uso. */
 @RestController
 public class IdentityController implements IdentityApi {
+    private static final String NEUTRAL_RESET_MESSAGE =
+        "Se o e-mail estiver cadastrado, enviaremos um link para redefinir a senha.";
+
     private final RegisterUserUseCase registerUser;
     private final LoginUseCase login;
     private final RefreshTokenUseCase refreshToken;
     private final LogoutUseCase logout;
     private final GetCurrentUserUseCase getCurrentUser;
+    private final RequestPasswordResetUseCase requestPasswordReset;
+    private final ConfirmPasswordResetUseCase confirmPasswordReset;
     private final AuthCookieProperties cookie;
     private final Clock clock;
 
     public IdentityController(RegisterUserUseCase registerUser, LoginUseCase login, RefreshTokenUseCase refreshToken,
-            LogoutUseCase logout, GetCurrentUserUseCase getCurrentUser, AuthCookieProperties cookie,
-            ObjectProvider<Clock> clock) {
+            LogoutUseCase logout, GetCurrentUserUseCase getCurrentUser,
+            RequestPasswordResetUseCase requestPasswordReset, ConfirmPasswordResetUseCase confirmPasswordReset,
+            AuthCookieProperties cookie, ObjectProvider<Clock> clock) {
         this.registerUser = registerUser;
         this.login = login;
         this.refreshToken = refreshToken;
         this.logout = logout;
         this.getCurrentUser = getCurrentUser;
+        this.requestPasswordReset = requestPasswordReset;
+        this.confirmPasswordReset = confirmPasswordReset;
         this.cookie = cookie;
         this.clock = clock.getIfAvailable(Clock::systemUTC);
     }
@@ -94,6 +107,19 @@ public class IdentityController implements IdentityApi {
     @Override
     public ResponseEntity<UserResponse> getCurrentUser() {
         return ResponseEntity.ok(IdentityMapper.toResponse(getCurrentUser.execute(authenticatedUserId())));
+    }
+
+    @Override
+    public ResponseEntity<PasswordResetRequestedResponse> requestPasswordReset(RequestPasswordResetRequest request) {
+        // mesma resposta exista a conta ou não; o resto roda depois dela
+        requestPasswordReset.execute(request.getEmail(), currentRequest().getRemoteAddr());
+        return ResponseEntity.accepted().body(new PasswordResetRequestedResponse(NEUTRAL_RESET_MESSAGE));
+    }
+
+    @Override
+    public ResponseEntity<Void> confirmPasswordReset(ConfirmPasswordResetRequest request) {
+        confirmPasswordReset.execute(request.getToken(), request.getNewPassword());
+        return ResponseEntity.noContent().build();
     }
 
     private String refreshCookie(String value, Instant expiresAt) {

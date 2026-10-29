@@ -10,10 +10,17 @@ import org.testcontainers.postgresql.PostgreSQLContainer;
 public class PostgresContainerConfiguration {
     public static final String IMAGE = "postgres:18.1";
 
-    private static final PostgreSQLContainer POSTGRES = new PostgreSQLContainer(IMAGE);
+    // Cada contexto Spring em cache mantém o seu próprio pool: com muitas configurações distintas o padrão (100 conexões) esgota.
+    private static final PostgreSQLContainer POSTGRES = new PostgreSQLContainer(IMAGE)
+        .withCommand("postgres", "-c", "max_connections=400");
 
     static {
         POSTGRES.start();
+    }
+
+    /** O contentor compartilhado, para testes que precisam de outro banco ou de outros utilizadores nele. */
+    public static PostgreSQLContainer container() {
+        return POSTGRES;
     }
 
     @Bean

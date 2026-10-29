@@ -41,8 +41,17 @@ jobs:
       - name: Build de produção
         run: npm run build
 
-      - name: Testes
-        run: npm test
+      - name: Testes (com cobertura)
+        run: npm test -- --coverage
+
+      - name: Publicar a cobertura
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-coverage
+          path: app-finance-controller/coverage
+          if-no-files-found: ignore
+          retention-days: 7
 
   docker-image:
     needs: build-test

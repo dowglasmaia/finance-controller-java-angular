@@ -1,0 +1,82 @@
+name: E2E
+
+# F12 (QUALITY-SPEC-04): as jornadas J-00 a J-12 e a verificação de acessibilidade (axe) sobre o conjunto real no compose
+# (PostgreSQL + API + frontend em nginx + Mailpit), com dados sintéticos e relógio do navegador fixo.
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: e2e-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  e2e:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      FC_IMAGE_TAG: ci-${{ github.sha }}
+      WEB_PORT: 8081
+      MAILPIT_UI_PORT: 8025
+      FC_APP_BASE_URL: http://localhost:8081
+      # as jornadas repetem o pedido de recuperação de senha mais vezes que o limite de produção
+      FC_PASSWORD_RESET_MAX_REQUESTS: 1000
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Valores fictícios para o conjunto de teste
+        run: |
+          cat > .env <<ENV
+          POSTGRES_DB=finance_controller
+          POSTGRES_USER=finance
+          POSTGRES_PASSWORD=$(openssl rand -hex 16)
+          APP_JWT_SECRET=$(openssl rand -hex 32)
+          SPRING_PROFILES_ACTIVE=local
+          APP_CORS_ALLOWED_ORIGINS=http://localhost:8081
+          ENV
+
+      - name: Subir o conjunto
+        run: docker compose up -d --build --wait
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: e2e/package-lock.json
+
+      - name: Instalar o Playwright
+        working-directory: e2e
+        run: |
+          npm ci
+          npx playwright install --with-deps chromium
+
+      - name: Rodar as jornadas e a acessibilidade
+        working-directory: e2e
+        env:
+          E2E_BASE_URL: http://localhost:8081
+          E2E_MAILPIT: http://localhost:8025
+        run: npx playwright test
+
+      - name: Publicar o relatório
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2e-report
+          path: |
+            e2e/playwright-report
+            e2e/test-results
+          if-no-files-found: ignore
+          retention-days: 7
+
+      - name: Logs do conjunto em caso de falha
+        if: failure()
+        run: docker compose logs --no-color --tail=200
+
+      - name: Derrubar
+        if: always()
+        run: docker compose down -v

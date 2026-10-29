@@ -1,6 +1,7 @@
 package com.dowglasmaia.financecontroller.identity.application.port.out;
 
 import com.dowglasmaia.financecontroller.identity.domain.RefreshSession;
+import com.dowglasmaia.financecontroller.identity.domain.UserId;
 
 import java.time.Instant;
 import java.util.Optional;
@@ -17,4 +18,7 @@ public interface RefreshSessionRepository {
 
     /** Revoga todas as sessões ainda não revogadas da família. */
     void revokeFamily(UUID familyId, Instant at);
+
+    /** Revoga todas as sessões ainda não revogadas do utilizador (senha redefinida). */
+    void revokeAllOfUser(UserId userId, Instant at);
 }

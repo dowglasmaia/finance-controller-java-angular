@@ -84,6 +84,46 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/auth/password-reset/request": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Pedir o link de recuperação de senha
+         * @description Responde sempre 202 com a mesma mensagem, exista a conta ou não. Se a conta existe, um link de uso único e validade curta é enviado por e-mail (processado depois da resposta).
+         */
+        post: operations["requestPasswordReset"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/auth/password-reset/confirm": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Definir a nova senha com o token do e-mail
+         * @description Token inexistente, vencido, usado ou alterado devolve PASSWORD_RESET_TOKEN_INVALID. O sucesso encerra todas as sessões da conta e não autentica automaticamente.
+         */
+        post: operations["confirmPasswordReset"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/auth/me": {
         parameters: {
             query?: never;
@@ -112,6 +152,17 @@ export interface components {
             /** Format: email */
             email: string;
             password: string;
+        };
+        RequestPasswordResetRequest: {
+            /** Format: email */
+            email: string;
+        };
+        PasswordResetRequestedResponse: {
+            message: string;
+        };
+        ConfirmPasswordResetRequest: {
+            token: string;
+            newPassword: string;
         };
         LoginRequest: {
             /** Format: email */
@@ -299,6 +350,54 @@ export interface operations {
                 };
                 content?: never;
             };
+        };
+    };
+    requestPasswordReset: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RequestPasswordResetRequest"];
+            };
+        };
+        responses: {
+            /** @description Pedido recebido (resposta neutra) */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PasswordResetRequestedResponse"];
+                };
+            };
+            400: components["responses"]["BadRequestResponse"];
+        };
+    };
+    confirmPasswordReset: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ConfirmPasswordResetRequest"];
+            };
+        };
+        responses: {
+            /** @description Senha alterada */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            400: components["responses"]["BadRequestResponse"];
         };
     };
     getCurrentUser: {

@@ -37,12 +37,12 @@ class IdentityMigrationTests extends AbstractPostgresIntegrationTest {
             .load()
             .migrate();
         assertTrue(result.success);
-        assertEquals("5", result.targetSchemaVersion);
+        assertEquals("7", result.targetSchemaVersion);
         List<String> tables = jdbc.queryForList("""
             SELECT table_name FROM information_schema.tables
             WHERE table_schema = 'migration_from_scratch' AND table_name <> 'flyway_schema_history'
             ORDER BY table_name""", String.class);
-        assertEquals(List.of("app_user", "budget_category_limit", "budget_month_override", "budget_setting", "category", "money_box", "money_box_entry", "refresh_token", "reserve_goal", "subcategory", "transaction_entry"), tables);
+        assertEquals(List.of("app_user", "budget_category_limit", "budget_month_override", "budget_setting", "category", "money_box", "money_box_entry", "password_reset_token", "preference", "refresh_token", "reserve_goal", "subcategory", "transaction_entry"), tables);
     }
 
     @Test

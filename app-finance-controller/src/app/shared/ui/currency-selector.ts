@@ -34,7 +34,7 @@ interface CurrencyOption {
 export class CurrencySelector {
   protected readonly store = inject(CurrencyStore);
   protected readonly options: readonly CurrencyOption[] = [
-    { value: 'BRL', label: 'BRL', name: 'Real (BRL)' },
-    { value: 'EUR', label: 'EUR', name: 'Euro (EUR)' },
+    { value: 'BRL', label: 'BRL', name: 'BRL, Real brasileiro' },
+    { value: 'EUR', label: 'EUR', name: 'EUR, Euro' },
   ];
 }

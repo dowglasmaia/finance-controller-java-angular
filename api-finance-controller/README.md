@@ -17,6 +17,12 @@ export SPRING_DATASOURCE_PASSWORD=<same as POSTGRES_PASSWORD>   # PowerShell: $e
 
 Authentication: `APP_JWT_SECRET` (at least 32 bytes) is required outside the `local` and `test` profiles and the app refuses to start without it; `.env.example` and the `local` profile carry a fictitious development value that must never be used in production. Set `APP_CORS_ALLOWED_ORIGINS` to the frontend origin. Every route except `POST /api/v1/auth/{register,login,refresh,logout}` and `GET /actuator/health` requires `Authorization: Bearer <accessToken>`, so the endpoints below return 401 without a token.
 
+Password recovery (`POST /api/v1/auth/password-reset/request` and `/confirm`) sends e-mail over SMTP: `FC_MAIL_HOST`/`FC_MAIL_PORT` (default `localhost:1025`, the Mailpit capture server from the root `compose.yml`, UI on `http://localhost:8025`), `FC_MAIL_USERNAME`/`FC_MAIL_PASSWORD`/`FC_MAIL_FROM`, `FC_APP_BASE_URL` (frontend address used in the link; must be `https://` outside the `local` and `test` profiles or the app refuses to start) and `FC_PASSWORD_RESET_TTL` (default `30m`). Integration tests start their own Mailpit through Testcontainers.
+
+Production profile (`prod`, `application-prod.yml`): no development defaults, database user without DDL (`scripts/db/prod-roles.sql`; Flyway migrates with its own owner credentials through `FLYWAY_*`), readiness includes the database, errors carry no stack traces. Operation guide: `.spec/shared/operacao.md`.
+
+Tests: `./mvnw clean verify` needs Docker (PostgreSQL 18.1 and Mailpit through Testcontainers; the shared PostgreSQL runs with `max_connections=400`). It includes contract conformance of all 37 operations, security hardening, a 100 000-row performance check and the JaCoCo report in `target/site/jacoco`.
+
 Then register through `POST /api/v1/auth/register` and call `GET http://localhost:8080/api/v1/categories` with the returned token to see the 11 default categories, and `GET http://localhost:8080/actuator/health` for an UP status. Set `PORT` to change the port.
 
 ## Architecture

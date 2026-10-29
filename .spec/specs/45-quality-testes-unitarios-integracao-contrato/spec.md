@@ -1,6 +1,6 @@
 # 45-quality-testes-unitarios-integracao-contrato
 
-> **IDs:** QUALITY-SPEC-01 (unitários), QUALITY-SPEC-02 (integração), QUALITY-SPEC-03 (contrato) · **Categoria:** Qualidade · **Estado:** proposta para revisão — não aprovada, não executada.
+> **IDs:** QUALITY-SPEC-01 (unitários), QUALITY-SPEC-02 (integração), QUALITY-SPEC-03 (contrato) · **Categoria:** Qualidade · **Estado:** executada na F12 (2026-10-29); restrições do esquema uma a uma, falhas injetadas e execução do CI pendentes.
 
 ## Objetivo
 
@@ -55,12 +55,18 @@ PostgreSQL real em contentor (Testcontainers); dados sintéticos; isolamento por
 
 ## Regras e critérios de aceitação
 
-- [ ] Os testes de domínio rodam sem Spring e sem banco, em segundos.
+- [x] Os testes de domínio rodam sem Spring e sem banco, em segundos.
+  > ✅ 2026-10-29 16:20 +00:00 — `MoneyBoxDomainTests`, `ReportCalculationsTests`, `DomainGuardTests`, `ResetTokenTests` etc. rodam sem Spring nem banco em milissegundos (a suíte de domínio inteira roda em menos de 2 s).
 - [ ] Cada restrição do esquema tem teste de integração que a viola e verifica a resposta.
+  > ⏳ 2026-10-29 16:20 +00:00 — Cobertas indiretamente pelos fluxos (unicidade de categoria e de e-mail sob concorrência, `CURRENCY_LOCKED`, `INSUFFICIENT_BALANCE`, cascata do cofrinho, utilizador sem DDL, CHECKs de moeda e valor pela validação do domínio). Falta um teste que viole cada CHECK/FK **direto no SQL**, restrição por restrição.
 - [ ] Falhas injetadas no cadastro, na exclusão de cofrinho e em `saveBudget` deixam o estado intacto.
-- [ ] Existe teste de isolamento entre dois utilizadores para cada módulo de dados.
-- [ ] Toda operação do índice de GLOBAL-SPEC-03 tem teste de contrato de resposta de sucesso e de erro.
+  > ⏳ 2026-10-29 16:20 +00:00 — As operações são atómicas por `@Transactional` e a corrida de cofrinho/meta/limiar está testada com concorrência real; não há teste que **injete uma falha no meio** do cadastro, da exclusão do cofrinho e de `saveBudget` para provar o rollback (só `saveBudget` com categoria inexistente deixa tudo como estava).
+- [x] Existe teste de isolamento entre dois utilizadores para cada módulo de dados.
+  > ✅ 2026-10-29 16:20 +00:00 — Um por módulo de dados: categorias, lançamentos, metas, cofrinhos e movimentações, relatórios, dashboard e preferências (`…FlowIntegrationTest`), e `everyDataRouteNeedsASessionAndAForgedTokenIsRefused` (401 em 14 rotas) mais J-09 no navegador.
+- [x] Toda operação do índice de GLOBAL-SPEC-03 tem teste de contrato de resposta de sucesso e de erro.
+  > ✅ 2026-10-29 16:20 +00:00 — `ApiContractConformanceIntegrationTest`: as 37 operações dos 9 contratos são chamadas de verdade; o status precisa estar declarado no OpenAPI, o corpo de sucesso é lido no modelo gerado (campo desconhecido reprova) e validado por Bean Validation, e o erro confere com o `ProblemDetail` de `common/responses.yaml`; erro de domínio em 23 das 37 (as demais só têm o 401 global). O teste reprova se alguma `operationId` de qualquer contrato ficar sem verificação.
 - [ ] O CI falha em contrato inválido, diferença de geração ou mudança incompatível não aprovada.
+  > ⏳ 2026-10-29 16:20 +00:00 — Contrato inválido ou `operationId` repetido já quebra o `generate-sources` do Maven; `security-and-contract.yml` acrescenta a falha por tipos do frontend desatualizados (`npm run generate:api` + `git diff --exit-code`) e por mudança incompatível (oasdiff, em PRs). Testado localmente: `oasdiff breaking` entre o commit e a árvore atual → sem mudança incompatível (as operações novas só acrescentam). **Criado, não executado no GitHub Actions.**
 
 ### Skills de implementação
 
@@ -75,11 +81,13 @@ PostgreSQL real em contentor (Testcontainers); dados sintéticos; isolamento por
 
 ### Descoberta e decisão
 
-- [ ] Escolher as ferramentas de comparação de contrato e de validação de resposta.
+- [x] Escolher as ferramentas de comparação de contrato e de validação de resposta.
+  > ✅ 2026-10-29 16:20 +00:00 — Escolha final: validação de resposta **sem biblioteca de terceiros** (o próprio OpenAPI + os modelos gerados + SnakeYAML) em vez de swagger-request-validator/networknt (o 3.1 e as referências entre arquivos não se resolvem bem neles); comparação de versões com **oasdiff** (imagem Docker) só no CI.
 
 ### Validação
 
 - [ ] Configurar os três níveis no CI e registar a primeira execução completa.
+  > ⏳ 2026-10-29 16:20 +00:00 — Fluxos de CI criados (`backend-ci`, `frontend-ci`, `e2e`, `security-and-contract`); **nenhum rodou no GitHub Actions ainda** (sem repositório remoto verificado, F3). A primeira execução completa fica registrada quando o remoto existir.
 
 ## Resultado esperado
 

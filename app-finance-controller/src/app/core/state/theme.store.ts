@@ -1,6 +1,6 @@
 import { DOCUMENT } from '@angular/common';
 import { DestroyRef, Injectable, computed, effect, inject, signal } from '@angular/core';
-import { readStorage, writeStorage } from './safe-storage';
+import { readStorage, removeStorage, writeStorage } from './safe-storage';
 
 export type ThemeMode = 'SYSTEM' | 'LIGHT' | 'DARK';
 
@@ -18,7 +18,7 @@ function loadMode(): ThemeMode {
 
 /**
  * Dono do tema. Aplica a classe `dark` em `<html>`.
- * Ponto de extensão (F10): sincronizar com as preferências do servidor após o login.
+ * A `PreferencesSync` sincroniza com o servidor por utilizador; ao sair, volta ao tema escuro padrão e limpa o dispositivo.
  */
 @Injectable({ providedIn: 'root' })
 export class ThemeStore {
@@ -42,6 +42,12 @@ export class ThemeStore {
   setMode(mode: ThemeMode): void {
     this.mode.set(mode);
     writeStorage(STORAGE_KEY, mode);
+  }
+
+  /** Logout: tema escuro padrão e nada guardado no dispositivo. */
+  resetToDefault(): void {
+    this.mode.set('DARK');
+    removeStorage(STORAGE_KEY);
   }
 
   /** dark → light; qualquer outro → dark. */

@@ -13,6 +13,9 @@ type Body<T extends keyof operations, S extends keyof operations[T]['responses']
 
 export type RegisterRequest = Schemas['RegisterRequest'];
 export type LoginRequest = Schemas['LoginRequest'];
+export type RequestPasswordResetRequest = Schemas['RequestPasswordResetRequest'];
+export type ConfirmPasswordResetRequest = Schemas['ConfirmPasswordResetRequest'];
+export type PasswordResetRequestedResponse = Schemas['PasswordResetRequestedResponse'];
 export type AuthResponse = Body<'login', 200>;
 export type AccessTokenResponse = Body<'refreshToken', 200>;
 export type UserResponse = Body<'getCurrentUser', 200>;
@@ -37,6 +40,16 @@ export class AuthApiService {
 
   logout(): Observable<void> {
     return this.http.post<void>(`${this.baseUrl}/auth/logout`, null, { withCredentials: true });
+  }
+
+  /** Pública. Responde sempre 202 com a mesma mensagem, exista a conta ou não. */
+  requestPasswordReset(request: RequestPasswordResetRequest): Observable<PasswordResetRequestedResponse> {
+    return this.http.post<PasswordResetRequestedResponse>(`${this.baseUrl}/auth/password-reset/request`, request);
+  }
+
+  /** Pública. O token vai só no corpo (nunca em URL ou cabeçalho). */
+  confirmPasswordReset(request: ConfirmPasswordResetRequest): Observable<void> {
+    return this.http.post<void>(`${this.baseUrl}/auth/password-reset/confirm`, request);
   }
 
   getCurrentUser(): Observable<UserResponse> {

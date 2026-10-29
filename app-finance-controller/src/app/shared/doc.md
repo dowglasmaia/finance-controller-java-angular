@@ -63,3 +63,7 @@ Alvos ≥ 44 px (`h-11`/`min-h-11`), foco visível global (`:focus-visible` em `
 - `MonthSwitcher` é apresentação pura (inputs/outputs): reaproveitável e testável sem store.
 - Ícones por `[img]` com import nomeado do `lucide-angular` (tree-shakable) em vez de `LucideAngularModule.pick`.
 - Validadores devolvem a mensagem dentro do erro (uma única fonte de texto, spec 28) em vez de um mapa chave→mensagem no template.
+
+## Preferências (F10)
+
+`core/state/preferences-sync.ts` (`PreferencesSync`, `providedIn: 'root'`) sincroniza `CurrencyStore` e `ThemeStore` com o servidor por utilizador: `load()` aplica o que o servidor tem depois de entrar; um `effect` grava `{currency, theme}` a cada troca com sessão ativa e avisa (toast) sem bloquear se falhar. Sem sessão não chama nada. `AppStateReset.resetAll()` devolve moeda e tema ao padrão e limpa o dispositivo.

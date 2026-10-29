@@ -28,7 +28,7 @@ Regras completas em [.spec/memory/produto.md](.spec/memory/produto.md).
 ├── api-finance-controller/   Backend: Java 25, Spring Boot 4.1, Spring Modulith, Maven Wrapper
 ├── app-finance-controller/   Frontend: Angular 21, TypeScript estrito, Tailwind CSS (Dockerfile + nginx)
 ├── scripts/                  Scripts PowerShell para subir backend, frontend ou tudo
-├── compose.yml               Orquestração local: db, api e web
+├── compose.yml               Orquestração local: db, mailpit, api e web
 ├── .spec/                    Specs, decisões, templates e roadmap (fonte de verdade do que construir)
 ├── .docs/                    Diagrama de arquitetura (projeto.excalidraw)
 ├── .claude/skills/           Skills de IA do projeto (Angular e análise do app Flutter)
@@ -60,7 +60,7 @@ O diagrama da solução está em [.docs/projeto.excalidraw](.docs/projeto.excali
 
 ### Scripts (Windows PowerShell)
 
-Os scripts ficam em [scripts/](scripts/) e criam o `.env` a partir de [.env.example](.env.example) na primeira execução (valores fictícios de desenvolvimento; ajuste ao seu ambiente). O [compose.yml](compose.yml) na raiz define os serviços `db` (PostgreSQL 18.1), `api` (backend) e `web` (frontend estático com nginx).
+Os scripts ficam em [scripts/](scripts/) e criam o `.env` a partir de [.env.example](.env.example) na primeira execução (valores fictícios de desenvolvimento; ajuste ao seu ambiente). O [compose.yml](compose.yml) na raiz define os serviços `db` (PostgreSQL 18.1), `mailpit` (servidor SMTP de captura: os e-mails da recuperação de senha aparecem em `http://localhost:8025`, nada é enviado de verdade), `api` (backend) e `web` (frontend estático com nginx). Com a API fora do contentor (`mvnw spring-boot:run`), suba o `mailpit` (`docker compose up -d mailpit`) para ver os e-mails; sem ele o envio falha em silêncio e o pedido continua respondendo igual.
 
 | Quero | Comando | Resultado |
 |---|---|---|
@@ -123,6 +123,8 @@ Sem `-d` os logs ficam presos ao terminal (`Ctrl+C` para parar). Sem o `.env` o 
 
 Backend: `cd api-finance-controller` e `.\mvnw.cmd clean verify` (Windows) ou `./mvnw clean verify`; o banco precisa estar no ar (`docker compose up -d db` na raiz). Frontend: `cd app-finance-controller`, `npm install`, `npm start`; build de produção com `npm run build` e testes com `npm test`. Variáveis do backend em [api-finance-controller/.env.example](api-finance-controller/.env.example).
 
+Cobertura: backend em `api-finance-controller/target/site/jacoco` depois do `verify`; frontend com `npm test -- --coverage`. Testes de ponta a ponta e acessibilidade (Playwright + axe) em [e2e/README.md](e2e/README.md). Operação em produção: [.spec/shared/operacao.md](.spec/shared/operacao.md).
+
 ## Como o trabalho é conduzido (SDD)
 
 1. Cada entrega tem uma spec em [.spec/specs/](.spec/specs/), com critérios de aceitação e tarefas.
@@ -161,8 +163,7 @@ As skills de backend (`java-spring-scaffold`, `java-spring-create-module`, `open
 | F1 | Backend base e módulo `identity` |
 | F2 | Frontend base e autenticação |
 | F3 | CI mínimo |
-| F4–F9 | Categorias, lançamentos, metas de gastos, dashboard, cofrinhos e relatórios |
-| F10–F11 | Preferências e recuperação de senha |
-| F12 | Endurecimento: testes, segurança, E2E e observabilidade |
+| F4–F11 | Categorias, lançamentos, metas de gastos, dashboard, cofrinhos, relatórios, preferências e recuperação de senha |
+| F12 | Endurecimento: testes, segurança, E2E e observabilidade (✅ implementada; pendências na [spec 47](.spec/specs/47-implementation-plano-e-sequencia/spec.md)) |
 
 Deploy e hospedagem estão adiados. Backup e importação de dados foram cancelados por decisão de produto.

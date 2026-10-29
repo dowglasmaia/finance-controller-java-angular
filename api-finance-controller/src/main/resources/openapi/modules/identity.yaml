@@ -118,6 +118,50 @@ paths:
                             description: Cookie de renovação expirado.
                             schema:
                                 type: string
+    /api/v1/auth/password-reset/request:
+        post:
+            tags:
+                - Identity
+            summary: Pedir o link de recuperação de senha
+            operationId: requestPasswordReset
+            description: Responde sempre 202 com a mesma mensagem, exista a conta ou não. Se a conta existe, um link de
+                uso único e validade curta é enviado por e-mail (processado depois da resposta).
+            security: []
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: "#/components/schemas/RequestPasswordResetRequest"
+                required: true
+            responses:
+                "202":
+                    description: Pedido recebido (resposta neutra)
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/PasswordResetRequestedResponse"
+                "400":
+                    $ref: ../common/responses.yaml#/components/responses/BadRequestResponse
+    /api/v1/auth/password-reset/confirm:
+        post:
+            tags:
+                - Identity
+            summary: Definir a nova senha com o token do e-mail
+            operationId: confirmPasswordReset
+            description: Token inexistente, vencido, usado ou alterado devolve PASSWORD_RESET_TOKEN_INVALID. O sucesso
+                encerra todas as sessões da conta e não autentica automaticamente.
+            security: []
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: "#/components/schemas/ConfirmPasswordResetRequest"
+                required: true
+            responses:
+                "204":
+                    description: Senha alterada
+                "400":
+                    $ref: ../common/responses.yaml#/components/responses/BadRequestResponse
     /api/v1/auth/me:
         get:
             tags:
@@ -151,6 +195,35 @@ components:
                     type: string
                     format: email
                 password:
+                    type: string
+                    minLength: 8
+                    maxLength: 128
+        RequestPasswordResetRequest:
+            type: object
+            required:
+                - email
+            properties:
+                email:
+                    type: string
+                    format: email
+        PasswordResetRequestedResponse:
+            type: object
+            required:
+                - message
+            properties:
+                message:
+                    type: string
+        ConfirmPasswordResetRequest:
+            type: object
+            required:
+                - token
+                - newPassword
+            properties:
+                token:
+                    type: string
+                    minLength: 1
+                    maxLength: 200
+                newPassword:
                     type: string
                     minLength: 8
                     maxLength: 128

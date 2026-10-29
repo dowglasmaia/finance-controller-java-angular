@@ -1,6 +1,6 @@
 # 31-frontend-testes
 
-> **ID:** FRONTEND-SPEC-08 · **Categoria:** Frontend · **Estado:** proposta para revisão — não aprovada, não executada.
+> **ID:** FRONTEND-SPEC-08 · **Categoria:** Frontend · **Estado:** executada ao longo das fatias e fechada na F12 (2026-10-29); 100% das ramificações listadas pendente (96,7% medido).
 
 ## Objetivo
 
@@ -45,11 +45,16 @@ Usar o executor padrão do Angular 21 e, se necessário, uma biblioteca de teste
 
 ## Regras e critérios de aceitação
 
-- [ ] O executor de testes está definido e `npm test` (ou equivalente) roda sem navegador interativo.
-- [ ] Todos os cenários da tabela têm teste que passa e é rastreável à regra.
-- [ ] Nenhum teste usa dados financeiros reais.
+- [x] O executor de testes está definido e `npm test` (ou equivalente) roda sem navegador interativo.
+  > ✅ 2026-10-29 16:20 +00:00 — Executor padrão do Angular 21: `ng test` (Vitest 4.1 + jsdom, sem navegador interativo); `npm test` roda a suíte. Para a cobertura, `@vitest/coverage-v8`. Registrado em `app-finance-controller/README.md` e nas specs 23–27.
+- [x] Todos os cenários da tabela têm teste que passa e é rastreável à regra.
+  > ✅ 2026-10-29 16:20 +00:00 — 224 testes Vitest: utilitários (`format-money`, `money-input`, `validators`, `validators-branches`), estado (`stores`, `preferences-sync`), autenticação (guard, interceptor, `auth.service`), dados (`api-error`), componentes e páginas com carregando/vazio/erro/sucesso (todas as páginas das fatias F2–F11), acessibilidade de foco em diálogos. No navegador, o axe confere as mesmas telas (ver spec 46).
+- [x] Nenhum teste usa dados financeiros reais.
+  > ✅ 2026-10-29 16:20 +00:00 — Todos os valores são sintéticos (fixtures nos próprios testes; 750/400/1200 etc. da origem como valores canónicos).
 - [ ] A cobertura de utilitários e validadores é 100% das ramificações listadas.
-- [ ] O build de produção compila templates em modo estrito (`tsc` isolado não basta).
+  > ⏳ 2026-10-29 16:20 +00:00 — Medido com `ng test --coverage` (v8) em 2026-10-29: ramificações de validadores, máscara e formatação (`shared/forms`, `shared/money`) 96,7%; estado (`core/state`) 94,9%; geral 85% de ramificações e 91% de linhas. Meta aprovada na F12: ≥ 90% nas duas primeiras — atendida; os 100% da spec original não foram atingidos (restam ramos inalcançáveis, como o caminho manual de `Intl` sem suporte a decimais em string).
+- [x] O build de produção compila templates em modo estrito (`tsc` isolado não basta).
+  > ✅ 2026-10-29 16:20 +00:00 — `ng build` verde (compilador de templates do Angular em modo estrito) depois de cada fatia, incluindo a F12.
 
 ### Skills de implementação
 
@@ -64,11 +69,13 @@ Usar o executor padrão do Angular 21 e, se necessário, uma biblioteca de teste
 
 ### Front-end
 
-- [ ] Configurar o executor e escrever os testes por camada.
+- [x] Configurar o executor e escrever os testes por camada.
+  > ✅ 2026-10-29 16:20 +00:00 — Executor configurado e 224 testes por camada (utilitários, validadores, estado, autenticação, dados, componentes, páginas).
 
 ### Validação
 
-- [ ] Executar a suíte e o build de produção; registar contagens e resultado.
+- [x] Executar a suíte e o build de produção; registar contagens e resultado.
+  > ✅ 2026-10-29 16:20 +00:00 — `npm test`: 27 arquivos, 224 testes verdes; `ng build` verde; cobertura medida (acima).
 
 ## Resultado esperado
 

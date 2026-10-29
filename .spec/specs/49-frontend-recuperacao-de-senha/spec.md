@@ -1,6 +1,6 @@
 # 49-frontend-recuperacao-de-senha
 
-> **ID:** FRONTEND-SPEC-16 · **Categoria:** Frontend (`features/auth`) · **Estado:** proposta para revisão — não aprovada, não executada.
+> **ID:** FRONTEND-SPEC-16 · **Categoria:** Frontend (`features/auth`) · **Estado:** executada na F11 (2026-10-29); teclado completo, leitor de tela e 320 px pendentes (F12).
 
 ## Objetivo
 
@@ -43,12 +43,18 @@ Rótulos visíveis, erros ligados aos campos, foco no primeiro erro, mensagens a
 
 ## Regras e critérios de aceitação
 
-- [ ] Pedir o link com e-mail cadastrado e com e-mail inexistente mostra exatamente a mesma mensagem.
-- [ ] Abrir o link remove o token da URL e o formulário continua utilizável.
-- [ ] Nova senha e confirmação diferentes impedem o envio com mensagem no campo.
-- [ ] Link usado ou expirado mostra a mensagem de link inválido com atalho para pedir outro.
-- [ ] Após redefinir, o utilizador é levado a `/entrar` e a senha antiga já não funciona.
+- [x] Pedir o link com e-mail cadastrado e com e-mail inexistente mostra exatamente a mesma mensagem.
+  > ✅ 2026-10-29 15:10 +00:00 — `password-recovery-pages.spec.ts` (a mensagem neutra é igual para os dois e também para o 429) e no navegador: `Se o e-mail estiver cadastrado, enviaremos um link para redefinir a senha.` nos dois casos; e-mail inválido mostra o erro no campo sem chamar a API.
+- [x] Abrir o link remove o token da URL e o formulário continua utilizável.
+  > ✅ 2026-10-29 15:10 +00:00 — `password-recovery-pages.spec.ts` (`window.location.search` vazio e o token fora do texto da página) e no navegador: ao abrir `…/redefinir-senha?token=…` a barra ficou `…/redefinir-senha` e o formulário continuou utilizável (`history.replaceState`; `<meta name="referrer" content="no-referrer">`).
+- [x] Nova senha e confirmação diferentes impedem o envio com mensagem no campo.
+  > ✅ 2026-10-29 15:10 +00:00 — `password-recovery-pages.spec.ts`: `As senhas não coincidem` no campo e `A senha deve ter pelo menos 8 caracteres`, sem chamar a API.
+- [x] Link usado ou expirado mostra a mensagem de link inválido com atalho para pedir outro.
+  > ✅ 2026-10-29 15:10 +00:00 — `password-recovery-pages.spec.ts` (`PASSWORD_RESET_TOKEN_INVALID` e link sem token → `Este link é inválido ou expirou. Peça um novo.` com o botão `Pedir um novo link` para `/esqueci-senha`, sem formulário) e no navegador (reuso do token → mesma mensagem da API).
+- [x] Após redefinir, o utilizador é levado a `/entrar` e a senha antiga já não funciona.
+  > ✅ 2026-10-29 15:10 +00:00 — `password-recovery-pages.spec.ts` (toast `Senha alterada. Entre com a nova senha.` e navegação a `/entrar`) e no navegador: a senha antiga deu 401 e a nova 200.
 - [ ] Nenhum token ou senha é gravado em armazenamento do navegador, URL final ou consola.
+  > ⏳ 2026-10-29 15:10 +00:00 — `password-recovery-pages.spec.ts`: o corpo do `POST` leva o token e a senha, a URL e os cabeçalhos não; `localStorage` e `sessionStorage` sem o token nem a senha; o token fica num campo privado (não é sinal nem aparece no template). Não há `console.log` na feature. Falta uma inspeção do console no navegador.
 
 ### Skills de implementação
 
@@ -63,11 +69,13 @@ Rótulos visíveis, erros ligados aos campos, foco no primeiro erro, mensagens a
 
 ### Front-end
 
-- [ ] Criar as páginas, o serviço de dados e atualizar o `doc.md` de `features/auth`.
+- [x] Criar as páginas, o serviço de dados e atualizar o `doc.md` de `features/auth`.
+  > ✅ 2026-10-29 15:10 +00:00 — `features/auth/pages/forgot-password` e `reset-password`, rotas públicas `esqueci-senha` e `redefinir-senha` (sem `guestGuard`, para o link funcionar com ou sem sessão), `AuthApiService.requestPasswordReset/confirmPasswordReset`, tipos regenerados em `identity.ts`, `Referrer-Policy: no-referrer` no `index.html` e no nginx; `doc.md` de `features/auth` atualizado.
 
 ### Validação
 
 - [ ] Testar a mensagem neutra, a remoção do token da URL, o token inválido e a redefinição completa.
+  > ⏳ 2026-10-29 15:10 +00:00 — `npm test`: 213 testes Vitest verdes (10 novos em `password-recovery-pages.spec.ts` e 6 em `preferences-sync.spec.ts`), `ng build` verde e percurso completo no navegador contra a API real e o Mailpit: pedido → e-mail → link → nova senha → entrar. Falta: tema claro, 320/768 px, teclado completo e leitor de tela (F12).
 
 ## Resultado esperado
 

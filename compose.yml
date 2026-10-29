@@ -23,12 +23,24 @@ services:
       retries: 10
     restart: unless-stopped
 
+  # Servidor SMTP de captura (só desenvolvimento): recebe os e-mails da API sem enviá-los. Veja-os em http://localhost:8025.
+  mailpit:
+    image: axllent/mailpit:v1.21
+    ports:
+      - "127.0.0.1:${MAILPIT_UI_PORT:-8025}:8025"
+      - "127.0.0.1:${MAILPIT_SMTP_PORT:-1025}:1025"
+    restart: unless-stopped
+
   api:
+    # tag versionada (FC_IMAGE_TAG, ex.: 1.4.0 ou o SHA do commit) em vez de `latest`: permite voltar à versão anterior
+    image: finance-controller-api:${FC_IMAGE_TAG:-dev}
     build:
       context: ./api-finance-controller
     depends_on:
       db:
         condition: service_healthy
+      mailpit:
+        condition: service_started
     ports:
       - "${API_PORT:-8080}:8080"
     environment:
@@ -39,9 +51,19 @@ services:
       SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
       APP_JWT_SECRET: ${APP_JWT_SECRET:?Defina APP_JWT_SECRET (>= 32 bytes; copie .env.example para .env)}
       APP_CORS_ALLOWED_ORIGINS: ${APP_CORS_ALLOWED_ORIGINS:-}
+      FC_MAIL_HOST: ${FC_MAIL_HOST:-mailpit}
+      FC_MAIL_PORT: ${FC_MAIL_PORT:-1025}
+      FC_MAIL_USERNAME: ${FC_MAIL_USERNAME:-}
+      FC_MAIL_PASSWORD: ${FC_MAIL_PASSWORD:-}
+      FC_MAIL_FROM: ${FC_MAIL_FROM:-no-reply@finance-controller.local}
+      FC_APP_BASE_URL: ${FC_APP_BASE_URL:-http://localhost:8081}
+      FC_PASSWORD_RESET_TTL: ${FC_PASSWORD_RESET_TTL:-30m}
+      # limite de pedidos de recuperação por hora (por e-mail e por origem); o E2E sobe isto para repetir a jornada
+      APP_PASSWORDRESET_MAXREQUESTS: ${FC_PASSWORD_RESET_MAX_REQUESTS:-5}
     restart: unless-stopped
 
   web:
+    image: finance-controller-web:${FC_IMAGE_TAG:-dev}
     build:
       context: ./app-finance-controller
     depends_on:

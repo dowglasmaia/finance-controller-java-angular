@@ -1,6 +1,6 @@
 # 43-infra-seguranca-logs-e-operacao
 
-> **IDs:** INFRA-SPEC-09 (segredos, permissões e segurança), INFRA-SPEC-10 (logs, métricas e monitoramento), INFRA-SPEC-12 (operação e manutenção) · **Categoria:** Infraestrutura · **Estado:** proposta para revisão — não aprovada, não executada.
+> **IDs:** INFRA-SPEC-09 (segredos, permissões e segurança), INFRA-SPEC-10 (logs, métricas e monitoramento), INFRA-SPEC-12 (operação e manutenção) · **Categoria:** Infraestrutura · **Estado:** executada na F12 (2026-10-29); execução dos scanners no CI, ensaio de reversão e escolha de alertas/segredos de produção pendentes (P-18, P-27).
 
 ## Objetivo
 
@@ -57,10 +57,15 @@ Dados financeiros pessoais em logs ou backups mal protegidos. Todo backup deve f
 ## Regras e critérios de aceitação
 
 - [ ] Nenhum segredo em repositório, imagem ou log; verificação automática no CI.
-- [ ] Utilizador do banco da aplicação sem privilégios de DDL em `prod`.
-- [ ] Logs e métricas acessíveis a quem opera, sem valores financeiros nos logs.
-- [ ] Existe alerta (ou verificação periódica documentada) para indisponibilidade e falha de backup.
+  > ⏳ 2026-10-29 16:20 +00:00 — Repositório e histórico do Git: gitleaks, `no leaks found` (árvore e histórico; `.gitleaks.toml` dispensa só credenciais sintéticas de teste e os valores fictícios documentados de desenvolvimento). Imagens: Trivy `--scanners vuln,secret`, 0 segredos nas imagens `api` e `web`. Logs: `SecurityHardeningIntegrationTest.logsNeverHoldPasswordsTokensEmailsOrFinancialValues` e `PasswordResetMailFailureIntegrationTest`. A verificação automática está no `security-and-contract.yml` (gitleaks, OSV-Scanner, npm audit, Trivy), criado mas **ainda não executado no GitHub Actions**.
+- [x] Utilizador do banco da aplicação sem privilégios de DDL em `prod`.
+  > ✅ 2026-10-29 16:20 +00:00 — Ver INFRA-SPEC-02 (spec 40): `ProductionProfileIntegrationTest` e `scripts/db/prod-roles.sql`.
+- [x] Logs e métricas acessíveis a quem opera, sem valores financeiros nos logs.
+  > ✅ 2026-10-29 16:20 +00:00 — Uma linha JSON (ECS) por pedido com `requestId`/`traceId`, sem corpo, consulta, cabeçalhos nem valores; o teste de higiene de logs cobre senha, tokens, e-mail e valores financeiros. Métricas por `/actuator/metrics` (autenticada) e OpenTelemetry opcional; saúde `liveness`/`readiness` (com banco). Como operar: `.spec/shared/operacao.md`.
+- [x] Existe alerta (ou verificação periódica documentada) para indisponibilidade e falha de backup.
+  > ✅ 2026-10-29 16:20 +00:00 — Verificação periódica documentada em `.spec/shared/operacao.md` (readiness a cada 5 minutos, 5xx e disco diariamente). Falha de backup não se aplica enquanto o backup estiver fora do escopo (P-27). Ferramenta de alerta de produção depende da hospedagem (P-18).
 - [ ] O guia de operação cobre reinício, migração, reversão e rotação do segredo de assinatura, e foi ensaiado.
+  > ⏳ 2026-10-29 16:20 +00:00 — Guia escrito em `.spec/shared/operacao.md` (reinício, migração Flyway, publicação e reversão por tag, rotação do segredo JWT e da senha do banco, recuperação de senha, rotina mensal). Ensaiado: subida em `prod` com/sem variáveis, utilizador sem DDL, saúde 503 sem banco, migração do zero, rotação do segredo (`SecurityHardeningIntegrationTest`), imagem `web` e suas respostas. **Não ensaiado:** reversão com restauração do banco (sem backup, P-27), alerta externo e rotação da senha numa instância real.
 
 ### Skills de implementação
 
@@ -76,10 +81,12 @@ Dados financeiros pessoais em logs ou backups mal protegidos. Todo backup deve f
 ### Descoberta e decisão
 
 - [ ] Escolher a forma de gerir segredos e a ferramenta de monitoramento quando a hospedagem for definida (P-18).
+  > ⏳ 2026-10-29 16:20 +00:00 — Decisão adiada por P-18 (hospedagem): hoje os segredos são variáveis de ambiente (`.env` fora do Git no desenvolvimento) e o guia diz como entram em produção. Aberto até a hospedagem ser escolhida.
 
 ### Validação
 
 - [ ] Ensaiar o guia de operação e registar o resultado.
+  > ⏳ 2026-10-29 16:20 +00:00 — Ensaio parcial registrado no próprio guia (tabela "O que foi ensaiado na F12 e o que não foi").
 
 ## Resultado esperado
 

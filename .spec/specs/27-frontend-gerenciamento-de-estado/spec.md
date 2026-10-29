@@ -76,12 +76,15 @@ Estado duplicado entre páginas se cada uma guardar o mês próprio; manter um �
   > ⏳ 2026-10-27 — Parcial: ponto de extensão `AppStateReset.register`. Falta: mutações (F4–F9).
 - [x] A aplicação funciona (valores padrão) com `localStorage` indisponível.
   > ✅ 2026-10-27 — Verificação: `stores.spec.ts` ("funciona com localStorage indisponível"); acesso sempre em `try/catch` (`safe-storage.ts`).
-- [ ] Moeda e tema voltam do servidor ao entrar noutro dispositivo.
+- [x] Moeda e tema voltam do servidor ao entrar noutro dispositivo.
   > ⏳ 2026-10-27 — Parcial: depende do módulo de preferências. Falta: F10.
-- [ ] Salvar um lançamento em EUR com BRL selecionado passa a selecionar EUR e mostra os dados de EUR.
+  > ✅ 2026-10-29 15:10 +00:00 — `preferences-sync.spec.ts` (depois de entrar o servidor prevalece e não regrava; falha ao ler mantém o do dispositivo) e no navegador contra a API real: preferências EUR/LIGHT gravadas, `localStorage` apagado (outro dispositivo), sessão restaurada → EUR e tema claro aplicados.
+- [x] Salvar um lançamento em EUR com BRL selecionado passa a selecionar EUR e mostra os dados de EUR.
   > ⏳ 2026-10-27 — Parcial: depende de lançamentos. Falta: F5.
+  > ✅ 2026-10-29 15:10 +00:00 — O diálogo de lançamento já trocava a moeda (F5); desde a F10 essa troca é gravada no servidor pela `PreferencesSync` (`preferences-sync.spec.ts`: trocar a moeda grava `{currency, theme}`).
 - [ ] Sair descarta o estado; um segundo utilizador não vê dados do primeiro.
   > ⏳ 2026-10-27 — Parcial: sessão e mês descartados no logout (teste e navegador; rota protegida volta a `/entrar`). Falta: moeda e tema continuam no navegador até a F10 (decisão de preferências de dispositivo, a confirmar); sem dados financeiros para validar a troca de conta.
+  > ⏳ 2026-10-29 15:10 +00:00 — `preferences-sync.spec.ts` (`ao sair moeda e tema voltam ao padrão, saem do dispositivo e nada é gravado no servidor`) e no navegador: depois de Sair, `fc.currency` e `fc.theme` somem do `localStorage`, a tela de entrada fica no tema escuro padrão e as preferências do utilizador só voltam no próximo login. Ainda sem teste com dois utilizadores de verdade no mesmo navegador.
 - [ ] Nenhum saldo ou progresso é guardado no cliente além do último resultado da API.
   > ⏳ 2026-10-27 — Parcial: sem saldos ainda. Falta: conferir nas fatias de dados.
 

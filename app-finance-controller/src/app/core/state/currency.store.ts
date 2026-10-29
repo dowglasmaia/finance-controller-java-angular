@@ -1,5 +1,5 @@
 import { Injectable, signal } from '@angular/core';
-import { readStorage, writeStorage } from './safe-storage';
+import { readStorage, removeStorage, writeStorage } from './safe-storage';
 
 export type Currency = 'BRL' | 'EUR';
 
@@ -16,7 +16,7 @@ function loadCurrency(): Currency {
 
 /**
  * Dono da moeda selecionada. Persistência local em `localStorage`.
- * Ponto de extensão (F10): sincronizar com as preferências do servidor após o login.
+ * A `PreferencesSync` sincroniza com o servidor por utilizador; ao sair, volta ao padrão e limpa o dispositivo.
  */
 @Injectable({ providedIn: 'root' })
 export class CurrencyStore {
@@ -27,5 +27,11 @@ export class CurrencyStore {
   select(currency: Currency): void {
     this.state.set(currency);
     writeStorage(STORAGE_KEY, currency);
+  }
+
+  /** Logout: padrão `BRL` e nada guardado no dispositivo. */
+  resetToDefault(): void {
+    this.state.set('BRL');
+    removeStorage(STORAGE_KEY);
   }
 }

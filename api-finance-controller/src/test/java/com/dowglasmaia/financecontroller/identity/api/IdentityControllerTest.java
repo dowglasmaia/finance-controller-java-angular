@@ -3,6 +3,7 @@ package com.dowglasmaia.financecontroller.identity.api;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -16,6 +17,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.dowglasmaia.financecontroller.identity.application.usecase.AuthResult;
+import com.dowglasmaia.financecontroller.identity.application.usecase.ConfirmPasswordResetUseCase;
 import com.dowglasmaia.financecontroller.identity.application.usecase.GetCurrentUserUseCase;
 import com.dowglasmaia.financecontroller.identity.application.usecase.LoginCommand;
 import com.dowglasmaia.financecontroller.identity.application.usecase.LoginUseCase;
@@ -23,6 +25,7 @@ import com.dowglasmaia.financecontroller.identity.application.usecase.LogoutUseC
 import com.dowglasmaia.financecontroller.identity.application.usecase.RefreshTokenUseCase;
 import com.dowglasmaia.financecontroller.identity.application.usecase.RegisterUserCommand;
 import com.dowglasmaia.financecontroller.identity.application.usecase.RegisterUserUseCase;
+import com.dowglasmaia.financecontroller.identity.application.usecase.RequestPasswordResetUseCase;
 import com.dowglasmaia.financecontroller.identity.application.usecase.TokenRefreshResult;
 import com.dowglasmaia.financecontroller.identity.domain.Email;
 import com.dowglasmaia.financecontroller.identity.domain.User;
@@ -66,6 +69,8 @@ class IdentityControllerTest {
     private final RefreshTokenUseCase refresh = mock(RefreshTokenUseCase.class);
     private final LogoutUseCase logout = mock(LogoutUseCase.class);
     private final GetCurrentUserUseCase currentUser = mock(GetCurrentUserUseCase.class);
+    private final RequestPasswordResetUseCase requestReset = mock(RequestPasswordResetUseCase.class);
+    private final ConfirmPasswordResetUseCase confirmReset = mock(ConfirmPasswordResetUseCase.class);
     private MockMvc mvc;
 
     @BeforeEach
@@ -81,8 +86,8 @@ class IdentityControllerTest {
     private MockMvc mvcWith(AuthCookieProperties cookieProperties) {
         var clock = Clock.fixed(NOW, ZoneOffset.UTC);
         var clockProvider = new StaticListableBeanFactory(Map.of("clock", clock)).getBeanProvider(Clock.class);
-        var controller = new IdentityController(registerUser, login, refresh, logout, currentUser, cookieProperties,
-            clockProvider);
+        var controller = new IdentityController(registerUser, login, refresh, logout, currentUser, requestReset,
+            confirmReset, cookieProperties, clockProvider);
         var messages = new ErrorHandlingConfiguration().messageSource();
         var validator = new LocalValidatorFactoryBean();
         validator.setValidationMessageSource(messages);
@@ -112,6 +117,44 @@ class IdentityControllerTest {
 
     private static String setCookie(ResultActions result) {
         return result.andReturn().getResponse().getHeader("Set-Cookie");
+    }
+
+    @Test
+    void passwordResetRequestAnswers202WithTheNeutralMessageAndHandsOverOnlyTheEmailAndOrigin() throws Exception {
+        mvc.perform(json(post("/api/v1/auth/password-reset/request"), "{\"email\":\"Ana@Example.com\"}"))
+            .andExpect(status().isAccepted())
+            .andExpect(jsonPath("$.message").value("Se o e-mail estiver cadastrado, enviaremos um link para redefinir a senha."));
+
+        verify(requestReset).execute(eq("Ana@Example.com"), any());
+    }
+
+    @Test
+    void passwordResetRequestWithAnInvalidEmailIs400AndTheUseCaseIsNeverReached() throws Exception {
+        mvc.perform(json(post("/api/v1/auth/password-reset/request"), "{\"email\":\"nao-e-email\"}"))
+            .andExpect(status().isBadRequest());
+
+        verifyNoInteractions(requestReset);
+    }
+
+    @Test
+    void passwordResetConfirmAnswers204WithoutBodyOrCookies() throws Exception {
+        var result = mvc.perform(json(post("/api/v1/auth/password-reset/confirm"),
+                "{\"token\":\"abc\",\"newPassword\":\"N0va-Senha-Segura-2026\"}"))
+            .andExpect(status().isNoContent());
+
+        verify(confirmReset).execute("abc", "N0va-Senha-Segura-2026");
+        assertFalse(result.andReturn().getResponse().containsHeader("Set-Cookie"));
+    }
+
+    @Test
+    void passwordResetConfirmMapsTheInvalidTokenErrorTo400WithItsCode() throws Exception {
+        org.mockito.Mockito.doThrow(new DomainException(ErrorCode.PASSWORD_RESET_TOKEN_INVALID))
+            .when(confirmReset).execute(any(), any());
+
+        mvc.perform(json(post("/api/v1/auth/password-reset/confirm"),
+                "{\"token\":\"abc\",\"newPassword\":\"N0va-Senha-Segura-2026\"}"))
+            .andExpect(status().isBadRequest())
+            .andExpect(jsonPath("$.code").value("PASSWORD_RESET_TOKEN_INVALID"));
     }
 
     @Test

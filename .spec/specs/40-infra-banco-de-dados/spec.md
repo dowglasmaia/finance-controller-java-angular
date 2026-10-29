@@ -1,6 +1,6 @@
 # 40-infra-banco-de-dados
 
-> **IDs:** INFRA-SPEC-02 (banco de dados e persistência), INFRA-SPEC-11 (backup e recuperação — **fora do escopo**, P-27) · **Categoria:** Infraestrutura · **Estado:** proposta para revisão — não aprovada, não executada.
+> **IDs:** INFRA-SPEC-02 (banco de dados e persistência), INFRA-SPEC-11 (backup e recuperação — **fora do escopo**, P-27) · **Categoria:** Infraestrutura · **Estado:** executada ao longo das fatias (migrações V1–V7) e fechada na F12 (2026-10-29); isolamento de rede do banco em produção pendente (P-18).
 
 ## Objetivo
 
@@ -65,9 +65,11 @@ Sem política de backup o servidor torna-se ponto único de falha para dados fin
   > ⏳ 2026-10-27 — Parcial: `docker compose up -d db` sobe o PostgreSQL 18.1 com *healthcheck* e volume; o utilizador criado numa execução continuou a existir após reiniciar a API (volume do `compose`). Falta: confirmar a persistência após reiniciar o contentor do banco.
 - [x] Os testes de integração usam PostgreSQL real em contentor efémero.
   > ✅ 2026-10-27 — Testcontainers com `postgres:18.1` (`PostgresContainerConfiguration`); migração, persistência e fluxo executados. Verificação: `./mvnw clean verify` com Docker: 159 testes, 0 falhas, BUILD SUCCESS.
-- [ ] Em `prod` o utilizador da aplicação não tem privilégios de DDL.
+- [x] Em `prod` o utilizador da aplicação não tem privilégios de DDL.
+  > ✅ 2026-10-29 16:20 +00:00 — `scripts/db/prod-roles.sql` (papel `fc_app`: só `CONNECT`, `USAGE` e `SELECT/INSERT/UPDATE/DELETE`, também nas tabelas futuras; `CREATE` retirado do `public`) e perfil `prod` com `spring.flyway.user` separado. `ProductionProfileIntegrationTest.runsAsADmlOnlyUserWhileFlywayMigratesAsTheOwner…` (PostgreSQL real): a API sobe como `fc_app`, o Flyway migra como o dono, e `fc_app` recebe erro em `CREATE TABLE`, `DROP TABLE`, `ALTER TABLE` e `TRUNCATE` mas cadastra e lê normalmente.
 - (Fora do escopo — P-27) Rotina de backup e teste de restauração do banco não são exigidos.
 - [ ] O banco não aceita ligações da internet pública.
+  > ⏳ 2026-10-29 16:20 +00:00 — No `compose` a porta do banco só é publicada em `127.0.0.1` e o `guia de operação` (`.spec/shared/operacao.md`) exige o mesmo em produção (acessível só ao backend). A verificação em um ambiente de produção real depende da hospedagem (P-18) e não foi feita.
 
 ### Skills de implementação
 
@@ -87,7 +89,8 @@ Sem política de backup o servidor torna-se ponto único de falha para dados fin
 
 ### Contrato e dados
 
-- [ ] Definir utilizadores, permissões e parâmetros do banco por ambiente.
+- [x] Definir utilizadores, permissões e parâmetros do banco por ambiente.
+  > ✅ 2026-10-29 16:20 +00:00 — Local: `compose` com volume e senha do `.env`; testes: contentor efémero (Testcontainers, `max_connections=400` para a suíte); prod: dois utilizadores (migração e aplicação) por `prod-roles.sql` e variáveis `FLYWAY_*`/`SPRING_DATASOURCE_*` obrigatórias; fuso UTC e UTF-8 no `compose`. Descrito em `.spec/shared/operacao.md`.
 
 ### Validação
 

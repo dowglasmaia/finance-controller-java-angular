@@ -11,7 +11,8 @@ import { CurrencyCode, MonthlySummaryItem } from '../data-access/reports-api.ser
   selector: 'app-monthly-summary-table',
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <div class="overflow-x-auto">
+    <!-- região rolável em telas estreitas: precisa de foco por teclado para ser rolada sem mouse -->
+    <div class="overflow-x-auto" tabindex="0" role="region" aria-label="Resumo mensal do ano (role para ver todas as colunas)">
       <table class="w-full min-w-[32rem] text-sm">
         <caption class="sr-only">Resumo mensal do ano</caption>
         <thead>

@@ -35,6 +35,7 @@ describe('AuthService', () => {
     const request = controller.expectOne('/api/v1/auth/login');
     expect(request.request.withCredentials).toBe(true);
     request.flush({ user: USER, accessToken: 'tok-secreto' });
+    controller.expectOne('/api/v1/preferences').flush({ currency: 'BRL', theme: 'DARK' });
 
     expect(session.isAuthenticated()).toBe(true);
     expect(JSON.stringify({ ...localStorage })).not.toContain('tok-secreto');
@@ -48,6 +49,8 @@ describe('AuthService', () => {
     const me = controller.expectOne('/api/v1/auth/me');
     expect(me.request.withCredentials).toBe(false);
     me.flush(USER);
+    await nextTick();
+    controller.expectOne('/api/v1/preferences').flush({ currency: 'BRL', theme: 'DARK' });
 
     expect(await promise).toBe(true);
     expect(session.user()).toEqual(USER);

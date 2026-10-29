@@ -1,0 +1,107 @@
+name: Segurança e contrato
+
+# F12 (QUALITY-SPEC-03 e 05, INFRA-SPEC-09): segredos, dependências, imagens e compatibilidade do contrato.
+# Roda em todo push e PR; nada é enviado a registo (P-18).
+on:
+  push:
+    branches: [main]
+  pull_request:
+  schedule:
+    - cron: '0 6 * * 1' # segunda-feira: novas vulnerabilidades em dependências que não mudaram
+
+permissions:
+  contents: read
+
+concurrency:
+  group: security-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  secrets:
+    name: Segredos (gitleaks)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # o histórico inteiro também é verificado
+      - name: Varredura do repositório e do histórico
+        run: |
+          docker run --rm -v "$PWD:/repo" ghcr.io/gitleaks/gitleaks:latest git /repo --config /repo/.gitleaks.toml --redact --no-banner
+          docker run --rm -v "$PWD:/repo" ghcr.io/gitleaks/gitleaks:latest dir /repo --config /repo/.gitleaks.toml --redact --no-banner
+
+  dependencies:
+    name: Dependências (OSV-Scanner e npm audit)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: OSV-Scanner (Maven e npm)
+        run: |
+          docker run --rm -v "$PWD:/src" ghcr.io/google/osv-scanner:latest scan source -r \
+            /src/app-finance-controller/package-lock.json /src/api-finance-controller/pom.xml
+      - name: npm audit
+        working-directory: app-finance-controller
+        run: npm audit --audit-level=high
+
+  images:
+    name: Imagens (Trivy: vulnerabilidades e segredos)
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - name: Construir as imagens (sem enviar)
+        run: |
+          docker build --tag finance-controller-api:ci-${{ github.sha }} api-finance-controller
+          docker build --tag finance-controller-web:ci-${{ github.sha }} app-finance-controller
+      - name: Trivy (falha em CRITICAL; HIGH sem correção disponível é ignorado)
+        run: |
+          for image in finance-controller-api finance-controller-web; do
+            docker run --rm -v /var/run/docker.sock:/var/run/docker.sock aquasec/trivy:latest image \
+              --scanners vuln,secret --severity CRITICAL --ignore-unfixed --exit-code 1 "$image:ci-${{ github.sha }}"
+          done
+
+  frontend-types:
+    name: Contrato (tipos do frontend em dia)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: app-finance-controller/package-lock.json
+      - name: Regerar os tipos e comparar
+        working-directory: app-finance-controller
+        run: |
+          npm ci
+          npm run generate:api
+          git diff --exit-code -- src/app/core/api/generated || {
+            echo "Os tipos gerados estão desatualizados em relação aos contratos OpenAPI: rode 'npm run generate:api' e faça o commit."
+            exit 1
+          }
+
+  breaking-changes:
+    name: Contrato (mudança incompatível, oasdiff)
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Comparar cada contrato com o da base do PR
+        run: |
+          # a base entra numa árvore própria para que os $ref relativos (../common) resolvam do mesmo jeito
+          git worktree add /tmp/base "origin/${{ github.base_ref }}"
+          status=0
+          for file in api-finance-controller/src/main/resources/openapi/modules/*.yaml; do
+            if [ -f "/tmp/base/$file" ]; then
+              docker run --rm -v "$PWD:/head" -v /tmp/base:/base tufin/oasdiff:latest breaking                 "/base/$file" "/head/$file" --fail-on ERR || status=1
+            fi
+          done
+          exit $status

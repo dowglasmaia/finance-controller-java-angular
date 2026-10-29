@@ -2,6 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { Observable, catchError, defer, finalize, firstValueFrom, map, of, shareReplay, switchMap, tap } from 'rxjs';
 import { AppStateReset } from '../../../core/state/app-state-reset';
+import { PreferencesSync } from '../../../core/state/preferences-sync';
 import { SessionStore } from '../../../core/state/session.store';
 import { AuthApiService, AuthResponse } from './auth-api.service';
 
@@ -11,17 +12,24 @@ export class AuthService {
   private readonly api = inject(AuthApiService);
   private readonly session = inject(SessionStore);
   private readonly reset = inject(AppStateReset);
+  private readonly preferences = inject(PreferencesSync);
   private readonly router = inject(Router);
 
   private refreshInFlight: Observable<string> | null = null;
   private restoreInFlight: Promise<boolean> | null = null;
 
   register(email: string, password: string): Observable<AuthResponse> {
-    return this.api.registerUser({ email, password }).pipe(tap((response) => this.session.set(response)));
+    return this.api.registerUser({ email, password }).pipe(
+      tap((response) => this.session.set(response)),
+      switchMap((response) => this.preferences.load().pipe(map(() => response))),
+    );
   }
 
   login(email: string, password: string): Observable<AuthResponse> {
-    return this.api.login({ email, password }).pipe(tap((response) => this.session.set(response)));
+    return this.api.login({ email, password }).pipe(
+      tap((response) => this.session.set(response)),
+      switchMap((response) => this.preferences.load().pipe(map(() => response))),
+    );
   }
 
   /** Renova o access token. Chamadas concorrentes compartilham a mesma requisição. */
@@ -69,6 +77,7 @@ export class AuthService {
         this.refresh().pipe(switchMap(() => this.api.getCurrentUser())),
       );
       this.session.setUser(user);
+      await firstValueFrom(this.preferences.load());
       return true;
     } catch {
       this.session.clear();

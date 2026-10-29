@@ -1,0 +1,30 @@
+# Varredura de segredos (F12, INFRA-SPEC-09). Estende as regras padrão e ignora só o que não é código-fonte nosso.
+[extend]
+useDefault = true
+
+[[allowlists]]
+description = "dependências e artefatos de build"
+paths = [
+  '''(^|/)node_modules/''',
+  '''(^|/)target/''',
+  '''(^|/)dist/''',
+  '''(^|/)\.angular/''',
+  '''package-lock\.json$''',
+]
+
+[[allowlists]]
+description = "valores FICTÍCIOS de desenvolvimento, documentados como tal em .env.example e application-local.yml"
+regexes = [
+  '''dev-only-not-a-secret-change-me-[0-9a-f]+''',
+  '''test-only-dummy-jwt-secret-[0-9a-z-]+''',
+]
+
+# Os testes usam credenciais SINTÉTICAS (ex.: "Sup3r-Secret-Passw0rd") por desenho; só a regra genérica é dispensada ali.
+# Chaves de nuvem, chaves privadas, tokens de provedores etc. continuam sendo procurados também nos testes.
+[[allowlists]]
+description = "credenciais sintéticas de teste"
+targetRules = ["generic-api-key"]
+paths = [
+  '''src/test/''',
+  '''\.spec\.ts$''',
+]

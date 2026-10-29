@@ -1,0 +1,40 @@
+# Perfil de produção (F12). NENHUM padrão de desenvolvimento: tudo o que é segredo ou endereço vem do ambiente e a
+# aplicação não sobe se faltar. Complementa application.yml (logs JSON/ECS, cookie Secure, JWT obrigatório).
+spring:
+  datasource:
+    # utilizador da aplicação: só DML (scripts/db/prod-roles.sql)
+    url: ${SPRING_DATASOURCE_URL}
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
+    hikari:
+      connection-timeout: 5000
+  flyway:
+    # utilizador de migração (DDL), diferente do da aplicação
+    url: ${FLYWAY_URL:${spring.datasource.url}}
+    user: ${FLYWAY_USER}
+    password: ${FLYWAY_PASSWORD}
+  mail:
+    host: ${FC_MAIL_HOST}
+    port: ${FC_MAIL_PORT}
+    username: ${FC_MAIL_USERNAME:}
+    password: ${FC_MAIL_PASSWORD:}
+server:
+  error:
+    include-stacktrace: never
+    include-message: never
+    include-binding-errors: never
+    include-exception: false
+management:
+  endpoint:
+    health:
+      show-details: never
+      show-components: never
+app:
+  password-reset:
+    # HTTPS obrigatório fora de local/test (validado na subida)
+    app-base-url: ${FC_APP_BASE_URL}
+    mail-from: ${FC_MAIL_FROM}
+    ttl: ${FC_PASSWORD_RESET_TTL:30m}
+  identity:
+    cookie:
+      secure: true

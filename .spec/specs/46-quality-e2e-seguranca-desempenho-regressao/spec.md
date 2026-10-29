@@ -1,6 +1,6 @@
 # 46-quality-e2e-seguranca-desempenho-regressao
 
-> **IDs:** QUALITY-SPEC-04 (ponta a ponta), QUALITY-SPEC-05 (segurança, desempenho e regressão) · **Categoria:** Qualidade · **Estado:** proposta para revisão — não aprovada, não executada.
+> **IDs:** QUALITY-SPEC-04 (ponta a ponta), QUALITY-SPEC-05 (segurança, desempenho e regressão) · **Categoria:** Qualidade · **Estado:** executada na F12 (2026-10-29); execução no GitHub Actions pendente.
 
 ## Objetivo
 
@@ -64,11 +64,16 @@ Lista permanente de testes para defeitos e decisões conhecidas: DESC-REP-03 (ba
 
 ## Regras e critérios de aceitação
 
-- [ ] J-00…J-12 passam em ambiente limpo, com dados sintéticos e relógio fixo.
-- [ ] Nenhuma vulnerabilidade crítica aberta; nenhum segredo detetado.
-- [ ] As metas de desempenho são medidas e registadas com o volume sintético; resultados fora da meta geram decisão registada.
-- [ ] Cada item da lista de regressão tem teste automatizado.
-- [ ] Os testes E2E não dependem de dados reais nem da ordem de execução.
+- [x] J-00…J-12 passam em ambiente limpo, com dados sintéticos e relógio fixo.
+  > ✅ 2026-10-29 16:20 +00:00 — Playwright 1.64 (`e2e/`): 33 testes (13 jornadas J-00, J-00b e J-01…J-12 mais 18 varreduras de acessibilidade) passam contra o `compose` em um projeto isolado (`-p fc-e2e`: PostgreSQL, API e nginx em imagens, Mailpit), em paralelo e também com `--workers=1`; banco novo, utilizadores sintéticos criados pelo próprio teste e relógio do navegador fixo em 15/06/2026. J-12: fluxo de criar despesa em 320 px só por teclado (Tab/Enter/digitação, foco visível, foco devolvido ao fechar, sem rolagem horizontal).
+- [x] Nenhuma vulnerabilidade crítica aberta; nenhum segredo detetado.
+  > ✅ 2026-10-29 16:20 +00:00 — Achados e correções: Trivy nas imagens → 4 CRITICAL do Tomcat 11.0.24 e 5 HIGH do Jackson 3.1.5 (corrigidos fixando `tomcat.version=11.0.25` e `jackson-bom.version=3.1.7` no `pom.xml`), 1 CRITICAL de `brotli-libs` na imagem do nginx (`apk upgrade` no Dockerfile); OSV-Scanner → vitest 4.0.8 (CRITICAL 9.8, só dependência de desenvolvimento), `@vitest/mocker` e `undici` (corrigidos com vitest 4.1.12 e `npm audit fix`). Depois: Trivy 0 CRITICAL e 0 segredos (1 MEDIUM sem relevância), OSV-Scanner `No issues found`, `npm audit` 0, gitleaks 0 (árvore e histórico). Limite: o OSV-Scanner lê só as dependências diretas do `pom.xml`; as transitivas do Maven são cobertas pelo Trivy na imagem.
+- [x] As metas de desempenho são medidas e registadas com o volume sintético; resultados fora da meta geram decisão registada.
+  > ✅ 2026-10-29 16:20 +00:00 — `PerformanceIntegrationTest` (PostgreSQL real, MockMvc em processo, 100 000 lançamentos = 50 000 por utilizador em 5 anos e 2 moedas, 40 amostras após aquecimento): p95 de `listTransactions` 13 ms (meta 300), `getMonthlyOverview` 23 ms (meta 500), `getReport(YEAR)` 22 ms (meta 800), `getReport(MONTH)` 11 ms (meta 500). O volume do vizinho não entra nos totais (`theTotalsOfTheMeasuredUserNeverIncludeTheNeighboursVolume`). Ressalva: sem rede nem HTTP real; o que importa aqui é o SQL e o isolamento.
+- [x] Cada item da lista de regressão tem teste automatizado.
+  > ✅ 2026-10-29 16:20 +00:00 — DESC-REP-03 (`monthBarsAddUpToTheTotals…` e J-08); DESC-CAT-06 (`CATEGORY_TYPE_CONFLICT`, fluxos de categoria e lançamento); DESC-SUB-02/03 (`duplicateNamesAreRejectedIgnoringCaseAndSpaces`, `createAlwaysHasExactlyOneProtectedOthers`, `subcategoriesCanBeAddedAndRemovedButOthersIsProtected`); DESC-BOX-06 (saldo nunca negativo, vários testes e J-07) e DESC-BOX-07 (meta ≥ 0: `invalidInputsAre400`, `DomainGuardTests`); DESC-CUR-04 (diálogo de lançamento e J-02); DESC-BUD-08 (`noAlertForIncomeForExpensesOutsideTheReferenceMonth…`); isolamento (um por módulo e J-09).
+- [x] Os testes E2E não dependem de dados reais nem da ordem de execução.
+  > ✅ 2026-10-29 16:20 +00:00 — Cada jornada cria o seu utilizador (`createUser`) e os seus dados pela API; rodou em paralelo (3 workers) e em série (`--workers=1`) com 33 de 33 verdes.
 
 ### Skills de implementação
 
@@ -83,11 +88,13 @@ Lista permanente de testes para defeitos e decisões conhecidas: DESC-REP-03 (ba
 
 ### Descoberta e decisão
 
-- [ ] Registar a escolha final das ferramentas de E2E, segurança e carga.
+- [x] Registar a escolha final das ferramentas de E2E, segurança e carga.
+  > ✅ 2026-10-29 16:20 +00:00 — E2E e acessibilidade: Playwright + `@axe-core/playwright` (aprovados em 2026-10-29). Segurança: gitleaks, OSV-Scanner, `npm audit`, Trivy (imagens Docker; rodam também no CI) e testes `SecurityHardeningIntegrationTest`. Carga: teste de integração com `generate_series` e medição de p95 (sem k6/JMeter: o alvo era o SQL e o isolamento, não a rede). Contrato: sem biblioteca extra + oasdiff no CI.
 
 ### Validação
 
-- [ ] Implementar e executar J-00…J-12; medir o desempenho e registar a evidência.
+- [x] Implementar e executar J-00…J-12; medir o desempenho e registar a evidência.
+  > ✅ 2026-10-29 16:20 +00:00 — `e2e/tests/auth.spec.ts` (J-00, J-00b, J-09, J-11), `money.spec.ts` (J-01…J-06, J-10), `boxes-reports.spec.ts` (J-07, J-08, J-12) e `a11y.spec.ts`; resultados e desempenho acima. Acessibilidade: axe-core com regras WCAG 2.0/2.1 A e AA (inclui contraste) em todas as páginas e diálogos, nos temas escuro e claro, em 320, 768 e 1280 px, sem nenhuma violação depois das correções (ver spec 47).
 
 ## Resultado esperado
 

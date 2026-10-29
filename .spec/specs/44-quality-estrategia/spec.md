@@ -1,6 +1,6 @@
 # 44-quality-estrategia
 
-> **ID:** QUALITY-SPEC-00 · **Categoria:** Qualidade · **Estado:** proposta para revisão — não aprovada, não executada.
+> **ID:** QUALITY-SPEC-00 · **Categoria:** Qualidade · **Estado:** metas aprovadas e medidas na F12 (2026-10-29); rastreio RN → teste e medição no CI pendentes.
 
 ## Objetivo
 
@@ -66,10 +66,15 @@ Todo defeito encontrado ganha um teste de regressão antes da correção. Os def
 ## Regras e critérios de aceitação
 
 - [ ] Cada `RN-*` e cada critério de aceitação tem teste identificável (verificado pela matriz).
-- [ ] Nenhum teste usa dados reais; datas dependem de relógio injetado.
+  > ⏳ 2026-10-29 16:20 +00:00 — Cada critério de aceitação das specs de módulo fechadas (15–20, 22, 32–37, 48, 49) traz, na evidência, o teste que o cobre. Falta a conferência automatizada pela matriz (RN × teste) e das regras de fatias com critérios ainda abertos.
+- [x] Nenhum teste usa dados reais; datas dependem de relógio injetado.
+  > ✅ 2026-10-29 16:20 +00:00 — Dados sintéticos em todos os níveis (fixtures, `generate_series`, utilizadores `@example.com` criados pelo próprio teste). O relógio: o backend injeta `Clock` e os testes usam datas fixas; o E2E fixa o relógio do navegador em 15/06/2026 (`page.clock`).
 - [ ] As metas de cobertura estão aprovadas e medidas no CI.
-- [ ] Todo defeito corrigido tem teste de regressão que falha sem a correção.
-- [ ] Evidências distinguem executado, escrito e não executado.
+  > ⏳ 2026-10-29 16:20 +00:00 — Metas aprovadas pelo utilizador em 2026-10-29 (backend ≥ 80% de linhas, domínio ≥ 90% de ramificações, frontend utilitários/validadores ≥ 90%) e medidas localmente: backend 97,8% de linhas e domínio 96,4% de ramificações (JaCoCo); frontend 96,7% (validadores/formatação) e 94,9% (estado) de ramificações (v8). O CI publica os relatórios (`backend-test-reports`, `frontend-coverage`), mas não há portão e o CI ainda não rodou no GitHub.
+- [x] Todo defeito corrigido tem teste de regressão que falha sem a correção.
+  > ✅ 2026-10-29 16:20 +00:00 — Defeitos achados na F12 e o teste que falhava sem a correção: caractere NUL em texto → 500 (`SecurityHardeningIntegrationTest.controlCharactersNeverCauseAServerError`); `<li>` sem lista em Categorias, botões de moeda sem o texto visível no nome e região rolável sem foco por teclado (as varreduras axe de `a11y.spec.ts` falhavam antes e passam depois). Defeitos das fatias anteriores têm teste (DESC-REP-03, saldo negativo, isolamento etc.).
+- [x] Evidências distinguem executado, escrito e não executado.
+  > ✅ 2026-10-29 16:20 +00:00 — Seguido em todas as specs fechadas (✅ executado, ⏳ parcial com o que falta; o CI no GitHub aparece sempre como "criado, não executado").
 
 ### Skills de implementação
 
@@ -84,11 +89,13 @@ Todo defeito encontrado ganha um teste de regressão antes da correção. Os def
 
 ### Descoberta e decisão
 
-- [ ] Aprovar metas de cobertura e portões.
+- [x] Aprovar metas de cobertura e portões.
+  > ✅ 2026-10-29 16:20 +00:00 — Metas aprovadas pelo utilizador em conversa em 2026-10-29 (cobertura e desempenho: p95 ≤ 300/500/800 ms). Portões: o CI roda testes e varreduras; limites de cobertura não bloqueiam (decisão: a cobertura guia, não substitui cenários de risco).
 
 ### Validação
 
-- [ ] Medir a cobertura de base após o primeiro módulo e registar.
+- [x] Medir a cobertura de base após o primeiro módulo e registar.
+  > ✅ 2026-10-29 16:20 +00:00 — Medida em 2026-10-29 (ver o critério de metas). JaCoCo 0.8.14 no `pom.xml` (relatório na fase `verify`) e `@vitest/coverage-v8`.
 
 ## Resultado esperado
 

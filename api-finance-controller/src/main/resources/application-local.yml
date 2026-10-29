@@ -19,6 +19,10 @@ logging:
   level:
     com.dowglasmaia.financecontroller: ${LOG_LEVEL_APP:DEBUG}
 app:
+  password-reset:
+    app-base-url: ${FC_APP_BASE_URL:http://localhost:4200}
+    ttl: ${FC_PASSWORD_RESET_TTL:30m}
+    mail-from: ${FC_MAIL_FROM:no-reply@finance-controller.local}
   identity:
     jwt:
       # Development-only placeholder, NOT a production secret. Real environments must set APP_JWT_SECRET.

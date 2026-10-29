@@ -2,6 +2,7 @@ package com.dowglasmaia.financecontroller.identity.infrastructure.persistence;
 
 import com.dowglasmaia.financecontroller.identity.application.port.out.RefreshSessionRepository;
 import com.dowglasmaia.financecontroller.identity.domain.RefreshSession;
+import com.dowglasmaia.financecontroller.identity.domain.UserId;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -40,5 +41,11 @@ class JpaRefreshSessionRepositoryAdapter implements RefreshSessionRepository {
     @Transactional
     public void revokeFamily(UUID familyId, Instant at) {
         tokens.revokeFamily(familyId, at);
+    }
+
+    @Override
+    @Transactional
+    public void revokeAllOfUser(UserId userId, Instant at) {
+        tokens.revokeAllOfUser(userId.value(), at);
     }
 }

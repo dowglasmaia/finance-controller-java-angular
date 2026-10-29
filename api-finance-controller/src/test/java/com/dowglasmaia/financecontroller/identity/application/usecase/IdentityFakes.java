@@ -135,6 +135,13 @@ final class IdentityFakes {
                 .forEach(s -> byId.put(s.id(), withRevokedAt(s, at)));
         }
 
+        @Override
+        public void revokeAllOfUser(com.dowglasmaia.financecontroller.identity.domain.UserId userId, Instant at) {
+            List.copyOf(byId.values()).stream()
+                .filter(s -> s.userId().equals(userId) && !s.isRevoked())
+                .forEach(s -> byId.put(s.id(), withRevokedAt(s, at)));
+        }
+
         List<RefreshSession> family(UUID familyId) {
             return byId.values().stream().filter(s -> s.familyId().equals(familyId)).toList();
         }

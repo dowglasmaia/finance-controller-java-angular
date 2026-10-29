@@ -3,6 +3,12 @@ spring:
     name: api-finance-controller
   profiles:
     default: local
+  mail:
+    # SMTP por variáveis FC_MAIL_*; em desenvolvimento, o Mailpit do compose (porta 1025)
+    host: ${FC_MAIL_HOST:localhost}
+    port: ${FC_MAIL_PORT:1025}
+    username: ${FC_MAIL_USERNAME:}
+    password: ${FC_MAIL_PASSWORD:}
   jackson:
     # campos opcionais do contrato ficam ausentes (não null) nas respostas
     default-property-inclusion: non_null
@@ -19,6 +25,16 @@ spring:
     enabled: true
     locations: classpath:db/migration
 management:
+  health:
+    mail:
+      # o servidor de e-mail fora do ar não pode derrubar a saúde da API (o envio já é tolerante a falhas)
+      enabled: false
+  endpoint:
+    health:
+      group:
+        # pronto = estado da aplicação + banco: sem banco a API sai de produção (503) em vez de responder erro
+        readiness:
+          include: readinessState,db
   endpoints:
     web:
       exposure:

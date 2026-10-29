@@ -1,7 +1,7 @@
 {
   "info": {
     "name": "Finance Controller API",
-    "description": "Collection de testes da API. Atualizada a cada fatia entregue (atual: F9 - relatórios).\n\nUso: execute 'Register' ou 'Login'; o script de teste guarda o accessToken na variável de coleção {{accessToken}} e o cookie refresh_token fica no cookie jar do Postman (domínio localhost). Em ambiente local o cookie não é Secure (perfil local).",
+    "description": "Collection de testes da API. Atualizada a cada fatia entregue (atual: F11 - recuperação de senha).\n\nUso: execute 'Register' ou 'Login'; o script de teste guarda o accessToken na variável de coleção {{accessToken}} e o cookie refresh_token fica no cookie jar do Postman (domínio localhost). Em ambiente local o cookie não é Secure (perfil local).",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "auth": {
@@ -67,6 +67,11 @@
     },
     {
       "key": "moneyBoxEntryId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "resetToken",
       "value": "",
       "type": "string"
     }
@@ -310,6 +315,94 @@
               ]
             },
             "description": "Requer Bearer token. Sem token válido: 401 application/problem+json."
+          },
+          "response": []
+        },
+        {
+          "name": "requestPasswordReset",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('202 Accepted (resposta neutra)', () => pm.response.to.have.status(202));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}{{apiPath}}/auth/password-reset/request",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "{{apiPath}}",
+                "auth",
+                "password-reset",
+                "request"
+              ]
+            },
+            "description": "Pública. Responde SEMPRE 202 com a mesma mensagem, exista a conta ou não (o resto roda depois da resposta). Se a conta existe, um link de uso único, válido por 30 minutos, é enviado por e-mail; em desenvolvimento veja-o no Mailpit (http://localhost:8025). Limite de 5 pedidos por hora por e-mail e por origem: o excesso continua 202 e não envia e-mail. 400 só para formato de e-mail inválido.",
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{email}}\"\n}"
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "confirmPasswordReset",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('204 No Content', () => pm.response.to.have.status(204));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}{{apiPath}}/auth/password-reset/confirm",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "{{apiPath}}",
+                "auth",
+                "password-reset",
+                "confirm"
+              ]
+            },
+            "description": "Pública. Copie o `token` do link do e-mail para a variável `resetToken`. 204 define a nova senha, consome o token e revoga TODAS as sessões da conta (não autentica automaticamente). 400 PASSWORD_RESET_TOKEN_INVALID para token inexistente, expirado, alterado ou já usado (mesma resposta); 400 VALIDATION_FAILED para senha fora da política (8 a 128 caracteres, sem senhas comuns) sem consumir o token.",
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token\": \"{{resetToken}}\",\n  \"newPassword\": \"NovaSenha#2026\"\n}"
+            }
           },
           "response": []
         }
@@ -1542,6 +1635,80 @@
               ]
             },
             "description": "`rankingSize=3` limita só o `ranking`; o percentual continua sobre o total de todas as despesas."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Preferences",
+      "item": [
+        {
+          "name": "getPreferences",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('200 OK', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}{{apiPath}}/preferences",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "{{apiPath}}",
+                "preferences"
+              ]
+            },
+            "description": "Moeda e tema do utilizador autenticado. Quem nunca gravou recebe `BRL` e `DARK` (nada é gravado na leitura)."
+          },
+          "response": []
+        },
+        {
+          "name": "savePreferences",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('200 OK', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}{{apiPath}}/preferences",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "{{apiPath}}",
+                "preferences"
+              ]
+            },
+            "description": "Grava `currency` (`BRL`|`EUR`) e `theme` (`LIGHT`|`DARK`|`SYSTEM`), ambos obrigatórios, e devolve o que ficou gravado. Valor desconhecido ou ausente → 400 VALIDATION_FAILED. Cada utilizador só vê e altera as suas.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"currency\": \"EUR\",\n  \"theme\": \"LIGHT\"\n}"
+            }
           },
           "response": []
         }

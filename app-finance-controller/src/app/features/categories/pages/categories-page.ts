@@ -68,13 +68,15 @@ const IN_USE_MESSAGE = 'Categoria possui lançamentos vinculados e não pode ser
             <app-empty-state [icon]="tagsIcon" message="Nenhuma categoria cadastrada." />
           </app-panel>
         } @else {
-          <ul role="tabpanel" class="grid gap-4 sm:grid-cols-2 xl:grid-cols-3" [attr.aria-label]="tab() === 'EXPENSE' ? 'Despesas' : 'Receitas'">
-            @for (category of visible(); track category.id) {
-              <li>
-                <app-category-card [category]="category" (edit)="openEdit($event)" (remove)="deleteTarget.set($event)" />
-              </li>
-            }
-          </ul>
+          <div role="tabpanel" [attr.aria-label]="tab() === 'EXPENSE' ? 'Despesas' : 'Receitas'">
+            <ul class="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+              @for (category of visible(); track category.id) {
+                <li>
+                  <app-category-card [category]="category" (edit)="openEdit($event)" (remove)="deleteTarget.set($event)" />
+                </li>
+              }
+            </ul>
+          </div>
         }
       }
       @default {

@@ -1,6 +1,6 @@
 # 14-backend-testes
 
-> **ID:** BACKEND-SPEC-09 · **Categoria:** Backend · **Estado:** proposta para revisão — não aprovada, não executada.
+> **ID:** BACKEND-SPEC-09 · **Categoria:** Backend · **Estado:** executada ao longo das fatias F1–F11 e fechada na F12 (2026-10-29); comparação literal com os testes da origem e rastreio RN → teste pendentes.
 
 ## Objetivo
 
@@ -54,10 +54,15 @@ Os testes de domínio da origem usam `double`; ao migrar, as expectativas devem 
 ## Regras e critérios de aceitação
 
 - [ ] Todos os cenários da tabela de migração existem como testes e passam.
+  > ⏳ 2026-10-29 16:20 +00:00 — Os cenários da tabela existem como testes que passam, mapeados por regra: `budget_service_test` → `BudgetDomainTests` e `BudgetFlowIntegrationTest` (700/800/950/1000/1200, restante negativo, as quatro transições), `money_box_service_test` → `MoneyBoxDomainTests` e `MoneyBoxFlowIntegrationTest` (1000+500−300=1200, saque que negativaria recusado, BRL/EUR independentes, moeda divergente rejeitada), `report_service_test` → `OverviewCalculationsTests`, `ReportCalculationsTests` e `ReportsFlowIntegrationTest` (semana domingo–sábado, 7 e 12 barras, só despesas no ranking), `transaction_test` → `TransactionTests` e `DomainGuardTests`, `currency_persistence_test` → fluxos com EUR em PostgreSQL. Falta: comparar caso a caso com os sete testes da origem, que não estão no repositório.
 - [ ] Cada `RN-*` P/E/N de BACKEND-SPEC-01 é coberta por pelo menos um teste.
-- [ ] Existe teste de regressão para DESC-REP-03, para saldo nunca negativo e para o isolamento entre utilizadores.
-- [ ] Testes de persistência usam PostgreSQL real; nenhum teste usa dados financeiros reais.
-- [ ] `mvnw clean verify` executa tudo e os resultados são registados com evidência.
+  > ⏳ 2026-10-29 16:20 +00:00 — Não há (ainda) um levantamento automatizado RN → teste: as regras de cada fatia têm testes com os nomes das regras nas specs 15–20 e 22, mas a conferência regra a regra não foi feita. Próxima ação: gerar a tabela RN × teste a partir dos nomes dos testes.
+- [x] Existe teste de regressão para DESC-REP-03, para saldo nunca negativo e para o isolamento entre utilizadores.
+  > ✅ 2026-10-29 16:20 +00:00 — DESC-REP-03: `ReportsFlowIntegrationTest.monthBarsAddUpToTheTotalsForAnyReferenceMonthAndLengthOfMonth` (junho/2026 e fevereiro/2028 com o servidor em outubro/2026) e `reports-page.spec.ts`/J-08 no navegador. Saldo nunca negativo: `MoneyBoxFlowIntegrationTest.withdrawalAboveBalanceOrWithZeroBalanceIsRefused…`, `editOrDeleteThatWouldMakeTheBalanceNegativeIsRefused…`, `simultaneousWithdrawalsNeverExceedTheBalance`, `MoneyBoxDomainTests`. Isolamento: um teste por módulo de dados (`usersNeverSeeEachOthers…`, `oneUserNeverReadsOrChangesAnothers`, `anotherUserSeesAndChangesNothing`, `reportsOnlyCountTheAuthenticatedUsersData`) e J-09 no navegador.
+- [x] Testes de persistência usam PostgreSQL real; nenhum teste usa dados financeiros reais.
+  > ✅ 2026-10-29 16:20 +00:00 — Todos os testes de integração usam `postgres:18.1` por Testcontainers (nunca H2); os dados são sintéticos (`PerformanceIntegrationTest` gera 100 000 lançamentos com `generate_series`).
+- [x] `mvnw clean verify` executa tudo e os resultados são registados com evidência.
+  > ✅ 2026-10-29 16:20 +00:00 — `./mvnw clean verify` com Docker em 2026-10-29: 387 testes, 0 falhas, BUILD SUCCESS; relatório de cobertura JaCoCo em `target/site/jacoco`.
 
 ### Skills de implementação
 
@@ -73,11 +78,14 @@ Os testes de domínio da origem usam `double`; ao migrar, as expectativas devem 
 ### Back-end
 
 - [ ] Portar os testes de domínio da origem.
-- [ ] Escrever os testes novos por módulo.
+  > ⏳ 2026-10-29 16:20 +00:00 — Os cenários foram reescritos como testes do destino (ver o primeiro critério), com `BigDecimal` e `compareTo` onde cabe. Falta a comparação literal com os testes da origem (fora do repositório).
+- [x] Escrever os testes novos por módulo.
+  > ✅ 2026-10-29 16:20 +00:00 — Testes novos por módulo nas fatias F1–F11 e, na F12, `DomainGuardTests` (todos os guardas de validação do domínio), `ApiContractConformanceIntegrationTest`, `SecurityHardeningIntegrationTest`, `ProductionProfileIntegrationTest` e `PerformanceIntegrationTest`.
 
 ### Validação
 
-- [ ] Executar `mvnw clean verify` e registar contagem de testes e resultado.
+- [x] Executar `mvnw clean verify` e registar contagem de testes e resultado.
+  > ✅ 2026-10-29 16:20 +00:00 — 387 testes, 0 falhas; cobertura de linhas 97,8% (sem código gerado) e de ramificações do domínio 96,4% (metas aprovadas: 80% e 90%).
 
 ## Resultado esperado
 

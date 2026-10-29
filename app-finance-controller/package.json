@@ -5,7 +5,7 @@
     "start": "ng serve --port 4200",
     "build": "ng build",
     "test": "ng test --watch=false",
-    "generate:api": "openapi-typescript ../api-finance-controller/src/main/resources/openapi/modules/identity.yaml -o src/app/core/api/generated/identity.ts && openapi-typescript ../api-finance-controller/src/main/resources/openapi/modules/categories.yaml -o src/app/core/api/generated/categories.ts && openapi-typescript ../api-finance-controller/src/main/resources/openapi/modules/transactions.yaml -o src/app/core/api/generated/transactions.ts && openapi-typescript ../api-finance-controller/src/main/resources/openapi/modules/budgets.yaml -o src/app/core/api/generated/budgets.ts && openapi-typescript ../api-finance-controller/src/main/resources/openapi/modules/overview.yaml -o src/app/core/api/generated/overview.ts && openapi-typescript ../api-finance-controller/src/main/resources/openapi/modules/money-boxes.yaml -o src/app/core/api/generated/money-boxes.ts && openapi-typescript ../api-finance-controller/src/main/resources/openapi/modules/reserves.yaml -o src/app/core/api/generated/reserves.ts && openapi-typescript ../api-finance-controller/src/main/resources/openapi/modules/reports.yaml -o src/app/core/api/generated/reports.ts"
+    "generate:api": "openapi-typescript ../api-finance-controller/src/main/resources/openapi/modules/identity.yaml -o src/app/core/api/generated/identity.ts && openapi-typescript ../api-finance-controller/src/main/resources/openapi/modules/categories.yaml -o src/app/core/api/generated/categories.ts && openapi-typescript ../api-finance-controller/src/main/resources/openapi/modules/transactions.yaml -o src/app/core/api/generated/transactions.ts && openapi-typescript ../api-finance-controller/src/main/resources/openapi/modules/budgets.yaml -o src/app/core/api/generated/budgets.ts && openapi-typescript ../api-finance-controller/src/main/resources/openapi/modules/overview.yaml -o src/app/core/api/generated/overview.ts && openapi-typescript ../api-finance-controller/src/main/resources/openapi/modules/money-boxes.yaml -o src/app/core/api/generated/money-boxes.ts && openapi-typescript ../api-finance-controller/src/main/resources/openapi/modules/reserves.yaml -o src/app/core/api/generated/reserves.ts && openapi-typescript ../api-finance-controller/src/main/resources/openapi/modules/reports.yaml -o src/app/core/api/generated/reports.ts && openapi-typescript ../api-finance-controller/src/main/resources/openapi/modules/preferences.yaml -o src/app/core/api/generated/preferences.ts"
   },
   "private": true,
   "packageManager": "npm@11.12.1",
@@ -27,10 +27,11 @@
     "@angular/build": "^21.2.5",
     "@angular/cli": "^21.2.5",
     "@angular/compiler-cli": "^21.2.0",
+    "@vitest/coverage-v8": "^4.1.12",
     "jsdom": "^29.1.1",
     "openapi-typescript": "^7.13.0",
     "prettier": "^3.8.1",
     "typescript": "~5.9.2",
-    "vitest": "^4.0.8"
+    "vitest": "^4.1.12"
   }
 }
