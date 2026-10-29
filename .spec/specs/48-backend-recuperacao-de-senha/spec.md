@@ -86,8 +86,8 @@ Pedido para conta existente/inexistente; expiração; uso duplo; invalidação p
 
 ### Skills de implementação
 
-- **Skills obrigatórias:** `java-modern-engineering`, `java-spring-create-module`; `openapi-rest-contract` para as duas operações no contrato `identity`.
-- **Caminhos:** `C:\Users\dowgl\.codex\skills\java-modern-engineering\SKILL.md`; `C:\Users\dowgl\.codex\skills\java-spring-create-module\SKILL.md`; `C:\Users\dowgl\.codex\skills\openapi-rest-contract\SKILL.md`.
+- **Skills obrigatórias:** `java-modern-engineering`, `java-spring-create-module`, `java-persistence-performance`; `openapi-rest-contract` para as duas operações no contrato `identity`.
+- **Caminhos:** `C:\Users\dowgl\.codex\skills\java-modern-engineering\SKILL.md`; `C:\Users\dowgl\.codex\skills\java-spring-create-module\SKILL.md`; `C:\Users\dowgl\.codex\skills\openapi-rest-contract\SKILL.md`; `.claude/skills/java-persistence-performance/SKILL.md`.
 - **Responsabilidade:** contrato das operações; implementação do caso de uso, da porta e do adaptador de e-mail.
 - **Momento de utilização:** depois de `identity` (cadastro e entrada).
 - **Dependências:** BACKEND-SPEC-05, 02, 04, 13; INFRA (variáveis e Mailpit).

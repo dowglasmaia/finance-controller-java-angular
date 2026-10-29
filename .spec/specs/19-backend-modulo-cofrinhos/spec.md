@@ -67,8 +67,8 @@ Saldos mistos; saque excedente e com saldo zero; edição/exclusão que negativa
 
 ### Skills de implementação
 
-- **Skills obrigatórias:** `java-modern-engineering`, `java-spring-create-module`; `openapi-rest-contract` para os contratos `money-boxes` e `reserves`.
-- **Caminhos:** `C:\Users\dowgl\.codex\skills\java-modern-engineering\SKILL.md`; `C:\Users\dowgl\.codex\skills\java-spring-create-module\SKILL.md`; `C:\Users\dowgl\.codex\skills\openapi-rest-contract\SKILL.md`.
+- **Skills obrigatórias:** `java-modern-engineering`, `java-spring-create-module`, `java-persistence-performance`; `openapi-rest-contract` para os contratos `money-boxes` e `reserves`.
+- **Caminhos:** `C:\Users\dowgl\.codex\skills\java-modern-engineering\SKILL.md`; `C:\Users\dowgl\.codex\skills\java-spring-create-module\SKILL.md`; `C:\Users\dowgl\.codex\skills\openapi-rest-contract\SKILL.md`; `.claude/skills/java-persistence-performance/SKILL.md`.
 - **Responsabilidade:** contrato, domínio de saldo/progresso, adaptadores.
 - **Momento de utilização:** módulo independente; pode ser implementado em paralelo com `budget`.
 - **Dependências:** BACKEND-SPEC-00…05.

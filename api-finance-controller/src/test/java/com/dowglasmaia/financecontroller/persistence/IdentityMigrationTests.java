@@ -28,7 +28,7 @@ class IdentityMigrationTests extends AbstractPostgresIntegrationTest {
     }
 
     @Test
-    void v1AppliesFromScratchInEmptySchema() {
+    void migrationsApplyFromScratchInEmptySchema() {
         var result = Flyway.configure()
             .dataSource(dataSource)
             .schemas("migration_from_scratch")
@@ -37,12 +37,12 @@ class IdentityMigrationTests extends AbstractPostgresIntegrationTest {
             .load()
             .migrate();
         assertTrue(result.success);
-        assertEquals("1", result.targetSchemaVersion);
+        assertEquals("3", result.targetSchemaVersion);
         List<String> tables = jdbc.queryForList("""
             SELECT table_name FROM information_schema.tables
             WHERE table_schema = 'migration_from_scratch' AND table_name <> 'flyway_schema_history'
             ORDER BY table_name""", String.class);
-        assertEquals(List.of("app_user", "refresh_token"), tables);
+        assertEquals(List.of("app_user", "category", "refresh_token", "subcategory", "transaction_entry"), tables);
     }
 
     @Test

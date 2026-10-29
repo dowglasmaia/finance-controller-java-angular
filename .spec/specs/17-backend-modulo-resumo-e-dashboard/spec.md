@@ -61,8 +61,8 @@ Mês vazio; mês com BRL e EUR; fronteira de mês (31/01 e 01/02); fevereiro bis
 
 ### Skills de implementação
 
-- **Skills obrigatórias:** `java-modern-engineering`, `java-spring-create-module`; `openapi-rest-contract` para o contrato `overview`.
-- **Caminhos:** `C:\Users\dowgl\.codex\skills\java-modern-engineering\SKILL.md`; `C:\Users\dowgl\.codex\skills\java-spring-create-module\SKILL.md`; `C:\Users\dowgl\.codex\skills\openapi-rest-contract\SKILL.md`.
+- **Skills obrigatórias:** `java-modern-engineering`, `java-spring-create-module`, `java-persistence-performance`; `openapi-rest-contract` para o contrato `overview`.
+- **Caminhos:** `C:\Users\dowgl\.codex\skills\java-modern-engineering\SKILL.md`; `C:\Users\dowgl\.codex\skills\java-spring-create-module\SKILL.md`; `C:\Users\dowgl\.codex\skills\openapi-rest-contract\SKILL.md`; `.claude/skills/java-persistence-performance/SKILL.md`.
 - **Responsabilidade:** contrato, composição de consultas, cálculos.
 - **Momento de utilização:** depois de `transaction`, `category` e `moneybox`.
 - **Dependências:** BACKEND-SPEC-05, 10, 11, 13, 14.

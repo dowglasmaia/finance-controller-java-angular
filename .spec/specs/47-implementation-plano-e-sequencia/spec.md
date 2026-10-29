@@ -1,6 +1,6 @@
 # 47-implementation-plano-e-sequencia
 
-> **ID:** IMPLEMENTATION-SPEC-00 · **Categoria:** Planejamento · **Estado:** sequência por fatias verticais (F0–F12) aprovada pelo utilizador em 2026-10-25; F0 concluída; F1 e F2 concluídas em 2026-10-27 com pendências registadas (ver "Estado das fatias"). Detalhe em [roadmap](../../shared/roadmap.md).
+> **ID:** IMPLEMENTATION-SPEC-00 · **Categoria:** Planejamento · **Estado:** sequência por fatias verticais (F0–F12) aprovada pelo utilizador em 2026-10-25; F0 concluída; F1 e F2 concluídas em 2026-10-27 e F4 e F5 implementadas em 2026-10-29, todas com pendências registadas (ver "Estado das fatias"). Detalhe em [roadmap](../../shared/roadmap.md).
 
 ## Objetivo
 
@@ -48,7 +48,7 @@ F8, F10 e F11 podem ser antecipadas após F2; F3 pode esperar até depois de F4 
 
 Hospedagem e deploy ficam fora da sequência até P-18 ser decidida.
 
-### Estado das fatias (atualizado em 2026-10-27)
+### Estado das fatias (atualizado em 2026-10-29)
 
 | Fatia | Estado | Evidência e pendências |
 |---|---|---|
@@ -56,15 +56,19 @@ Hospedagem e deploy ficam fora da sequência até P-18 ser decidida.
 | F1 | ✅ Concluída em 2026-10-27, com pendências registadas | Contrato, migração V1, domínio, casos de uso, persistência, segurança e controller do `identity`. Verificação (2026-10-27): `./mvnw clean verify` com Docker, 159 testes, 0 falhas, incluindo migração, persistência e `IdentityFlowIntegrationTest` (rotação, reuso, 429, isolamento entre utilizadores). Correções feitas ao verificar: `InMemoryExampleRepository` deixou de ser `final`; o teste de fluxo passou a exigir cookie `Secure` por propriedade. Pendências: semeadura das 11 categorias (F4), recuperação de senha (F11), auditoria dos logs, isolamento nos módulos de dados, specs 10, 13 e INFRA 39–41 ainda sem fechamento formal, matriz de rastreabilidade. |
 | F2 | ✅ Concluída em 2026-10-27 (escopo reduzido aprovado), com pendências registadas | Frontend base (specs 23, 29 e as partes de 24–28 e 30 usadas pelo shell e pela autenticação): build de produção e 72 testes Vitest verdes; percurso real no navegador contra o backend com PostgreSQL (cadastro, recarga com cookie rotativo, saída, login com `returnUrl`, 409 e 429). Escopo reduzido aprovado em 2026-10-27: `KpiCard`, `MoneyInput`, `ConfirmDialog`, `DataTable`, `ProgressBar`, pickers, gráficos e os formulários de lançamento, categoria, cofrinho, movimentação e metas passam para as fatias que os usam (F4–F9); consultas dependentes de mês/moeda, invalidação por mutação e preferências no servidor (F10) idem. Desvio a aprovar: cores do tema claro escurecidas para contraste. |
 | F3 | ⏳ Implementada localmente em 2026-10-29; falta execução no GitHub Actions | Cinco fluxos em `.github/workflows/` (backend-ci, frontend-ci, dois esqueletos de deploy desabilitados). Verificação local: `mvnw clean verify` (159 testes), build e 73 testes do frontend, `docker build` das duas imagens. Pendente: commit/push manual e execução verde nas esteiras (spec 42). |
-| F4–F12 | Não iniciadas | — |
+| F4 | ✅ Implementada em 2026-10-29; critérios que dependem de lançamentos ficam para a F5 | **Backend** (spec 15): contrato `categories` (7 operações, aprovado e gerado), V2 `category`/`subcategory` com unicidade por coluna gerada, módulo `category` (domínio, 7 casos de uso, adaptador JPA com filtro por `owner_id`, controller), SPI `CategoryUsageGuard` com implementação provisória "sem uso", semente das 11 categorias por evento síncrono `identity.UserRegistered` na transação do cadastro, módulo `example` removido. `./mvnw clean verify` com Docker: 181 testes, 0 falhas (inclui isolamento entre utilizadores, corrida concorrente por nome e `ModularityTests`). **Frontend** (spec 34): `/categorias` (abas, cartões, diálogo, subcategorias), `CategoriesStore`, `Modal` e `ConfirmDialog` compartilhados; build verde e 90 testes Vitest; verificado no navegador contra a API real. Postman e READMEs atualizados. Pendências: ~~bloqueios que exigem lançamentos reais (`CATEGORY_IN_USE`, `CATEGORY_TYPE_CONFLICT`, desassociação de subcategoria)~~ (fechados na F5) e o seletor de Metas → F6; utilizadores criados antes da F4 não têm categorias semeadas; teclado completo, 320 px e contraste na página. |
+| F5 | ✅ Implementada em 2026-10-29; o alerta real de meta fica para a F6 | **Backend** (spec 16): contrato `transactions` (5 operações, aprovado e gerado), V3 `transaction_entry` (`numeric(12,2)`, CHECKs, `ON DELETE SET NULL` da subcategoria, índice de listagem), módulo `transaction` (domínio, 5 casos de uso, adaptador JPA com filtro por `owner_id` e moeda, ordenação RN-TXN-08, totais do conjunto filtrado, paginação), `ExpenseQuery` pública, `BudgetImpactPort` com implementação provisória, `TransactionCategoryUsageGuard` real (fecha as pendências da F4), `CategoryDirectory` pública em `category`, `FieldValidationException` e `Currency` em `shared`. `./mvnw clean verify` com Docker: 214 testes, 0 falhas. **Frontend** (spec 33): `/lancamentos` (filtro, subtotais, tabela/cartões, paginação, diálogo criar/editar, exclusão com confirmação, toasts de alerta já mapeados), `MoneyInputDirective` com decimal exato; build verde e 127 testes Vitest; verificado no navegador contra a API real. Postman, specs 15/34 e docs atualizados. Pendências: cálculo real do alerta e teste de concorrência no limiar → F6; agregados do dashboard → F7; teclado completo, 320/768 px e contraste → F12. |
+| F6–F12 | Não iniciadas | — |
 
 Fechamento de F1 e F2 (2026-10-27): critérios de conclusão verificados no que cabe a cada fatia (`mvnw clean verify` e build do frontend verdes, contratos validados, isolamento do `identity` testado, matriz de rastreabilidade atualizada, sem bloqueios abertos). Os critérios das specs que dependem de módulos ou páginas de fatias posteriores permanecem com ⏳ nas respectivas specs e **não** bloqueiam F3 em diante; ficam atribuídos assim:
 
 | Pendência | Fatia que fecha |
 |---|---|
-| Semeadura das 11 categorias; remoção do módulo `example`; V2 e correlatos | F4 |
-| Teste de isolamento entre utilizadores em cada módulo de dados; códigos de erro dos módulos; rollback das operações atómicas | F4–F10 (cada módulo na sua fatia) |
-| `MoneyInput`, `KpiCard`, `ConfirmDialog`, `DataTable`, `ProgressBar`, pickers, gráficos; formulários de lançamento, categoria, cofrinho, movimentação e metas; consultas por mês/moeda; invalidação por mutação | F4–F9, na fatia que os usa |
+| ~~Semeadura das 11 categorias; remoção do módulo `example`; V2 e correlatos~~ | feito na F4 (2026-10-29) |
+| ~~Categorias: `CategoryUsageGuard` real (`CATEGORY_IN_USE`, `CATEGORY_TYPE_CONFLICT`), desassociação de subcategoria excluída, seletor de Lançamentos lendo `CategoriesStore`~~ | feito na F5 (2026-10-29) |
+| Seletor de Metas lendo `CategoriesStore`; `BudgetImpactPort` real (limiares 80%/100%), alertas e teste de concorrência no limiar | F6 |
+| Teste de isolamento entre utilizadores em cada módulo de dados (categorias: feito na F4); códigos de erro dos módulos; rollback das operações atómicas | F5–F10 (cada módulo na sua fatia) |
+| `KpiCard`, `ProgressBar`, pickers dedicados, gráficos; formulários de cofrinho, movimentação e metas; invalidação de consultas entre páginas (`ConfirmDialog`, `Modal`, o formulário de categoria, `MoneyInput` e o formulário de lançamento entregues na F4/F5; consultas por mês/moeda entregues na lista de lançamentos) | F6–F9, na fatia que os usa |
 | Preferências (moeda, tema) no servidor; limpeza de preferências de dispositivo no logout | F10 |
 | Recuperação de senha (`password_reset_token`, e-mail, páginas) | F11 |
 | CI, repositório remoto verificado; versionar as imagens Docker por tag (hoje `latest`) | F3 |
@@ -149,7 +153,7 @@ O template exige uma spec curta por entrega: as specs desta análise são o **co
 ### Skills de implementação
 
 - **Skills obrigatórias:** as listadas em cada spec; esta spec não executa nenhuma.
-- **Caminhos:** ver cada spec. Resumo: `java-modern-engineering`, `java-spring-create-module`, `openapi-rest-contract` em `C:\Users\dowgl\.codex\skills\`; `angular-architect`, `angular-module-scaffold`, `angular-frontend-scaffold`, `angular-tailwind-ui-specialist` em `.claude/skills/`.
+- **Caminhos:** ver cada spec. Resumo: `java-modern-engineering`, `java-spring-create-module`, `openapi-rest-contract` em `C:\Users\dowgl\.codex\skills\`; `java-persistence-performance` em `.claude/skills/` (módulos com persistência e migrações Flyway); `angular-architect`, `angular-module-scaffold`, `angular-frontend-scaffold`, `angular-tailwind-ui-specialist` em `.claude/skills/`.
 - **Responsabilidade:** ver catálogo no [índice](../00-engenharia-reversa/README.md#skills).
 - **Momento de utilização:** conforme a fatia.
 - **Dependências:** `openapi-rest-contract` antes de `java-spring-create-module` e `angular-module-scaffold` em cada módulo.

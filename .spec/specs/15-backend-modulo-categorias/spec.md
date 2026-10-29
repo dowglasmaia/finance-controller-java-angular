@@ -1,6 +1,6 @@
 # 15-backend-modulo-categorias
 
-> **ID:** BACKEND-SPEC-10 · **Categoria:** Backend (módulo `category`) · **Estado:** proposta para revisão — não aprovada, não executada.
+> **ID:** BACKEND-SPEC-10 · **Categoria:** Backend (módulo `category`) · **Estado:** concluída: executada na F4 (2026-10-29) e fechada na F5 (2026-10-29), quando existiram lançamentos reais — ver evidências.
 
 ## Objetivo
 
@@ -57,16 +57,29 @@ Ordenação alfabética sem distinguir caixa usa o `collation` do banco; fixar p
 
 ## Regras e critérios de aceitação
 
-- [ ] Criar categoria com nome já existente em outra caixa (`alimentação`) devolve 409 `CATEGORY_NAME_DUPLICATED`; duas criações concorrentes com o mesmo nome resultam em uma criação e um 409.
-- [ ] Toda categoria criada tem exatamente uma subcategoria "Outros".
-- [ ] `DELETE` de "Outros" devolve 409 `SUBCATEGORY_PROTECTED`.
-- [ ] `DELETE` de categoria com lançamentos devolve 409 `CATEGORY_IN_USE` e nada é removido; sem lançamentos remove também as subcategorias.
-- [ ] `listCategories?type=EXPENSE` inclui `EXPENSE` e `BOTH`; ordem alfabética sem distinguir caixa.
-- [ ] Ao cadastrar um utilizador existem 11 categorias dele (7 despesa, 4 receita) com as subcategorias da tabela; outro utilizador não as vê.
-- [ ] Dois utilizadores podem ter categorias com o mesmo nome.
-- [ ] Mudar o tipo de uma categoria com lançamentos incompatíveis devolve 409 `CATEGORY_TYPE_CONFLICT`.
-- [ ] Criar uma 51.ª categoria é permitido (sem limite).
-- [ ] Excluir subcategoria com lançamentos mantém os lançamentos, agora sem subcategoria.
+- [x] Criar categoria com nome já existente em outra caixa (`alimentação`) devolve 409 `CATEGORY_NAME_DUPLICATED`; duas criações concorrentes com o mesmo nome resultam em uma criação e um 409.
+  > ✅ 2026-10-29 10:10 +00:00 — `CategoryFlowIntegrationTest.duplicateNamesAreRejectedIgnoringCaseAndSpaces` (`  ALIMENTAÇÃO ` → 409 `CATEGORY_NAME_DUPLICATED`) e `concurrentCreationsWithTheSameNameYieldOneCreatedAndOneConflict` (duas threads: um 201 e um 409), com PostgreSQL real; unicidade garantida por `uk_category_owner_name` sobre a coluna gerada `lower(btrim(name))`.
+- [x] Toda categoria criada tem exatamente uma subcategoria "Outros".
+  > ✅ 2026-10-29 10:10 +00:00 — `CategoryTests` (inclui `outros` e ` OUTROS ` informados, ignorados) e `createAlwaysAddsProtectedOthersAndListIsSortedAndFiltered` (HTTP, PostgreSQL).
+- [x] `DELETE` de "Outros" devolve 409 `SUBCATEGORY_PROTECTED`.
+  > ✅ 2026-10-29 10:10 +00:00 — `subcategoriesCanBeAddedAndRemovedButOthersIsProtected` (409 `SUBCATEGORY_PROTECTED`, nada removido).
+- [x] `DELETE` de categoria com lançamentos devolve 409 `CATEGORY_IN_USE` e nada é removido; sem lançamentos remove também as subcategorias.
+  > ⏳ 2026-10-29 10:10 +00:00 — Parcial: `CategoryUseCaseTests.deleteIsBlockedWhenInUseAndRemovesEverythingOtherwise` prova o bloqueio e a remoção com a porta `CategoryUsageGuard` simulada; `deleteRemovesCategoryAndItsSubcategories` prova a remoção sem uso (cascata do banco). Falta: bloqueio com lançamentos reais — a implementação padrão (`NoTransactionsCategoryUsageGuard`) responde "sem uso" até o módulo de lançamentos (F5). Próxima ação: na F5, implementar `CategoryUsageGuard` sobre `transaction`, remover a implementação padrão e testar com lançamentos.
+  > ✅ 2026-10-29 10:50 +00:00 — Fechado na F5: `TransactionFlowIntegrationTest.categoryWithTransactionsCannotBeDeletedAndTypeChangeIsRefusedWhenIncompatible` (PostgreSQL real: 409 `CATEGORY_IN_USE`, categoria intacta; sem lançamentos, 204). `TransactionCategoryUsageGuard` substituiu a implementação provisória, que foi removida; corrida entre excluir e lançar traduzida por `fk_transaction_entry_category`. Verificado também na interface contra a API real.
+- [x] `listCategories?type=EXPENSE` inclui `EXPENSE` e `BOTH`; ordem alfabética sem distinguir caixa.
+  > ✅ 2026-10-29 10:10 +00:00 — `CategoryUseCaseTests.listFiltersByAcceptedTypeIncludingBothAndSortsIgnoringCaseAndAccents` e `createAlwaysAddsProtected…` (HTTP). Ordem fixada no Java (`Collator` pt-BR, força primária), independente do collation do banco — resolve o risco da spec.
+- [x] Ao cadastrar um utilizador existem 11 categorias dele (7 despesa, 4 receita) com as subcategorias da tabela; outro utilizador não as vê.
+  > ✅ 2026-10-29 10:10 +00:00 — `registrationSeedsElevenCategoriesAndOtherUsersDoNotSeeThem` (11; 7 despesa e 4 receita; outro utilizador recebe as suas, os ids de um dão 404 ao outro) e `seedCreatesTheElevenDefaultsAndIsIdempotent` (subcategorias da tabela, idempotente). Verificado também com a API real: cadastro → `GET /categories` = 11 (7+4); bytes UTF-8 de "Água" e "Condomínio" conferidos no banco. Semente por evento `identity.UserRegistered`, síncrono e na mesma transação (`identity` não depende de `category`).
+- [x] Dois utilizadores podem ter categorias com o mesmo nome.
+  > ✅ 2026-10-29 10:10 +00:00 — `sameNameIsAllowedForAnotherOwner` e a própria semente (dois utilizadores com "Alimentação") com PostgreSQL.
+- [x] Mudar o tipo de uma categoria com lançamentos incompatíveis devolve 409 `CATEGORY_TYPE_CONFLICT`.
+  > ⏳ 2026-10-29 10:10 +00:00 — Parcial: `typeChangeIsRefusedWhenTransactionsAreIncompatible` (porta simulada, estado preservado). Falta: lançamentos reais (F5), mesma porta `CategoryUsageGuard.hasTransactionsIncompatibleWith`.
+  > ✅ 2026-10-29 10:50 +00:00 — Fechado na F5: mesmo teste de integração (despesa → receita com despesas: 409 `CATEGORY_TYPE_CONFLICT`, tipo preservado; `BOTH` continua aceito).
+- [x] Criar uma 51.ª categoria é permitido (sem limite).
+  > ✅ 2026-10-29 10:10 +00:00 — `allowsMoreThanFiftyCategories` (51 criadas).
+- [x] Excluir subcategoria com lançamentos mantém os lançamentos, agora sem subcategoria.
+  > ⏳ 2026-10-29 10:10 +00:00 — Falta: depende do módulo de lançamentos (F5). Hoje a exclusão de subcategoria funciona sem lançamentos (`DeleteSubcategoryUseCase`); a desassociação será acrescentada na F5.
+  > ✅ 2026-10-29 10:50 +00:00 — Fechado na F5: `deletingASubcategoryKeepsTheTransactionWithoutIt` (PostgreSQL real: 204, o lançamento continua e sai sem `subcategory`). Mecanismo: `ON DELETE SET NULL` em `transaction_entry.subcategory_id` (V3), sem código extra.
 
 ### Cenários de teste
 
@@ -74,8 +87,8 @@ Unicidade (caixa, espaços, concorrência); "Outros" (excluir, duplicar, renomea
 
 ### Skills de implementação
 
-- **Skills obrigatórias:** `java-modern-engineering`, `java-spring-create-module`; `openapi-rest-contract` para o contrato do módulo.
-- **Caminhos:** `C:\Users\dowgl\.codex\skills\java-modern-engineering\SKILL.md`; `C:\Users\dowgl\.codex\skills\java-spring-create-module\SKILL.md`; `C:\Users\dowgl\.codex\skills\openapi-rest-contract\SKILL.md`.
+- **Skills obrigatórias:** `java-modern-engineering`, `java-spring-create-module`, `java-persistence-performance`; `openapi-rest-contract` para o contrato do módulo.
+- **Caminhos:** `C:\Users\dowgl\.codex\skills\java-modern-engineering\SKILL.md`; `C:\Users\dowgl\.codex\skills\java-spring-create-module\SKILL.md`; `C:\Users\dowgl\.codex\skills\openapi-rest-contract\SKILL.md`; `.claude/skills/java-persistence-performance/SKILL.md`.
 - **Responsabilidade:** contrato `categories`; implementação das 7 operações; modelagem Java.
 - **Momento de utilização:** contrato primeiro, depois implementação, quando o módulo for selecionado.
 - **Dependências:** BACKEND-SPEC-00/01/02/03/04/05.
@@ -85,16 +98,20 @@ Unicidade (caixa, espaços, concorrência); "Outros" (excluir, duplicar, renomea
 
 ### Contrato e dados
 
-- [ ] Aprovar a prévia e gerar o contrato `categories`.
-- [ ] Migrações `category` e `subcategory` e semente.
+- [x] Aprovar a prévia e gerar o contrato `categories`.
+  > ✅ 2026-10-29 10:10 +00:00 — Prévia (7 operações, schemas e erros) aprovada pelo utilizador em conversa e gerada em `openapi/modules/categories.yaml` + execução Maven `generate-categories-api`. Verificação: `validate.mjs` (OpenAPI 3.1 válido), `mvn generate-sources` gerou `CategoriesApi` e modelos isolados, sem `operationId` repetido. Desvio: o gerador da skill não aceita `$ref` para schemas locais, então o YAML foi escrito à mão no estilo do `identity.yaml` e validado com o validador da skill.
+- [x] Migrações `category` e `subcategory` e semente.
+  > ✅ 2026-10-29 10:10 +00:00 — `V2__category.sql` (`category`, `subcategory`, `owner_id` com FK e cascata, unicidade por coluna gerada, CHECK de tipo e cor) e `SeedDefaultCategoriesUseCase`. `IdentityMigrationTests.migrationsApplyFromScratchInEmptySchema` aplica V1+V2 do zero (versão 2).
 
 ### Back-end
 
-- [ ] Implementar domínio, casos de uso, adaptador e controller das 7 operações e a SPI.
+- [x] Implementar domínio, casos de uso, adaptador e controller das 7 operações e a SPI.
+  > ✅ 2026-10-29 10:10 +00:00 — Pacote `category` (domínio, 7 casos de uso + semente, adaptador JPA com filtro por `owner_id`, `CategoriesController`, SPI `CategoryUsageGuard`). `ModularityTests` verde (`category` não depende de `transaction`). Também removido o módulo `example` (código, testes, `openapi.yaml` raiz e a execução Maven dele), previsto para a F4.
 
 ### Validação
 
-- [ ] Executar os testes de unicidade, exclusão e semente com PostgreSQL real.
+- [x] Executar os testes de unicidade, exclusão e semente com PostgreSQL real.
+  > ✅ 2026-10-29 10:10 +00:00 — `./mvnw clean verify` com Docker: 181 testes, 0 falhas (`CategoryFlowIntegrationTest` 8, `CategoryUseCaseTests` 10, `CategoryTests` 6). API real com PostgreSQL 18.1 verificada (semente e CRUD pela interface).
 
 ## Resultado esperado
 

@@ -15,19 +15,19 @@ export SPRING_DATASOURCE_PASSWORD=<same as POSTGRES_PASSWORD>   # PowerShell: $e
 ./mvnw spring-boot:run
 ```
 
-Authentication: `APP_JWT_SECRET` (at least 32 bytes) is required outside the `local` and `test` profiles and the app refuses to start without it; `.env.example` and the `local` profile carry a fictitious development value that must never be used in production. Set `APP_CORS_ALLOWED_ORIGINS` to the frontend origin. Every route except `POST /api/v1/auth/{register,login,refresh,logout}` and `GET /actuator/health` requires `Authorization: Bearer <accessToken>`, so the example endpoint below now returns 401 without a token.
+Authentication: `APP_JWT_SECRET` (at least 32 bytes) is required outside the `local` and `test` profiles and the app refuses to start without it; `.env.example` and the `local` profile carry a fictitious development value that must never be used in production. Set `APP_CORS_ALLOWED_ORIGINS` to the frontend origin. Every route except `POST /api/v1/auth/{register,login,refresh,logout}` and `GET /actuator/health` requires `Authorization: Bearer <accessToken>`, so the endpoints below return 401 without a token.
 
-Then request `GET http://localhost:8080/api/v1/examples/1` for `{"id":1,"name":"Example","status":"ACTIVE"}` and `GET http://localhost:8080/actuator/health` for an UP status. Missing examples return 404. Set `PORT` to change the port.
+Then register through `POST /api/v1/auth/register` and call `GET http://localhost:8080/api/v1/categories` with the returned token to see the 11 default categories, and `GET http://localhost:8080/actuator/health` for an UP status. Set `PORT` to change the port.
 
 ## Architecture
 
-`example` is a Spring Modulith module. HTTP API → use case (one concrete class per use case) → output port → in-memory adapter. The immutable domain record has no framework dependencies. Add business features as sibling root packages; keep internal types private to their module. `ModularityTests` verifies boundaries. Replace the in-memory adapter when persistence is needed.
+`identity` and `category` are Spring Modulith modules. HTTP API → use case (one concrete class per use case) → output port → JPA adapter. The immutable domain records have no framework dependencies. Modules talk through their root package only (`CurrentOwner`, `UserRegistered`, `CategoryUsageGuard`); add business features as sibling root packages and keep internal types private. `ModularityTests` verifies boundaries.
 
 Run `node <skill>/scripts/validate.mjs .` for build, startup and HTTP checks. Logs are stored in a temporary validation folder and reported on failure.
 
 
 ## Contract First
-Edit `src/main/resources/openapi/openapi.yaml`, then run `./mvnw clean verify`. Maven generates API interfaces and transport models under `target/generated-sources/openapi/src/main/java`. Implement the generated interface in the module adapter and map transport models to domain models. Never edit generated files.
+Each module owns a contract in `src/main/resources/openapi/modules/<module>.yaml` (shared errors in `openapi/common`). Edit it, then run `./mvnw clean verify`. Maven generates API interfaces and transport models under `target/generated-sources/openapi/<module>/src/main/java`. Implement the generated interface in the module adapter and map transport models to domain models. Never edit generated files.
 
 ## Logging
 Logs are structured JSON on stdout (Spring Boot native structured logging over Logback, ECS format) in every profile except `local`, which prints readable text. Choose the format with `LOG_FORMAT=ecs|logstash|gelf` and levels with `LOG_LEVEL_ROOT` / `LOG_LEVEL_APP`. `RequestLoggingFilter` (`shared/logging`) accepts or creates `X-Request-Id`, returns it in the response, adds `requestId` to every log line and writes one `request completed` line per request (method, path, status, duration; `/actuator` excluded). It never logs query strings, headers or bodies. Never log passwords, tokens, personal or financial data. Use SLF4J with `logger.atInfo().addKeyValue("key", value).log("message")` for extra fields.

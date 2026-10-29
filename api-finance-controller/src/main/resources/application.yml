@@ -3,6 +3,9 @@ spring:
     name: api-finance-controller
   profiles:
     default: local
+  jackson:
+    # campos opcionais do contrato ficam ausentes (não null) nas respostas
+    default-property-inclusion: non_null
   # Connection comes from SPRING_DATASOURCE_URL / _USERNAME / _PASSWORD (required outside local; no secrets here).
   jpa:
     open-in-view: false

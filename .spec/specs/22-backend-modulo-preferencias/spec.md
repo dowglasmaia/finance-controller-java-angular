@@ -41,8 +41,8 @@ Alternar o tema segue DESC-PRF-01 (dark→light, qualquer outro→dark). A troca
 
 ### Skills de implementação
 
-- **Skills obrigatórias:** `java-modern-engineering`, `java-spring-create-module`, `openapi-rest-contract`.
-- **Caminhos:** `C:\Users\dowgl\.codex\skills\java-modern-engineering\SKILL.md`; `C:\Users\dowgl\.codex\skills\java-spring-create-module\SKILL.md`; `C:\Users\dowgl\.codex\skills\openapi-rest-contract\SKILL.md`.
+- **Skills obrigatórias:** `java-modern-engineering`, `java-spring-create-module`, `openapi-rest-contract`, `java-persistence-performance`.
+- **Caminhos:** `C:\Users\dowgl\.codex\skills\java-modern-engineering\SKILL.md`; `C:\Users\dowgl\.codex\skills\java-spring-create-module\SKILL.md`; `C:\Users\dowgl\.codex\skills\openapi-rest-contract\SKILL.md`; `.claude/skills/java-persistence-performance/SKILL.md`.
 - **Responsabilidade:** contrato `preferences` e implementação.
 - **Momento de utilização:** depois de `identity`.
 - **Dependências:** BACKEND-SPEC-05, 02.

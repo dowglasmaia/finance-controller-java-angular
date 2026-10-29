@@ -9,3 +9,5 @@ When starting the Angular frontend, read and follow `.agents/skills/angular-fron
 
 When implementing or reviewing Angular UI, read and follow `.agents/skills/angular-tailwind-ui-specialist/SKILL.md`. Use Tailwind CSS, semantic HTML, mobile-first responsive behavior, accessible controls, and the Neon Graphite design tokens. Keep business rules and HTTP out of templates.
 
+For Java persistence work involving JPA/Hibernate, SQL performance, transactions, concurrency, PostgreSQL, or Flyway, read `.agents/skills/java-persistence-performance/SKILL.md` and only its relevant references. Preserve approved specs, Clean Architecture, `owner_id` isolation, and PostgreSQL/Testcontainers conventions.
+

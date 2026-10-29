@@ -19,3 +19,7 @@ Aplicação web responsiva de controle financeiro pessoal (BRL e EUR), reconstru
 - Um caso de uso por operação (`<Verbo><Substantivo>UseCase`, `@Service`, método `execute`); interfaces só em portas de saída e fronteiras entre módulos.
 - Logs estruturados sem dados sensíveis; sem H2, testes de integração com PostgreSQL (Testcontainers).
 
+## Skill de persistência Java
+
+Para tarefas de JPA/Hibernate, SQL, desempenho de consultas, transações, concorrência, PostgreSQL ou Flyway, leia e siga `.agents/skills/java-persistence-performance/SKILL.md` e apenas as referências pertinentes.
+

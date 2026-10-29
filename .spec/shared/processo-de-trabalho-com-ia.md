@@ -55,7 +55,7 @@ Os componentes do nosso harness:
 | **Instruções permanentes** | `CLAUDE.md` | Regras que nunca podem ser esquecidas (owner_id, BigDecimal, 1 use case por operação, sem H2) |
 | **Contexto sob demanda** | `.spec/memory/*`, spec da fatia | O modelo lê só o que a fatia precisa |
 | **Procedimento** | `como-executar.md` + ordem interna da fatia | Evita pular etapas |
-| **Skills** | `openapi-rest-contract`, `java-spring-create-module`, `java-modern-engineering` | Procedimentos especializados e repetíveis (ex.: gerar contrato com validação) |
+| **Skills** | `openapi-rest-contract`, `java-spring-create-module`, `java-modern-engineering`, `java-persistence-performance` (persistência e Flyway) | Procedimentos especializados e repetíveis (ex.: gerar contrato com validação) |
 | **Subagentes** | Agentes em paralelo (use cases, persistência, segurança, controller) | Dividir trabalho independente sem poluir o contexto principal |
 | **Ferramentas e permissões** | Leitura/escrita de ficheiros, Maven, modo de permissões | O que o agente pode fazer, com aprovação onde importa |
 | **Verificação automática** | `mvnw verify`, testes de domínio/casos de uso, `ModularityTests` (Spring Modulith), Redocly lint, Testcontainers | O modelo não "acha que está certo": o sistema prova |

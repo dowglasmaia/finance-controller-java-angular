@@ -122,18 +122,18 @@
                 <version>${openapi-generator.version}</version>
                 <executions>
                     <execution>
-                        <id>generate-openapi</id>
+                        <id>generate-identity-api</id>
                         <phase>generate-sources</phase>
                         <goals>
                             <goal>generate</goal>
                         </goals>
                         <configuration>
-                            <inputSpec>${project.basedir}/src/main/resources/openapi/openapi.yaml</inputSpec>
+                            <inputSpec>${project.basedir}/src/main/resources/openapi/modules/identity.yaml</inputSpec>
                             <generatorName>spring</generatorName>
                             <library>spring-boot</library>
-                            <output>${project.build.directory}/generated-sources/openapi</output>
-                            <apiPackage>com.dowglasmaia.financecontroller.generated.api</apiPackage>
-                            <modelPackage>com.dowglasmaia.financecontroller.generated.model</modelPackage>
+                            <output>${project.build.directory}/generated-sources/openapi/identity</output>
+                            <apiPackage>com.dowglasmaia.financecontroller.generated.identity.api</apiPackage>
+                            <modelPackage>com.dowglasmaia.financecontroller.generated.identity.model</modelPackage>
                             <generateSupportingFiles>false</generateSupportingFiles>
                             <configOptions>
                                 <interfaceOnly>true</interfaceOnly>
@@ -149,18 +149,45 @@
                         </configuration>
                     </execution>
                     <execution>
-                        <id>generate-identity-api</id>
+                        <id>generate-categories-api</id>
                         <phase>generate-sources</phase>
                         <goals>
                             <goal>generate</goal>
                         </goals>
                         <configuration>
-                            <inputSpec>${project.basedir}/src/main/resources/openapi/modules/identity.yaml</inputSpec>
+                            <inputSpec>${project.basedir}/src/main/resources/openapi/modules/categories.yaml</inputSpec>
                             <generatorName>spring</generatorName>
                             <library>spring-boot</library>
-                            <output>${project.build.directory}/generated-sources/openapi/identity</output>
-                            <apiPackage>com.dowglasmaia.financecontroller.generated.identity.api</apiPackage>
-                            <modelPackage>com.dowglasmaia.financecontroller.generated.identity.model</modelPackage>
+                            <output>${project.build.directory}/generated-sources/openapi/categories</output>
+                            <apiPackage>com.dowglasmaia.financecontroller.generated.categories.api</apiPackage>
+                            <modelPackage>com.dowglasmaia.financecontroller.generated.categories.model</modelPackage>
+                            <generateSupportingFiles>false</generateSupportingFiles>
+                            <configOptions>
+                                <interfaceOnly>true</interfaceOnly>
+                                <skipDefaultInterface>true</skipDefaultInterface>
+                                <useSpringBoot4>true</useSpringBoot4>
+                                <useJackson3>true</useJackson3>
+                                <useJakartaEe>true</useJakartaEe>
+                                <documentationProvider>none</documentationProvider>
+                                <annotationLibrary>none</annotationLibrary>
+                                <openApiNullable>false</openApiNullable>
+                                <useTags>true</useTags>
+                            </configOptions>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>generate-transactions-api</id>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
+                        <configuration>
+                            <inputSpec>${project.basedir}/src/main/resources/openapi/modules/transactions.yaml</inputSpec>
+                            <generatorName>spring</generatorName>
+                            <library>spring-boot</library>
+                            <output>${project.build.directory}/generated-sources/openapi/transactions</output>
+                            <apiPackage>com.dowglasmaia.financecontroller.generated.transactions.api</apiPackage>
+                            <modelPackage>com.dowglasmaia.financecontroller.generated.transactions.model</modelPackage>
                             <generateSupportingFiles>false</generateSupportingFiles>
                             <configOptions>
                                 <interfaceOnly>true</interfaceOnly>

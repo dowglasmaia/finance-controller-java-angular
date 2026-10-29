@@ -1,0 +1,368 @@
+openapi: 3.1.0
+info:
+    title: Transactions API
+    version: 1.0.0
+paths:
+    /api/v1/transactions:
+        get:
+            tags:
+                - Transactions
+            summary: Listar lançamentos
+            operationId: listTransactions
+            description: Lista os lançamentos do mês e da moeda, do mais recente ao mais antigo (desempate por
+                criação e id). Os totais cobrem todo o conjunto filtrado, não só a página.
+            security:
+                - bearerAuth: []
+            parameters:
+                - name: month
+                  in: query
+                  required: true
+                  description: Mês dos lançamentos (YYYY-MM).
+                  schema:
+                      type: string
+                      pattern: "^\\d{4}-(0[1-9]|1[0-2])$"
+                - name: currency
+                  in: query
+                  required: true
+                  schema:
+                      $ref: "#/components/schemas/Currency"
+                - name: type
+                  in: query
+                  required: false
+                  description: Filtra por direção; ALL (padrão) devolve entradas e saídas.
+                  schema:
+                      type: string
+                      enum:
+                          - ALL
+                          - INCOME
+                          - EXPENSE
+                      default: ALL
+                - name: page
+                  in: query
+                  required: false
+                  description: Página, a partir de 1.
+                  schema:
+                      type: integer
+                      minimum: 1
+                      default: 1
+                - name: size
+                  in: query
+                  required: false
+                  description: Itens por página.
+                  schema:
+                      type: integer
+                      minimum: 1
+                      maximum: 100
+                      default: 15
+            responses:
+                "200":
+                    description: Página de lançamentos e totais do conjunto filtrado
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/TransactionPage"
+                "400":
+                    $ref: ../common/responses.yaml#/components/responses/BadRequestResponse
+                "401":
+                    $ref: ../common/responses.yaml#/components/responses/UnauthorizedResponse
+        post:
+            tags:
+                - Transactions
+            summary: Criar lançamento
+            operationId: createTransaction
+            description: Cria o lançamento. A categoria deve aceitar o tipo e a subcategoria, se informada, deve
+                pertencer a ela. O alerta de meta só é avaliado para despesas cuja data pertence ao referenceMonth.
+            security:
+                - bearerAuth: []
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: "#/components/schemas/TransactionRequest"
+            responses:
+                "201":
+                    description: Lançamento criado
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/TransactionResult"
+                "400":
+                    $ref: ../common/responses.yaml#/components/responses/BadRequestResponse
+                "401":
+                    $ref: ../common/responses.yaml#/components/responses/UnauthorizedResponse
+                "404":
+                    $ref: ../common/responses.yaml#/components/responses/NotFoundResponse
+                "409":
+                    $ref: ../common/responses.yaml#/components/responses/ConflictResponse
+    /api/v1/transactions/{transactionId}:
+        get:
+            tags:
+                - Transactions
+            summary: Obter lançamento
+            operationId: getTransaction
+            security:
+                - bearerAuth: []
+            parameters:
+                - name: transactionId
+                  in: path
+                  required: true
+                  schema:
+                      type: string
+                      format: uuid
+            responses:
+                "200":
+                    description: Lançamento
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Transaction"
+                "401":
+                    $ref: ../common/responses.yaml#/components/responses/UnauthorizedResponse
+                "404":
+                    $ref: ../common/responses.yaml#/components/responses/NotFoundResponse
+        put:
+            tags:
+                - Transactions
+            summary: Atualizar lançamento
+            operationId: updateTransaction
+            description: Substitui os dados do lançamento, preservando id e createdAt.
+            security:
+                - bearerAuth: []
+            parameters:
+                - name: transactionId
+                  in: path
+                  required: true
+                  schema:
+                      type: string
+                      format: uuid
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: "#/components/schemas/TransactionRequest"
+            responses:
+                "200":
+                    description: Lançamento atualizado
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/TransactionResult"
+                "400":
+                    $ref: ../common/responses.yaml#/components/responses/BadRequestResponse
+                "401":
+                    $ref: ../common/responses.yaml#/components/responses/UnauthorizedResponse
+                "404":
+                    $ref: ../common/responses.yaml#/components/responses/NotFoundResponse
+                "409":
+                    $ref: ../common/responses.yaml#/components/responses/ConflictResponse
+        delete:
+            tags:
+                - Transactions
+            summary: Excluir lançamento
+            operationId: deleteTransaction
+            security:
+                - bearerAuth: []
+            parameters:
+                - name: transactionId
+                  in: path
+                  required: true
+                  schema:
+                      type: string
+                      format: uuid
+            responses:
+                "204":
+                    description: Lançamento excluído
+                "401":
+                    $ref: ../common/responses.yaml#/components/responses/UnauthorizedResponse
+                "404":
+                    $ref: ../common/responses.yaml#/components/responses/NotFoundResponse
+components:
+    securitySchemes:
+        bearerAuth:
+            $ref: ../common/security.yaml#/components/securitySchemes/bearerAuth
+    schemas:
+        Currency:
+            type: string
+            enum:
+                - BRL
+                - EUR
+        TransactionKind:
+            type: string
+            enum:
+                - INCOME
+                - EXPENSE
+        TransactionRequest:
+            type: object
+            required:
+                - kind
+                - description
+                - amount
+                - currency
+                - date
+                - categoryId
+            properties:
+                kind:
+                    $ref: "#/components/schemas/TransactionKind"
+                description:
+                    type: string
+                    minLength: 1
+                    maxLength: 120
+                amount:
+                    type: string
+                    description: 'Decimal como texto, maior que zero (ex.: "1234.56"); máximo 9999999999.99.'
+                    pattern: "^\\d{1,10}(\\.\\d{1,2})?$"
+                currency:
+                    $ref: "#/components/schemas/Currency"
+                date:
+                    type: string
+                    format: date
+                categoryId:
+                    type: string
+                    format: uuid
+                subcategoryId:
+                    type: string
+                    format: uuid
+                notes:
+                    type: string
+                    maxLength: 500
+                referenceMonth:
+                    type: string
+                    description: Mês que o cliente exibe (YYYY-MM); o alerta de meta só é avaliado se a data pertence a ele.
+                    pattern: "^\\d{4}-(0[1-9]|1[0-2])$"
+        CategoryRef:
+            type: object
+            required:
+                - id
+                - name
+                - color
+                - icon
+            properties:
+                id:
+                    type: string
+                    format: uuid
+                name:
+                    type: string
+                color:
+                    type: string
+                icon:
+                    type: string
+        SubcategoryRef:
+            type: object
+            required:
+                - id
+                - name
+            properties:
+                id:
+                    type: string
+                    format: uuid
+                name:
+                    type: string
+        Transaction:
+            type: object
+            required:
+                - id
+                - kind
+                - description
+                - amount
+                - currency
+                - date
+                - category
+                - createdAt
+                - updatedAt
+            properties:
+                id:
+                    type: string
+                    format: uuid
+                kind:
+                    $ref: "#/components/schemas/TransactionKind"
+                description:
+                    type: string
+                amount:
+                    type: string
+                currency:
+                    $ref: "#/components/schemas/Currency"
+                date:
+                    type: string
+                    format: date
+                category:
+                    $ref: "#/components/schemas/CategoryRef"
+                subcategory:
+                    $ref: "#/components/schemas/SubcategoryRef"
+                notes:
+                    type: string
+                createdAt:
+                    type: string
+                    format: date-time
+                updatedAt:
+                    type: string
+                    format: date-time
+        BudgetAlert:
+            type: object
+            required:
+                - scope
+                - status
+            properties:
+                scope:
+                    type: string
+                    enum:
+                        - CATEGORY
+                        - GLOBAL
+                status:
+                    type: string
+                    enum:
+                        - WARNING
+                        - EXCEEDED
+                categoryId:
+                    type: string
+                    format: uuid
+                categoryName:
+                    type: string
+        TransactionResult:
+            type: object
+            required:
+                - transaction
+            properties:
+                transaction:
+                    $ref: "#/components/schemas/Transaction"
+                budgetAlert:
+                    $ref: "#/components/schemas/BudgetAlert"
+        TransactionTotals:
+            type: object
+            required:
+                - income
+                - expense
+                - balance
+            properties:
+                income:
+                    type: string
+                expense:
+                    type: string
+                balance:
+                    type: string
+        TransactionPage:
+            type: object
+            required:
+                - items
+                - page
+                - size
+                - totalItems
+                - totalPages
+                - totals
+            properties:
+                items:
+                    type: array
+                    items:
+                        $ref: "#/components/schemas/Transaction"
+                page:
+                    type: integer
+                size:
+                    type: integer
+                totalItems:
+                    type: integer
+                    format: int64
+                totalPages:
+                    type: integer
+                totals:
+                    $ref: "#/components/schemas/TransactionTotals"

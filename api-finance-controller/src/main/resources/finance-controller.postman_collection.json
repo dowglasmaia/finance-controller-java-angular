@@ -1,22 +1,65 @@
 {
   "info": {
     "name": "Finance Controller API",
-    "description": "Collection de testes da API. Atualizada a cada fatia entregue (atual: F1 - identity).\n\nUso: execute 'Register' ou 'Login'; o script de teste guarda o accessToken na variável de coleção {{accessToken}} e o cookie refresh_token fica no cookie jar do Postman (domínio localhost). Em ambiente local o cookie não é Secure (perfil local).",
+    "description": "Collection de testes da API. Atualizada a cada fatia entregue (atual: F5 - lançamentos).\n\nUso: execute 'Register' ou 'Login'; o script de teste guarda o accessToken na variável de coleção {{accessToken}} e o cookie refresh_token fica no cookie jar do Postman (domínio localhost). Em ambiente local o cookie não é Secure (perfil local).",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "auth": {
     "type": "bearer",
     "bearer": [
-      { "key": "token", "value": "{{accessToken}}", "type": "string" }
+      {
+        "key": "token",
+        "value": "{{accessToken}}",
+        "type": "string"
+      }
     ]
   },
   "variable": [
-    { "key": "baseUrl", "value": "http://localhost:8080", "type": "string" },
-    { "key": "apiPath", "value": "/api/v1", "type": "string" },
-    { "key": "email", "value": "usuario.teste@example.com", "type": "string" },
-    { "key": "password", "value": "SenhaForte#2026", "type": "string" },
-    { "key": "accessToken", "value": "", "type": "string" },
-    { "key": "userId", "value": "", "type": "string" }
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080",
+      "type": "string"
+    },
+    {
+      "key": "apiPath",
+      "value": "/api/v1",
+      "type": "string"
+    },
+    {
+      "key": "email",
+      "value": "usuario.teste@example.com",
+      "type": "string"
+    },
+    {
+      "key": "password",
+      "value": "SenhaForte#2026",
+      "type": "string"
+    },
+    {
+      "key": "accessToken",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "userId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "categoryId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "subcategoryId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "transactionId",
+      "value": "",
+      "type": "string"
+    }
   ],
   "item": [
     {
@@ -25,13 +68,20 @@
         {
           "name": "Health",
           "request": {
-            "auth": { "type": "noauth" },
+            "auth": {
+              "type": "noauth"
+            },
             "method": "GET",
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/actuator/health",
-              "host": ["{{baseUrl}}"],
-              "path": ["actuator", "health"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "actuator",
+                "health"
+              ]
             }
           },
           "response": []
@@ -62,17 +112,30 @@
             }
           ],
           "request": {
-            "auth": { "type": "noauth" },
+            "auth": {
+              "type": "noauth"
+            },
             "method": "POST",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "body": {
               "mode": "raw",
               "raw": "{\n  \"email\": \"{{email}}\",\n  \"password\": \"{{password}}\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}{{apiPath}}/auth/register",
-              "host": ["{{baseUrl}}"],
-              "path": ["{{apiPath}}", "auth", "register"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "{{apiPath}}",
+                "auth",
+                "register"
+              ]
             },
             "description": "Cadastra o utilizador. 201 com cookie refresh_token; 409 EMAIL_ALREADY_REGISTERED se o e-mail já existe; 400 VALIDATION_FAILED."
           },
@@ -95,17 +158,30 @@
             }
           ],
           "request": {
-            "auth": { "type": "noauth" },
+            "auth": {
+              "type": "noauth"
+            },
             "method": "POST",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "body": {
               "mode": "raw",
               "raw": "{\n  \"email\": \"{{email}}\",\n  \"password\": \"{{password}}\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}{{apiPath}}/auth/login",
-              "host": ["{{baseUrl}}"],
-              "path": ["{{apiPath}}", "auth", "login"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "{{apiPath}}",
+                "auth",
+                "login"
+              ]
             },
             "description": "200 com cookie refresh_token; 401 INVALID_CREDENTIALS (mesma resposta para senha errada e e-mail inexistente); 429 TOO_MANY_ATTEMPTS após 5 falhas em 15 min."
           },
@@ -126,13 +202,21 @@
             }
           ],
           "request": {
-            "auth": { "type": "noauth" },
+            "auth": {
+              "type": "noauth"
+            },
             "method": "POST",
             "header": [],
             "url": {
               "raw": "{{baseUrl}}{{apiPath}}/auth/refresh",
-              "host": ["{{baseUrl}}"],
-              "path": ["{{apiPath}}", "auth", "refresh"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "{{apiPath}}",
+                "auth",
+                "refresh"
+              ]
             },
             "description": "Usa o cookie refresh_token do cookie jar e o rotaciona. Reusar um token já rotacionado devolve 401 e revoga a família."
           },
@@ -153,13 +237,21 @@
             }
           ],
           "request": {
-            "auth": { "type": "noauth" },
+            "auth": {
+              "type": "noauth"
+            },
             "method": "POST",
             "header": [],
             "url": {
               "raw": "{{baseUrl}}{{apiPath}}/auth/logout",
-              "host": ["{{baseUrl}}"],
-              "path": ["{{apiPath}}", "auth", "logout"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "{{apiPath}}",
+                "auth",
+                "logout"
+              ]
             },
             "description": "Revoga a sessão de renovação e limpa o cookie."
           },
@@ -186,16 +278,495 @@
           "request": {
             "auth": {
               "type": "bearer",
-              "bearer": [{ "key": "token", "value": "{{accessToken}}", "type": "string" }]
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
             },
             "method": "GET",
             "header": [],
             "url": {
               "raw": "{{baseUrl}}{{apiPath}}/auth/me",
-              "host": ["{{baseUrl}}"],
-              "path": ["{{apiPath}}", "auth", "me"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "{{apiPath}}",
+                "auth",
+                "me"
+              ]
             },
             "description": "Requer Bearer token. Sem token válido: 401 application/problem+json."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Categories",
+      "item": [
+        {
+          "name": "listCategories",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('200 OK', () => pm.response.to.have.status(200));",
+                  "const list = pm.response.json();",
+                  "pm.test('lista de categorias', () => pm.expect(list).to.be.an('array'));",
+                  "if (list.length) { pm.collectionVariables.set('categoryId', list[0].id); }"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}{{apiPath}}/categories?type=EXPENSE",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "{{apiPath}}",
+                "categories"
+              ],
+              "query": [
+                {
+                  "key": "type",
+                  "value": "EXPENSE",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "200 com as categorias do utilizador (11 semeadas no cadastro), ordenadas por nome. Ative o parâmetro type=EXPENSE|INCOME para filtrar (inclui BOTH). 401 sem token."
+          },
+          "response": []
+        },
+        {
+          "name": "createCategory",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('201 Created', () => pm.response.to.have.status(201));",
+                  "const c = pm.response.json();",
+                  "pm.test('tem Outros protegida', () => pm.expect(c.subcategories.some(s => s.name === 'Outros' && s.protected)).to.be.true);",
+                  "pm.collectionVariables.set('categoryId', c.id);",
+                  "pm.collectionVariables.set('subcategoryId', c.subcategories.find(s => !s.protected).id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}{{apiPath}}/categories",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "{{apiPath}}",
+                "categories"
+              ]
+            },
+            "description": "201 com a categoria e a subcategoria protegida Outros; 409 CATEGORY_NAME_DUPLICATED (ignora caixa e espaços); 400 VALIDATION_FAILED.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Pets\",\n  \"type\": \"EXPENSE\",\n  \"icon\": \"pets\",\n  \"color\": \"#795548\",\n  \"subcategories\": [\"Veterinário\", \"Ração\"]\n}"
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "getCategory",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('200 OK', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}{{apiPath}}/categories/{{categoryId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "{{apiPath}}",
+                "categories",
+                "{{categoryId}}"
+              ]
+            },
+            "description": "200; 404 se não existe ou pertence a outro utilizador."
+          },
+          "response": []
+        },
+        {
+          "name": "updateCategory",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('200 OK', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}{{apiPath}}/categories/{{categoryId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "{{apiPath}}",
+                "categories",
+                "{{categoryId}}"
+              ]
+            },
+            "description": "200; 409 CATEGORY_NAME_DUPLICATED ou CATEGORY_TYPE_CONFLICT (lançamentos incompatíveis); 404.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Animais\",\n  \"type\": \"BOTH\",\n  \"icon\": \"pets\",\n  \"color\": \"#795548\"\n}"
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "addSubcategory",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('201 Created', () => pm.response.to.have.status(201));",
+                  "pm.collectionVariables.set('subcategoryId', pm.response.json().id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}{{apiPath}}/categories/{{categoryId}}/subcategories",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "{{apiPath}}",
+                "categories",
+                "{{categoryId}}",
+                "subcategories"
+              ]
+            },
+            "description": "201; 409 SUBCATEGORY_NAME_DUPLICATED; 404.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Banho e tosa\"\n}"
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "deleteSubcategory",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('204 No Content', () => pm.response.to.have.status(204));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}{{apiPath}}/categories/{{categoryId}}/subcategories/{{subcategoryId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "{{apiPath}}",
+                "categories",
+                "{{categoryId}}",
+                "subcategories",
+                "{{subcategoryId}}"
+              ]
+            },
+            "description": "204; 409 SUBCATEGORY_PROTECTED para Outros; 404."
+          },
+          "response": []
+        },
+        {
+          "name": "deleteCategory",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('204 No Content', () => pm.response.to.have.status(204));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}{{apiPath}}/categories/{{categoryId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "{{apiPath}}",
+                "categories",
+                "{{categoryId}}"
+              ]
+            },
+            "description": "204 remove também as subcategorias; 409 CATEGORY_IN_USE se houver lançamentos; 404."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Transactions",
+      "item": [
+        {
+          "name": "listTransactions",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('200 OK', () => pm.response.to.have.status(200));",
+                  "const page = pm.response.json();",
+                  "pm.test('tem totais', () => pm.expect(page.totals.balance).to.be.a('string'));",
+                  "if (page.items.length) { pm.collectionVariables.set('transactionId', page.items[0].id); }"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}{{apiPath}}/transactions?month=2026-10&currency=BRL&type=ALL&page=1&size=15",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "{{apiPath}}",
+                "transactions"
+              ],
+              "query": [
+                {
+                  "key": "month",
+                  "value": "2026-10"
+                },
+                {
+                  "key": "currency",
+                  "value": "BRL"
+                },
+                {
+                  "key": "type",
+                  "value": "ALL"
+                },
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "size",
+                  "value": "15"
+                }
+              ]
+            },
+            "description": "200 com `items`, `page`, `size`, `totalItems`, `totalPages` e `totals` (entradas, saídas e saldo do conjunto filtrado inteiro). `month` (YYYY-MM) e `currency` obrigatórios; `type` ALL|INCOME|EXPENSE; `page` a partir de 1 (padrão 1); `size` 1..100 (padrão 15). 400 parâmetro inválido."
+          },
+          "response": []
+        },
+        {
+          "name": "createTransaction",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('201 Created', () => pm.response.to.have.status(201));",
+                  "pm.collectionVariables.set('transactionId', pm.response.json().transaction.id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}{{apiPath}}/transactions",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "{{apiPath}}",
+                "transactions"
+              ]
+            },
+            "description": "Use um `categoryId` de despesa (rode listCategories). 201 com `{transaction, budgetAlert?}`; 400 VALIDATION_FAILED (valor <= 0, formato, data fora de 2000-01-01..2100-12-31); 404 categoria inexistente ou de outro utilizador; 409 CATEGORY_TYPE_MISMATCH ou SUBCATEGORY_NOT_IN_CATEGORY. `budgetAlert` só aparece a partir da F6.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"kind\": \"EXPENSE\",\n  \"description\": \"Supermercado\",\n  \"amount\": \"123.45\",\n  \"currency\": \"BRL\",\n  \"date\": \"2026-10-05\",\n  \"categoryId\": \"{{categoryId}}\",\n  \"referenceMonth\": \"2026-10\"\n}"
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "getTransaction",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('200 OK', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}{{apiPath}}/transactions/{{transactionId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "{{apiPath}}",
+                "transactions",
+                "{{transactionId}}"
+              ]
+            },
+            "description": "200; 404 se não existe ou é de outro utilizador."
+          },
+          "response": []
+        },
+        {
+          "name": "updateTransaction",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('200 OK', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}{{apiPath}}/transactions/{{transactionId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "{{apiPath}}",
+                "transactions",
+                "{{transactionId}}"
+              ]
+            },
+            "description": "Substitui os dados preservando `id` e `createdAt`. 200; 400; 404; 409.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"kind\": \"EXPENSE\",\n  \"description\": \"Supermercado\",\n  \"amount\": \"123.45\",\n  \"currency\": \"BRL\",\n  \"date\": \"2026-10-05\",\n  \"categoryId\": \"{{categoryId}}\",\n  \"referenceMonth\": \"2026-10\"\n}"
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "deleteTransaction",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('204 No Content', () => pm.response.to.have.status(204));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}{{apiPath}}/transactions/{{transactionId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "{{apiPath}}",
+                "transactions",
+                "{{transactionId}}"
+              ]
+            },
+            "description": "204; 404."
           },
           "response": []
         }

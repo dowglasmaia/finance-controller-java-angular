@@ -1,0 +1,322 @@
+openapi: 3.1.0
+info:
+    title: Categories API
+    version: 1.0.0
+paths:
+    /api/v1/categories:
+        get:
+            tags:
+                - Categories
+            summary: "Listar categorias"
+            operationId: listCategories
+            description: "Lista as categorias do utilizador autenticado, ordenadas por nome sem distinguir caixa. Com type, devolve as que aceitam o tipo, incluindo BOTH."
+            security:
+                - bearerAuth: []
+            parameters:
+                - name: type
+                  in: query
+                  required: false
+                  description: "Filtra por tipo de lançamento aceito."
+                  schema:
+                      type: string
+                      enum:
+                          - INCOME
+                          - EXPENSE
+            responses:
+                "200":
+                    description: "Categorias"
+                    content:
+                        application/json:
+                            schema:
+                                type: array
+                                items:
+                                    $ref: "#/components/schemas/Category"
+                "401":
+                    $ref: ../common/responses.yaml#/components/responses/UnauthorizedResponse
+        post:
+            tags:
+                - Categories
+            summary: "Criar categoria"
+            operationId: createCategory
+            description: "Cria a categoria com a subcategoria protegida Outros e as subcategorias informadas."
+            security:
+                - bearerAuth: []
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: "#/components/schemas/CreateCategoryRequest"
+            responses:
+                "201":
+                    description: "Categoria criada"
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Category"
+                "400":
+                    $ref: ../common/responses.yaml#/components/responses/BadRequestResponse
+                "401":
+                    $ref: ../common/responses.yaml#/components/responses/UnauthorizedResponse
+                "409":
+                    $ref: ../common/responses.yaml#/components/responses/ConflictResponse
+    /api/v1/categories/{categoryId}:
+        get:
+            tags:
+                - Categories
+            summary: "Obter categoria"
+            operationId: getCategory
+            security:
+                - bearerAuth: []
+            parameters:
+                - name: categoryId
+                  in: path
+                  required: true
+                  schema:
+                      type: string
+                      format: uuid
+            responses:
+                "200":
+                    description: "Categoria"
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Category"
+                "401":
+                    $ref: ../common/responses.yaml#/components/responses/UnauthorizedResponse
+                "404":
+                    $ref: ../common/responses.yaml#/components/responses/NotFoundResponse
+        put:
+            tags:
+                - Categories
+            summary: "Atualizar categoria"
+            operationId: updateCategory
+            description: "Atualiza nome, tipo, ícone e cor. Mudar o tipo com lançamentos incompatíveis devolve 409 CATEGORY_TYPE_CONFLICT."
+            security:
+                - bearerAuth: []
+            parameters:
+                - name: categoryId
+                  in: path
+                  required: true
+                  schema:
+                      type: string
+                      format: uuid
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: "#/components/schemas/CategoryRequest"
+            responses:
+                "200":
+                    description: "Categoria atualizada"
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Category"
+                "400":
+                    $ref: ../common/responses.yaml#/components/responses/BadRequestResponse
+                "401":
+                    $ref: ../common/responses.yaml#/components/responses/UnauthorizedResponse
+                "404":
+                    $ref: ../common/responses.yaml#/components/responses/NotFoundResponse
+                "409":
+                    $ref: ../common/responses.yaml#/components/responses/ConflictResponse
+        delete:
+            tags:
+                - Categories
+            summary: "Excluir categoria"
+            operationId: deleteCategory
+            description: "Remove a categoria e as subcategorias. Com lançamentos vinculados devolve 409 CATEGORY_IN_USE."
+            security:
+                - bearerAuth: []
+            parameters:
+                - name: categoryId
+                  in: path
+                  required: true
+                  schema:
+                      type: string
+                      format: uuid
+            responses:
+                "204":
+                    description: "Categoria excluída"
+                "401":
+                    $ref: ../common/responses.yaml#/components/responses/UnauthorizedResponse
+                "404":
+                    $ref: ../common/responses.yaml#/components/responses/NotFoundResponse
+                "409":
+                    $ref: ../common/responses.yaml#/components/responses/ConflictResponse
+    /api/v1/categories/{categoryId}/subcategories:
+        post:
+            tags:
+                - Categories
+            summary: "Adicionar subcategoria"
+            operationId: addSubcategory
+            security:
+                - bearerAuth: []
+            parameters:
+                - name: categoryId
+                  in: path
+                  required: true
+                  schema:
+                      type: string
+                      format: uuid
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: "#/components/schemas/SubcategoryRequest"
+            responses:
+                "201":
+                    description: "Subcategoria criada"
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Subcategory"
+                "400":
+                    $ref: ../common/responses.yaml#/components/responses/BadRequestResponse
+                "401":
+                    $ref: ../common/responses.yaml#/components/responses/UnauthorizedResponse
+                "404":
+                    $ref: ../common/responses.yaml#/components/responses/NotFoundResponse
+                "409":
+                    $ref: ../common/responses.yaml#/components/responses/ConflictResponse
+    /api/v1/categories/{categoryId}/subcategories/{subcategoryId}:
+        delete:
+            tags:
+                - Categories
+            summary: "Excluir subcategoria"
+            operationId: deleteSubcategory
+            description: "Lançamentos vinculados ficam sem subcategoria. A subcategoria Outros não pode ser excluída (409 SUBCATEGORY_PROTECTED)."
+            security:
+                - bearerAuth: []
+            parameters:
+                - name: categoryId
+                  in: path
+                  required: true
+                  schema:
+                      type: string
+                      format: uuid
+                - name: subcategoryId
+                  in: path
+                  required: true
+                  schema:
+                      type: string
+                      format: uuid
+            responses:
+                "204":
+                    description: "Subcategoria excluída"
+                "401":
+                    $ref: ../common/responses.yaml#/components/responses/UnauthorizedResponse
+                "404":
+                    $ref: ../common/responses.yaml#/components/responses/NotFoundResponse
+                "409":
+                    $ref: ../common/responses.yaml#/components/responses/ConflictResponse
+components:
+    securitySchemes:
+        bearerAuth:
+            $ref: ../common/security.yaml#/components/securitySchemes/bearerAuth
+    schemas:
+        CategoryType:
+            type: string
+            enum:
+                - INCOME
+                - EXPENSE
+                - BOTH
+        CategoryRequest:
+            type: object
+            required:
+                - name
+                - type
+                - icon
+                - color
+            properties:
+                name:
+                    type: string
+                    minLength: 1
+                    maxLength: 60
+                type:
+                    $ref: "#/components/schemas/CategoryType"
+                icon:
+                    type: string
+                    minLength: 1
+                    maxLength: 40
+                color:
+                    type: string
+                    pattern: "^#[0-9A-Fa-f]{6}$"
+        CreateCategoryRequest:
+            type: object
+            required:
+                - name
+                - type
+                - icon
+                - color
+            properties:
+                name:
+                    type: string
+                    minLength: 1
+                    maxLength: 60
+                type:
+                    $ref: "#/components/schemas/CategoryType"
+                icon:
+                    type: string
+                    minLength: 1
+                    maxLength: 40
+                color:
+                    type: string
+                    pattern: "^#[0-9A-Fa-f]{6}$"
+                subcategories:
+                    type: array
+                    items:
+                        type: string
+                        minLength: 1
+                        maxLength: 60
+        SubcategoryRequest:
+            type: object
+            required:
+                - name
+            properties:
+                name:
+                    type: string
+                    minLength: 1
+                    maxLength: 60
+        Subcategory:
+            type: object
+            required:
+                - id
+                - name
+                - protected
+            properties:
+                id:
+                    type: string
+                    format: uuid
+                name:
+                    type: string
+                protected:
+                    type: boolean
+        Category:
+            type: object
+            required:
+                - id
+                - name
+                - type
+                - icon
+                - color
+                - subcategories
+            properties:
+                id:
+                    type: string
+                    format: uuid
+                name:
+                    type: string
+                type:
+                    $ref: "#/components/schemas/CategoryType"
+                icon:
+                    type: string
+                color:
+                    type: string
+                subcategories:
+                    type: array
+                    items:
+                        $ref: "#/components/schemas/Subcategory"

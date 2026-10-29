@@ -1,7 +1,7 @@
 # shared
 
 Design system mínimo e utilitários reutilizáveis (FRONTEND-SPEC-02/05, fatia F2). Sem regra de negócio, sem HTTP.
-Só entra aqui o que a F2 usa; `KpiCard`, `MoneyInput`, `DataTable`, `ProgressBar`, pickers, `TypeToggle`, gráficos e `ConfirmDialog` chegam nas fatias F4–F9.
+Só entra aqui o que a F2 usa; `KpiCard`, `DataTable`, `ProgressBar`, pickers, `TypeToggle` e gráficos chegam nas fatias F6–F9 (`Modal` e `ConfirmDialog` entraram na F4).
 
 ## Componentes (`ui/`)
 
@@ -18,6 +18,9 @@ Standalone, `OnPush`, `input()`/`output()`, seletor `app-*`, cores só por token
 | `MonthSwitcher` | `app-month-switcher` | `label` (obrigatório); outputs `previous`, `next`, `reset`. O shell liga ao `ReferenceMonthStore` |
 | `ThemeToggleComponent` | `app-theme-toggle` | Sem inputs; usa `ThemeStore`. `aria-pressed` = tema escuro ativo |
 | `FormFieldComponent` + `FieldControlDirective` | `app-form-field` + `[appFieldControl]` | ver abaixo |
+| `Modal` | `app-modal` | `title` (obrigatório, `h2` do diálogo); output `closed` (Esc ou clique no fundo). `role="dialog"` `aria-modal`, foco inicial no primeiro controle (ou `[data-autofocus]`), foco preso e devolvido a quem abriu. Quem usa o destrói com `@if` |
+| `ConfirmDialog` | `app-confirm-dialog` | `title`, `message` (obrigatórios), `confirmLabel`, `busy`; outputs `confirmed`, `cancelled`. Foco inicial em Cancelar |
+| `MoneyInputDirective` | `input[appMoneyInput]` (em `shared/forms`) | Campo de valor: guarda o decimal da API como texto (`"1234.56"`), mostra com vírgula, aceita só dígitos e um separador, no máximo 2 casas; nunca usa `number`. Combine com `requiredValue`, `decimalValue`, `positiveAmount` |
 
 ### FormField
 

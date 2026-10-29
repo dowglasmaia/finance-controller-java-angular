@@ -7,9 +7,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class RegisterUserUseCaseTests {
 
+    private final java.util.List<Object> published = new java.util.ArrayList<>();
     private final IdentityFakes fakes = new IdentityFakes();
     private final RegisterUserUseCase useCase = new RegisterUserUseCase(
-        fakes.users, fakes.hasher, fakes.accessTokens, fakes.issuer, fakes.clock);
+        fakes.users, fakes.hasher, fakes.accessTokens, fakes.issuer, fakes.clock, event -> published.add(event));
 
     @Test
     void registersUserWithNormalizedEmailHashedPasswordAndNewRefreshFamily() {
@@ -21,6 +22,7 @@ class RegisterUserUseCaseTests {
         assertThat(result.accessToken()).isEqualTo("access-for-" + result.user().id().value());
         assertThat(result.refreshTokenExpiresAt()).isEqualTo(IdentityFakes.NOW.plus(IdentityFakes.REFRESH_LIFETIME));
         assertThat(fakes.users.byId).containsKey(result.user().id());
+        assertThat(published).containsExactly(new com.dowglasmaia.financecontroller.identity.UserRegistered(result.user().id().value()));
 
         var session = fakes.sessions.findByTokenHash(fakes.tokens.hash(result.refreshToken())).orElseThrow();
         assertThat(session.userId()).isEqualTo(result.user().id());

@@ -60,7 +60,11 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler(DomainException.class)
     ResponseEntity<Object> handleDomain(DomainException ex, WebRequest request) {
         log.atInfo().addKeyValue("error.code", ex.code()).log("domain rule rejected the request");
-        return respond(problem(ex.code(), ex.code().status(), ex.args(), List.of(), request));
+        List<FieldViolation> fields = ex instanceof FieldValidationException invalid
+            ? List.of(new FieldViolation(invalid.field(),
+                messages.getMessage(invalid.messageKey(), null, ErrorHandlingConfiguration.PT_BR)))
+            : List.of();
+        return respond(problem(ex.code(), ex.code().status(), ex.args(), fields, request));
     }
 
     @ExceptionHandler(ConstraintViolationException.class)

@@ -1,6 +1,6 @@
 # 33-frontend-pagina-lancamentos
 
-> **ID:** FRONTEND-SPEC-10 · **Categoria:** Frontend (`features/transactions`) · **Estado:** proposta para revisão — não aprovada, não executada.
+> **ID:** FRONTEND-SPEC-10 · **Categoria:** Frontend (`features/transactions`) · **Estado:** executada na F5 (2026-10-29); o alerta real de meta e a verificação manual completa ficam pendentes — ver evidências.
 
 ## Objetivo
 
@@ -53,14 +53,22 @@ Decisões aplicadas: P-15 — cada moeda tem os seus lançamentos, despesas e da
 
 ## Regras e critérios de aceitação
 
-- [ ] A lista mostra só lançamentos do mês e da moeda selecionados, mais recentes primeiro, 15 por página.
-- [ ] Os subtotais cobrem todas as páginas do filtro, não só a visível.
+- [x] A lista mostra só lançamentos do mês e da moeda selecionados, mais recentes primeiro, 15 por página.
+  > ✅ 2026-10-29 10:50 +00:00 — `transactions.store.spec.ts` (consulta com `month`, `currency`, `type`, `page`, `size=15`; trocar mês, moeda ou filtro volta à página 1 e cancela a anterior) e `transactions-page.spec.ts`; visto no navegador (mês e moeda do shell). A ordem mais recentes primeiro vem do servidor (RN-TXN-08, testada no backend).
+- [x] Os subtotais cobrem todas as páginas do filtro, não só a visível.
+  > ✅ 2026-10-29 10:50 +00:00 — A página mostra `totals` do servidor, calculados sobre o conjunto filtrado inteiro (`transactions-page.spec.ts` com 40 itens e totais independentes da página; backend: `listIsScoped…`).
 - [ ] Salvar uma despesa que cruza 80% mostra um único aviso; que cruza 100% mostra o erro; receita não mostra alerta.
-- [ ] Excluir só ocorre após confirmação e atualiza lista e subtotais.
+  > ⏳ 2026-10-29 10:50 +00:00 — Parcial: `transaction-dialog.spec.ts` (resposta com `budgetAlert` → um toast `Meta de Alimentação estourada!` além de `Lançamento salvo.`; receita sem alerta) e `budget-alert-message.spec.ts` (as 4 combinações de escopo e estado com texto e tipo exatos). Falta: alerta real, que depende do módulo de metas (F6).
+- [x] Excluir só ocorre após confirmação e atualiza lista e subtotais.
+  > ✅ 2026-10-29 10:50 +00:00 — `transactions-page.spec.ts` (nenhum `DELETE` antes de confirmar; depois, `Lançamento excluído.`, recarga e subtotais atualizados).
 - [ ] Editar abre o diálogo preenchido e preserva a data e a moeda do lançamento; trocar a categoria de um lançamento atualiza imediatamente lista, subtotais e agregados.
-- [ ] Salvar um lançamento em EUR com BRL selecionado passa a mostrar a lista de EUR.
-- [ ] Despesa datada fora do mês selecionado salva sem alerta de meta.
+  > ⏳ 2026-10-29 10:50 +00:00 — Parcial: `transaction-dialog.spec.ts` (campos preenchidos, data e moeda preservadas, `PUT`) e o `refresh()` recarrega lista e subtotais após salvar. Falta: os agregados do dashboard (F7), que ainda não existem.
+- [x] Salvar um lançamento em EUR com BRL selecionado passa a mostrar a lista de EUR.
+  > ✅ 2026-10-29 10:50 +00:00 — `transaction-dialog.spec.ts` (resposta em EUR → `CurrencyStore` passa a EUR e a lista recarrega nessa moeda, P-15).
+- [x] Despesa datada fora do mês selecionado salva sem alerta de meta.
+  > ✅ 2026-10-29 10:50 +00:00 — O cliente envia `referenceMonth` (`transaction-dialog.spec.ts`) e o servidor só avalia alerta dentro dele (`alertIsOnlyEvaluatedForExpensesInTheReferenceMonth`).
 - [ ] Estados de carregando, vazio, erro e sucesso presentes; toasts anunciados a leitores de tela.
+  > ⏳ 2026-10-29 10:50 +00:00 — `transactions-page.spec.ts` (carregando, vazio, erro com "Tentar novamente", sucesso) e toasts no contêiner `aria-live` do shell (F2). Falta: verificação com leitor de tela.
 
 ### Skills de implementação
 
@@ -75,11 +83,13 @@ Decisões aplicadas: P-15 — cada moeda tem os seus lançamentos, despesas e da
 
 ### Front-end
 
-- [ ] Criar `features/transactions` com página, tabela, diálogo, serviço de dados e `doc.md`.
+- [x] Criar `features/transactions` com página, tabela, diálogo, serviço de dados e `doc.md`.
+  > ✅ 2026-10-29 10:50 +00:00 — `features/transactions` (`transactions.routes.ts`, `pages/`, `ui/`, `data-access/`, `budget-alert-message.ts`, `doc.md`); tipos gerados em `core/api/generated/transactions.ts`; `MoneyInputDirective` em `shared/forms`. Build de produção verde; rota `/lancamentos` sob demanda no lugar do placeholder. Desvio: a edição usa os dados da lista, não `getTransaction`.
 
 ### Validação
 
 - [ ] Testar filtros, paginação, alertas, edição e exclusão; revisar UI.
+  > ⏳ 2026-10-29 10:50 +00:00 — `npm test`: 127 testes Vitest verdes (37 novos em 5 ficheiros). Navegador contra API real (desktop): criação com subcategoria, valor `1234,5x9` normalizado, lista, subtotais, toast e bloqueio de exclusão de categoria em uso. Falta: revisão em 320/768 px, teclado completo e contraste nos dois temas.
 
 ## Resultado esperado
 

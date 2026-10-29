@@ -18,9 +18,17 @@ export const routes: Routes = [
     loadComponent: () => import('./core/layout/shell').then((module) => module.ShellComponent),
     children: [
       { ...placeholder('', 'Dashboard', true), pathMatch: 'full' },
-      placeholder('lancamentos', 'Lançamentos', true),
+      {
+        path: 'lancamentos',
+        loadChildren: () =>
+          import('./features/transactions/transactions.routes').then((module) => module.TRANSACTIONS_ROUTES),
+      },
       placeholder('relatorios', 'Relatórios', true),
-      placeholder('categorias', 'Categorias', false),
+      {
+        path: 'categorias',
+        loadChildren: () =>
+          import('./features/categories/categories.routes').then((module) => module.CATEGORIES_ROUTES),
+      },
       placeholder('cofrinhos', 'Cofrinhos', false),
       placeholder('metas', 'Meta', true),
       {

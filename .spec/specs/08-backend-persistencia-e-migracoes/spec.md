@@ -91,12 +91,12 @@ Isolamento depende de todos os repositórios filtrarem por `owner_id`: coberto p
 
 ### Skills de implementação
 
-- **Skills obrigatórias:** `java-modern-engineering`, `java-spring-create-module`.
-- **Caminhos:** `C:\Users\dowgl\.codex\skills\java-modern-engineering\SKILL.md`; `C:\Users\dowgl\.codex\skills\java-spring-create-module\SKILL.md`.
+- **Skills obrigatórias:** `java-modern-engineering`, `java-spring-create-module`, `java-persistence-performance`.
+- **Caminhos:** `C:\Users\dowgl\.codex\skills\java-modern-engineering\SKILL.md`; `C:\Users\dowgl\.codex\skills\java-spring-create-module\SKILL.md`; `.claude/skills/java-persistence-performance/SKILL.md`.
 - **Responsabilidade:** adaptadores de persistência dentro de cada módulo.
 - **Momento de utilização:** junto de cada módulo, após as migrações.
 - **Dependências:** P-17 (decidida), BACKEND-SPEC-05; INFRA-SPEC-02.
-- **Limitações:** **não há skill nos diretórios indicados para modelagem de banco, Flyway ou PostgreSQL**; nenhuma foi simulada.
+- **Limitações:** `java-persistence-performance` cobre diagnóstico e verificação de persistência (JPA/Hibernate, consultas SQL, transações, concorrência, PostgreSQL e Flyway; aplicar sem alterar comportamento aprovado); não substitui a modelagem do esquema, que segue esta spec. Não há skill de backup ou operação do banco; nenhuma foi simulada.
 
 ## Tasks
 
