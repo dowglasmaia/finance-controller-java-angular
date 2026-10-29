@@ -1,4 +1,4 @@
-package com.dowglasmaia.financecontroller.transaction.domain;
+package com.dowglasmaia.financecontroller.transaction;
 
 import java.util.UUID;
 

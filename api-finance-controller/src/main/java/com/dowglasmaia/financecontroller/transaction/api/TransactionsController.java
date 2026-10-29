@@ -12,7 +12,7 @@ import com.dowglasmaia.financecontroller.transaction.application.usecase.DeleteT
 import com.dowglasmaia.financecontroller.transaction.application.usecase.GetTransactionUseCase;
 import com.dowglasmaia.financecontroller.transaction.application.usecase.ListTransactionsUseCase;
 import com.dowglasmaia.financecontroller.transaction.application.usecase.UpdateTransactionUseCase;
-import com.dowglasmaia.financecontroller.transaction.domain.TransactionKind;
+import com.dowglasmaia.financecontroller.transaction.TransactionKind;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;

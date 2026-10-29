@@ -7,7 +7,7 @@ import com.dowglasmaia.financecontroller.shared.money.Currency;
 import com.dowglasmaia.financecontroller.transaction.application.port.out.TransactionRepository;
 import com.dowglasmaia.financecontroller.transaction.domain.Totals;
 import com.dowglasmaia.financecontroller.transaction.domain.Transaction;
-import com.dowglasmaia.financecontroller.transaction.domain.TransactionKind;
+import com.dowglasmaia.financecontroller.transaction.TransactionKind;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

@@ -17,6 +17,9 @@ public interface CategoryDirectory {
     /** Categorias existentes entre {@code ids}, por id; ids desconhecidos ou de outro utilizador são omitidos. */
     Map<UUID, CategoryView> findAll(UUID ownerId, Collection<UUID> ids);
 
+    /** Categorias do proprietário que aceitam o tipo (inclui {@code BOTH}), sem ordem garantida. */
+    List<CategoryView> listAccepting(UUID ownerId, CategoryType kind);
+
     /** Visão somente leitura de uma categoria. */
     record CategoryView(UUID id, String name, String icon, String color, CategoryType type,
                         List<SubcategoryView> subcategories) {

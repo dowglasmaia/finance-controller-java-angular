@@ -27,7 +27,7 @@ Página `/lancamentos` (FRONTEND-SPEC-10, fatia F5): lista mensal por moeda, fil
 
 ## Regras e decisões
 
-- O cliente envia `referenceMonth` (mês exibido); o servidor só avalia alerta de meta se a data do lançamento pertence a ele (P-20). Hoje nenhum alerta é devolvido: a implementação de metas é da F6 e o mapeamento de toasts já está pronto e testado.
+- O cliente envia `referenceMonth` (mês exibido); o servidor só avalia alerta de meta se a data do lançamento pertence a ele (P-20). O alerta é calculado pelo módulo de metas (F6): só a piora de estado alerta, categoria antes do global; o mapeamento de toasts está em `budget-alert-message.ts`.
 - Ao salvar um lançamento em moeda diferente da selecionada, a interface passa a selecionar essa moeda (P-15).
 - As categorias do diálogo vêm do `CategoriesStore` (a mesma fonte da página de categorias), filtradas pelo tipo (`Ambos` nos dois); trocar o tipo limpa uma categoria incompatível e trocar a categoria limpa a subcategoria.
 - Erros do servidor: `CATEGORY_TYPE_MISMATCH` e `SUBCATEGORY_NOT_IN_CATEGORY` aparecem no campo; `VALIDATION_FAILED` por campo (`errors[]`); categoria removida em outra aba (404) recarrega os seletores.
@@ -38,4 +38,5 @@ Página `/lancamentos` (FRONTEND-SPEC-10, fatia F5): lista mensal por moeda, fil
 
 - `data-access/transactions.store.spec.ts`, `pages/transactions-page.spec.ts`, `ui/transaction-dialog.spec.ts`, `budget-alert-message.spec.ts` e `shared/forms/money-input.spec.ts` (Vitest): consulta por mês/moeda/filtro/página, volta à página 1, erro e nova tentativa, página que deixou de existir, intervalo `1–15 de N`, formatação e sinais, subtotais, exclusão com confirmação, validações e mensagens exatas, categorias por tipo, decimal exato no corpo, `referenceMonth`, troca de moeda, alertas, erros do servidor por campo, edição preenchida.
 - Verificado em 2026-10-29 no navegador contra a API real com PostgreSQL: cadastro (11 categorias), criação de despesa com subcategoria e valor digitado `1234,5x9` (normalizado para `1234,59`), lista, subtotais e toast; exclusão de categoria com lançamento recusada com a mensagem esperada.
-- Pendente: teclado completo, 320 px e contraste nos dois temas; alertas de meta reais (F6).
+- Verificado em 2026-10-29 (F6): com meta padrão 1000, uma despesa de 850 mostrou o toast `Você já usou 80% da sua meta mensal.`.
+- Pendente: teclado completo, 320 px e contraste nos dois temas.

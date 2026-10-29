@@ -202,6 +202,60 @@
                             </configOptions>
                         </configuration>
                     </execution>
+                    <execution>
+                        <id>generate-budgets-api</id>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
+                        <configuration>
+                            <inputSpec>${project.basedir}/src/main/resources/openapi/modules/budgets.yaml</inputSpec>
+                            <generatorName>spring</generatorName>
+                            <library>spring-boot</library>
+                            <output>${project.build.directory}/generated-sources/openapi/budgets</output>
+                            <apiPackage>com.dowglasmaia.financecontroller.generated.budgets.api</apiPackage>
+                            <modelPackage>com.dowglasmaia.financecontroller.generated.budgets.model</modelPackage>
+                            <generateSupportingFiles>false</generateSupportingFiles>
+                            <configOptions>
+                                <interfaceOnly>true</interfaceOnly>
+                                <skipDefaultInterface>true</skipDefaultInterface>
+                                <useSpringBoot4>true</useSpringBoot4>
+                                <useJackson3>true</useJackson3>
+                                <useJakartaEe>true</useJakartaEe>
+                                <documentationProvider>none</documentationProvider>
+                                <annotationLibrary>none</annotationLibrary>
+                                <openApiNullable>false</openApiNullable>
+                                <useTags>true</useTags>
+                            </configOptions>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>generate-overview-api</id>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
+                        <configuration>
+                            <inputSpec>${project.basedir}/src/main/resources/openapi/modules/overview.yaml</inputSpec>
+                            <generatorName>spring</generatorName>
+                            <library>spring-boot</library>
+                            <output>${project.build.directory}/generated-sources/openapi/overview</output>
+                            <apiPackage>com.dowglasmaia.financecontroller.generated.overview.api</apiPackage>
+                            <modelPackage>com.dowglasmaia.financecontroller.generated.overview.model</modelPackage>
+                            <generateSupportingFiles>false</generateSupportingFiles>
+                            <configOptions>
+                                <interfaceOnly>true</interfaceOnly>
+                                <skipDefaultInterface>true</skipDefaultInterface>
+                                <useSpringBoot4>true</useSpringBoot4>
+                                <useJackson3>true</useJackson3>
+                                <useJakartaEe>true</useJakartaEe>
+                                <documentationProvider>none</documentationProvider>
+                                <annotationLibrary>none</annotationLibrary>
+                                <openApiNullable>false</openApiNullable>
+                                <useTags>true</useTags>
+                            </configOptions>
+                        </configuration>
+                    </execution>
                 </executions>
             </plugin>
         </plugins>

@@ -7,11 +7,11 @@ import com.dowglasmaia.financecontroller.category.CategoryType;
 import com.dowglasmaia.financecontroller.shared.error.DomainException;
 import com.dowglasmaia.financecontroller.shared.error.ErrorCode;
 import com.dowglasmaia.financecontroller.shared.error.ResourceNotFoundException;
-import com.dowglasmaia.financecontroller.transaction.application.port.out.BudgetImpactPort;
+import com.dowglasmaia.financecontroller.transaction.BudgetImpactPort;
 import com.dowglasmaia.financecontroller.transaction.application.port.out.TransactionRepository;
-import com.dowglasmaia.financecontroller.transaction.domain.BudgetAlert;
+import com.dowglasmaia.financecontroller.transaction.BudgetAlert;
 import com.dowglasmaia.financecontroller.transaction.domain.Transaction;
-import com.dowglasmaia.financecontroller.transaction.domain.TransactionKind;
+import com.dowglasmaia.financecontroller.transaction.TransactionKind;
 
 import java.math.BigDecimal;
 import java.time.YearMonth;
@@ -60,6 +60,7 @@ final class TransactionRules {
             return Optional.empty();
         }
         UUID owner = transaction.ownerId();
+        transactions.lockMonth(owner, referenceMonth, transaction.currency());
         BigDecimal monthBefore = transactions.sumExpenses(owner, referenceMonth, transaction.currency(), null, excludingId);
         BigDecimal categoryBefore = transactions.sumExpenses(owner, referenceMonth, transaction.currency(),
             category.id(), excludingId);

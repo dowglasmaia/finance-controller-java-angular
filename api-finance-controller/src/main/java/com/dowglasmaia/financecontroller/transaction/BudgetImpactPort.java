@@ -1,7 +1,6 @@
-package com.dowglasmaia.financecontroller.transaction.application.port.out;
+package com.dowglasmaia.financecontroller.transaction;
 
 import com.dowglasmaia.financecontroller.shared.money.Currency;
-import com.dowglasmaia.financecontroller.transaction.domain.BudgetAlert;
 
 import java.math.BigDecimal;
 import java.time.YearMonth;
@@ -9,8 +8,9 @@ import java.util.Optional;
 import java.util.UUID;
 
 /**
- * Fronteira com o módulo de metas (F6): dado o gasto do mês antes e depois da despesa, diz se o limiar de alerta foi
- * cruzado. Até existir o módulo de metas, a implementação não devolve alerta.
+ * Porta de fronteira com o módulo de metas: dado o gasto do mês antes e depois da despesa, diz se o estado piorou e
+ * qual alerta mostrar (categoria primeiro, depois o global). Implementada pelo módulo {@code budget}; o módulo
+ * {@code transaction} só conhece esta interface.
  */
 public interface BudgetImpactPort {
 

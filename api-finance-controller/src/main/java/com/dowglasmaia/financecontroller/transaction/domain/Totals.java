@@ -1,5 +1,7 @@
 package com.dowglasmaia.financecontroller.transaction.domain;
 
+import com.dowglasmaia.financecontroller.transaction.TransactionKind;
+
 import java.math.BigDecimal;
 
 /** Entradas e saídas de um conjunto de lançamentos de uma única moeda; o saldo é derivado (RN-SAL-01). */

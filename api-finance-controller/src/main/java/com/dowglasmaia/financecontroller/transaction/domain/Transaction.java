@@ -2,6 +2,7 @@ package com.dowglasmaia.financecontroller.transaction.domain;
 
 import com.dowglasmaia.financecontroller.shared.error.FieldValidationException;
 import com.dowglasmaia.financecontroller.shared.money.Currency;
+import com.dowglasmaia.financecontroller.transaction.TransactionKind;
 
 import java.math.BigDecimal;
 import java.time.Instant;

@@ -30,7 +30,7 @@ final class TransactionApiMapper {
 
     static TransactionCommand toCommand(TransactionRequest request, YearMonth referenceMonth) {
         return new TransactionCommand(
-            com.dowglasmaia.financecontroller.transaction.domain.TransactionKind.valueOf(request.getKind().getValue()),
+            com.dowglasmaia.financecontroller.transaction.TransactionKind.valueOf(request.getKind().getValue()),
             request.getDescription(), request.getAmount(), toDomain(request.getCurrency()), request.getDate(),
             request.getCategoryId(), request.getSubcategoryId(), request.getNotes(), referenceMonth);
     }

@@ -4,6 +4,7 @@ import com.dowglasmaia.financecontroller.shared.money.Currency;
 
 import java.math.BigDecimal;
 import java.time.YearMonth;
+import java.util.Map;
 import java.util.UUID;
 
 /**
@@ -14,4 +15,7 @@ public interface ExpenseQuery {
 
     /** Total de despesas do mês na moeda; com {@code categoryId}, apenas dessa categoria (senão, todas). */
     BigDecimal expenseTotal(UUID ownerId, Currency currency, YearMonth month, UUID categoryId);
+
+    /** Total de despesas do mês e da moeda por categoria (só categorias com gasto); uma consulta, sem N+1. */
+    Map<UUID, BigDecimal> expenseTotalsByCategory(UUID ownerId, Currency currency, YearMonth month);
 }

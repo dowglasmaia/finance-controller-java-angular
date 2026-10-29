@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.dowglasmaia.financecontroller.shared.error.FieldValidationException;
 import com.dowglasmaia.financecontroller.shared.money.Currency;
+import com.dowglasmaia.financecontroller.transaction.TransactionKind;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.LocalDate;

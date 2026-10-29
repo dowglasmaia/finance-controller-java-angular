@@ -1,0 +1,222 @@
+openapi: 3.1.0
+info:
+    title: Overview API
+    version: 1.0.0
+paths:
+    /api/v1/overview:
+        get:
+            tags:
+                - Overview
+            summary: Obter a visão geral do mês
+            operationId: getMonthlyOverview
+            description: Resumo do mês e da moeda para o dashboard - totais, variação sobre o mês anterior, reservas,
+                barras por faixa de 7 dias, despesas por categoria, últimos lançamentos e progresso da meta global.
+                Mês sem lançamentos devolve zeros e listas vazias.
+            security:
+                - bearerAuth: []
+            parameters:
+                - name: month
+                  in: query
+                  required: true
+                  description: Mês de referência (YYYY-MM).
+                  schema:
+                      type: string
+                      pattern: "^\\d{4}-(0[1-9]|1[0-2])$"
+                - name: currency
+                  in: query
+                  required: true
+                  schema:
+                      $ref: "#/components/schemas/Currency"
+            responses:
+                "200":
+                    description: Visão geral do mês
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/MonthlyOverview"
+                "400":
+                    $ref: ../common/responses.yaml#/components/responses/BadRequestResponse
+                "401":
+                    $ref: ../common/responses.yaml#/components/responses/UnauthorizedResponse
+components:
+    securitySchemes:
+        bearerAuth:
+            $ref: ../common/security.yaml#/components/securitySchemes/bearerAuth
+    schemas:
+        Currency:
+            type: string
+            enum:
+                - BRL
+                - EUR
+        TransactionKind:
+            type: string
+            enum:
+                - INCOME
+                - EXPENSE
+        BudgetStatus:
+            type: string
+            enum:
+                - NONE
+                - OK
+                - WARNING
+                - EXCEEDED
+        Totals:
+            type: object
+            required:
+                - income
+                - expense
+                - balance
+            properties:
+                income:
+                    type: string
+                expense:
+                    type: string
+                balance:
+                    type: string
+        Bar:
+            type: object
+            description: Faixa de 7 dias do mês (S1, S2, ...).
+            required:
+                - label
+                - income
+                - expense
+            properties:
+                label:
+                    type: string
+                income:
+                    type: string
+                expense:
+                    type: string
+        CategoryRef:
+            type: object
+            required:
+                - id
+                - name
+                - color
+                - icon
+            properties:
+                id:
+                    type: string
+                    format: uuid
+                name:
+                    type: string
+                color:
+                    type: string
+                icon:
+                    type: string
+        SubcategoryRef:
+            type: object
+            required:
+                - id
+                - name
+            properties:
+                id:
+                    type: string
+                    format: uuid
+                name:
+                    type: string
+        CategoryExpense:
+            type: object
+            required:
+                - category
+                - amount
+                - percentage
+            properties:
+                category:
+                    $ref: "#/components/schemas/CategoryRef"
+                amount:
+                    type: string
+                percentage:
+                    type: string
+                    description: Parte do total de despesas do mês, em unidades de percentual com 4 casas (ex. "33.3333").
+        OverviewTransaction:
+            type: object
+            required:
+                - id
+                - kind
+                - description
+                - amount
+                - currency
+                - date
+                - category
+            properties:
+                id:
+                    type: string
+                    format: uuid
+                kind:
+                    $ref: "#/components/schemas/TransactionKind"
+                description:
+                    type: string
+                amount:
+                    type: string
+                currency:
+                    $ref: "#/components/schemas/Currency"
+                date:
+                    type: string
+                    format: date
+                category:
+                    $ref: "#/components/schemas/CategoryRef"
+                subcategory:
+                    $ref: "#/components/schemas/SubcategoryRef"
+        BudgetProgress:
+            type: object
+            description: Progresso da meta global do mês; status NONE sem meta (limit, fraction e remaining ausentes).
+            required:
+                - spent
+                - status
+            properties:
+                limit:
+                    type: string
+                spent:
+                    type: string
+                fraction:
+                    type: string
+                remaining:
+                    type: string
+                status:
+                    $ref: "#/components/schemas/BudgetStatus"
+        MonthlyOverview:
+            type: object
+            required:
+                - month
+                - currency
+                - summary
+                - previous
+                - reservesTotal
+                - bars
+                - expenseByCategory
+                - latestTransactions
+                - budgetProgress
+            properties:
+                month:
+                    type: string
+                currency:
+                    $ref: "#/components/schemas/Currency"
+                summary:
+                    $ref: "#/components/schemas/Totals"
+                previous:
+                    $ref: "#/components/schemas/Totals"
+                incomeDeltaPercent:
+                    type: string
+                    description: Variação das entradas sobre o mês anterior (1 casa; "0" se menor que 0,5); ausente sem base.
+                expenseDeltaPercent:
+                    type: string
+                    description: Variação das saídas sobre o mês anterior (1 casa; "0" se menor que 0,5); ausente sem base.
+                reservesTotal:
+                    type: string
+                    description: Saldo acumulado das reservas da moeda, independente do mês.
+                bars:
+                    type: array
+                    items:
+                        $ref: "#/components/schemas/Bar"
+                expenseByCategory:
+                    type: array
+                    items:
+                        $ref: "#/components/schemas/CategoryExpense"
+                latestTransactions:
+                    type: array
+                    maxItems: 8
+                    items:
+                        $ref: "#/components/schemas/OverviewTransaction"
+                budgetProgress:
+                    $ref: "#/components/schemas/BudgetProgress"

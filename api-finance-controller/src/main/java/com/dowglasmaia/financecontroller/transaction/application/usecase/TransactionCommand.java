@@ -1,7 +1,7 @@
 package com.dowglasmaia.financecontroller.transaction.application.usecase;
 
 import com.dowglasmaia.financecontroller.shared.money.Currency;
-import com.dowglasmaia.financecontroller.transaction.domain.TransactionKind;
+import com.dowglasmaia.financecontroller.transaction.TransactionKind;
 
 import java.time.LocalDate;
 import java.time.YearMonth;

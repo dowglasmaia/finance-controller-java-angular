@@ -1,12 +1,14 @@
 package com.dowglasmaia.financecontroller.category.application;
 
 import com.dowglasmaia.financecontroller.category.CategoryDirectory;
+import com.dowglasmaia.financecontroller.category.CategoryType;
 import com.dowglasmaia.financecontroller.category.application.port.out.CategoryRepository;
 import com.dowglasmaia.financecontroller.category.domain.Category;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
@@ -38,6 +40,12 @@ class CategoryDirectoryService implements CategoryDirectory {
         return categories.findAllByIds(ownerId, ids).stream()
             .map(CategoryDirectoryService::toView)
             .collect(Collectors.toMap(CategoryView::id, Function.identity()));
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<CategoryView> listAccepting(UUID ownerId, CategoryType kind) {
+        return categories.findAll(ownerId, kind).stream().map(CategoryDirectoryService::toView).toList();
     }
 
     private static CategoryView toView(Category c) {

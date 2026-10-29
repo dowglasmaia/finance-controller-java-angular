@@ -11,12 +11,12 @@ import com.dowglasmaia.financecontroller.identity.CurrentOwner;
 import com.dowglasmaia.financecontroller.shared.error.DomainException;
 import com.dowglasmaia.financecontroller.shared.error.ErrorCode;
 import com.dowglasmaia.financecontroller.shared.money.Currency;
-import com.dowglasmaia.financecontroller.transaction.application.port.out.BudgetImpactPort;
+import com.dowglasmaia.financecontroller.transaction.BudgetImpactPort;
 import com.dowglasmaia.financecontroller.transaction.application.port.out.TransactionRepository;
-import com.dowglasmaia.financecontroller.transaction.domain.BudgetAlert;
+import com.dowglasmaia.financecontroller.transaction.BudgetAlert;
 import com.dowglasmaia.financecontroller.transaction.domain.Totals;
 import com.dowglasmaia.financecontroller.transaction.domain.Transaction;
-import com.dowglasmaia.financecontroller.transaction.domain.TransactionKind;
+import com.dowglasmaia.financecontroller.transaction.TransactionKind;
 import java.math.BigDecimal;
 import java.time.Clock;
 import java.time.Instant;
@@ -250,6 +250,11 @@ class TransactionUseCaseTests {
         }
 
         @Override
+        public List<CategoryView> listAccepting(UUID ownerId, CategoryType kind) {
+            return byId.values().stream().filter(c -> ownerId.equals(ownerOf.get(c.id())) && c.type().accepts(kind)).toList();
+        }
+
+        @Override
         public Map<UUID, CategoryView> findAll(UUID ownerId, Collection<UUID> ids) {
             return ids.stream().filter(id -> ownerId.equals(ownerOf.get(id)))
                 .collect(Collectors.toMap(id -> id, byId::get));
@@ -311,6 +316,21 @@ class TransactionUseCaseTests {
                 .filter(t -> categoryId == null || t.categoryId().equals(categoryId))
                 .filter(t -> !t.id().equals(excludingId))
                 .map(Transaction::amount).reduce(BigDecimal.ZERO.setScale(2), BigDecimal::add);
+        }
+
+        @Override
+        public List<com.dowglasmaia.financecontroller.transaction.TransactionQuery.DailyTotals> dailyTotals(UUID ownerId, YearMonth month, Currency currency) {
+            return List.of();
+        }
+
+        @Override
+        public void lockMonth(UUID ownerId, YearMonth month, Currency currency) {
+        }
+
+        @Override
+        public Map<UUID, BigDecimal> sumExpensesByCategory(UUID ownerId, YearMonth month, Currency currency) {
+            return scope(ownerId, month, currency).stream().filter(t -> t.kind() == TransactionKind.EXPENSE)
+                .collect(Collectors.toMap(Transaction::categoryId, Transaction::amount, BigDecimal::add));
         }
 
         @Override

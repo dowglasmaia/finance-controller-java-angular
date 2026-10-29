@@ -17,7 +17,12 @@ export const routes: Routes = [
     canActivate: [authGuard],
     loadComponent: () => import('./core/layout/shell').then((module) => module.ShellComponent),
     children: [
-      { ...placeholder('', 'Dashboard', true), pathMatch: 'full' },
+      {
+        path: '',
+        pathMatch: 'full',
+        loadChildren: () =>
+          import('./features/dashboard/dashboard.routes').then((module) => module.DASHBOARD_ROUTES),
+      },
       {
         path: 'lancamentos',
         loadChildren: () =>
@@ -30,7 +35,10 @@ export const routes: Routes = [
           import('./features/categories/categories.routes').then((module) => module.CATEGORIES_ROUTES),
       },
       placeholder('cofrinhos', 'Cofrinhos', false),
-      placeholder('metas', 'Meta', true),
+      {
+        path: 'metas',
+        loadChildren: () => import('./features/budget/budget.routes').then((module) => module.BUDGET_ROUTES),
+      },
       {
         path: '**',
         title: 'Página não encontrada',

@@ -1,6 +1,6 @@
 # 18-backend-modulo-metas-de-gastos
 
-> **ID:** BACKEND-SPEC-13 · **Categoria:** Backend (módulo `budget`) · **Estado:** proposta para revisão — não aprovada, não executada.
+> **ID:** BACKEND-SPEC-13 · **Categoria:** Backend (módulo `budget`) · **Estado:** executada na F6 (2026-10-29) — ver evidências.
 
 ## Objetivo
 
@@ -46,13 +46,20 @@ Inclui o global e todas as categorias que aceitam despesa, com os gastos do mês
 
 ## Regras e critérios de aceitação
 
-- [ ] Limite 1000: gasto 700 → `OK`; 800 → `WARNING`; 950 → `WARNING`; 1000 e 1200 → `EXCEEDED`; limite 0 → `NONE`.
-- [ ] Limite 200, gasto 50 → `fraction` 0,25 e `remaining` 150; gasto 250 → `remaining` −50.
-- [ ] Ajuste de julho de 1500 com recorrente 1000: `effectiveLimit` de julho = 1500, de agosto = 1000; ajuste removido volta a 1000.
-- [ ] Ajuste de julho com `disabled=true`: estado de julho `NONE` e agosto continua com 1000.
-- [ ] Metas BRL e EUR são independentes.
-- [ ] `saveBudget` falha por completo se qualquer categoria for inválida (nada é gravado).
-- [ ] O alerta nunca repete em estado já estourado e nunca dispara em receita.
+- [x] Limite 1000: gasto 700 → `OK`; 800 → `WARNING`; 950 → `WARNING`; 1000 e 1200 → `EXCEEDED`; limite 0 → `NONE`.
+  > ✅ 2026-10-29 11:55 +00:00 — `BudgetDomainTests.statusTableIsExact` (limite 1000: 700 `OK`; 800, 950 e 999,99 `WARNING`; 1000 e 1200 `EXCEEDED`; limite 0, negativo ou ausente `NONE`) e o teste do limiar sem erro de ponto flutuante (1000,10: 800,07 `OK`, 800,08 `WARNING`).
+- [x] Limite 200, gasto 50 → `fraction` 0,25 e `remaining` 150; gasto 250 → `remaining` −50.
+  > ✅ 2026-10-29 11:55 +00:00 — `BudgetDomainTests.progressHasFractionWithFourDecimalsAndRemaining` (0,2500 e restante 150,00; gasto 250 → restante −50,00; frações 0,3333 e 0,6667 em `HALF_UP`) e `progressShowsExactSpent…` (HTTP, PostgreSQL).
+- [x] Ajuste de julho de 1500 com recorrente 1000: `effectiveLimit` de julho = 1500, de agosto = 1000; ajuste removido volta a 1000.
+  > ✅ 2026-10-29 11:55 +00:00 — `BudgetUseCaseTests.overrideAppliesOnlyToItsMonth…` e `BudgetFlowIntegrationTest.newUserHasNoGoal…` (julho 1500,00; agosto 1000,00; sem `monthOverride` volta a 1000,00).
+- [x] Ajuste de julho com `disabled=true`: estado de julho `NONE` e agosto continua com 1000.
+  > ✅ 2026-10-29 11:55 +00:00 — `disabledMonthHasNoGoalAndOtherMonthsKeepTheRecurringOne` (julho: `monthOverride.disabled`, sem `effectiveLimit`, progresso `NONE`; agosto 1000,00) e o alerta silenciado só nesse mês (`disabledMonthSilencesAlertsOnlyForThatMonth`).
+- [x] Metas BRL e EUR são independentes.
+  > ✅ 2026-10-29 11:55 +00:00 — `currenciesAreIndependent` (HTTP, PostgreSQL) e `BudgetUseCaseTests`; as tabelas guardam a moeda e toda consulta a filtra.
+- [x] `saveBudget` falha por completo se qualquer categoria for inválida (nada é gravado).
+  > ✅ 2026-10-29 11:55 +00:00 — `invalidSaveFailsCompletelyAndKeepsThePreviousConfiguration` (categoria só de receita → 409 `CATEGORY_TYPE_MISMATCH`; inexistente ou alheia → 404; valor negativo, texto, mês inválido, `limit` e `disabled` juntos, categoria repetida → 400; a configuração anterior fica intacta) e `BudgetUseCaseTests.invalidCategory…`. Tudo é validado antes de gravar e a gravação é uma só transação.
+- [x] O alerta nunca repete em estado já estourado e nunca dispara em receita.
+  > ✅ 2026-10-29 11:55 +00:00 — `alertGoesFromOkToWarningToExceededAndNeverRepeats` (700 → 850 `WARNING`, 850 → 1100 `EXCEEDED`, 1100 → 1300 sem alerta), `BudgetImpactServiceTests` (700→850, 850→1100, 1100→1300, 100→300, melhora, prioridade categoria × global, limiares exatos 80% e 100%) e `noAlertForIncome…` (receita, fora do mês de referência, sem `referenceMonth` e outra moeda não alertam).
 
 ### Cenários de teste
 
@@ -71,15 +78,18 @@ Tabela de estados; transições (700→850, 850→1100, 1100→1300, 100→300);
 
 ### Contrato e dados
 
-- [ ] Prévia aprovada e contrato `budgets`; migração das tabelas de metas.
+- [x] Prévia aprovada e contrato `budgets`; migração das tabelas de metas.
+  > ✅ 2026-10-29 11:55 +00:00 — Prévia aprovada pelo utilizador em conversa (3 operações, schemas, erros e as 3 decisões de contrato: `month` no topo do pedido, `PUT /budgets/{currency}`, progresso em `/budgets/{currency}/progress`) e gerada em `openapi/modules/budgets.yaml` + execução `generate-budgets-api`; `validate.mjs` válido, `generate-sources` gerou `BudgetsApi` e modelos, sem `operationId` repetido. `V4__budget.sql` (`budget_setting`, `budget_month_override`, `budget_category_limit`: `numeric(12,2)`, CHECKs, `ON DELETE CASCADE` da categoria) aplicada do zero (`IdentityMigrationTests`) e sobre o banco local já com a V3. Desvio: o YAML foi escrito à mão (a skill não aceita `$ref` para schemas locais) e `month` saiu de `monthOverride`.
 
 ### Back-end
 
-- [ ] Implementar domínio, casos de uso, adaptador, controller e `BudgetImpactPort`.
+- [x] Implementar domínio, casos de uso, adaptador, controller e `BudgetImpactPort`.
+  > ✅ 2026-10-29 11:55 +00:00 — Módulo `budget` (domínio `BudgetStatus`, `Progress`, `BudgetConfig`, `MonthOverride`, `LimitAmount`; `GetBudget`, `SaveBudget`, `GetBudgetProgress`; adaptador JPA com filtro por `owner_id` e moeda; `BudgetsController`; `BudgetImpactService` real). `BudgetImpactPort` e `BudgetAlert` passaram para a raiz de `transaction` (API pública) para o `budget` poder implementá-los: dependência `budget → transaction`, sem ciclo (`ModularityTests` verde); `ExpenseQuery` ganhou `expenseTotalsByCategory` (uma consulta agrupada) e `CategoryDirectory` ganhou `listAccepting`. Controle de concorrência escolhido pela invariante: lock consultivo do PostgreSQL por utilizador+moeda na gravação das metas e por utilizador+moeda+mês nas despesas, sem retry.
 
 ### Validação
 
-- [ ] Executar os cenários e comparar com os valores de `budget_service_test`.
+- [x] Executar os cenários e comparar com os valores de `budget_service_test`.
+  > ✅ 2026-10-29 11:55 +00:00 — `./mvnw clean verify` com Docker: 261 testes, 0 falhas (`BudgetFlowIntegrationTest` 16, `BudgetUseCaseTests` 9, `BudgetImpactServiceTests` 4, `BudgetDomainTests` 18), incluindo duas despesas simultâneas no limiar (4 threads: exatamente um `WARNING` e nenhum `EXCEEDED`) e gravações simultâneas da mesma meta (todas 200, conjunto consistente). Os valores comparados são os da tabela desta spec, derivada de `budget_service_test`; o ficheiro de origem não foi relido. Verificado também na interface contra a API real.
 
 ## Resultado esperado
 

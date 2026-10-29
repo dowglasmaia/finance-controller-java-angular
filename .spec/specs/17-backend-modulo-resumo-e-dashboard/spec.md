@@ -1,6 +1,6 @@
 # 17-backend-modulo-resumo-e-dashboard
 
-> **ID:** BACKEND-SPEC-12 · **Categoria:** Backend (módulo `report`, consulta de visão geral) · **Estado:** proposta para revisão — não aprovada, não executada.
+> **ID:** BACKEND-SPEC-12 · **Categoria:** Backend (módulo `report`, consulta de visão geral) · **Estado:** executada na F7 (2026-10-29); `reservesTotal` devolve `0.00` até o módulo de cofrinhos (F8) — ver evidências.
 
 ## Objetivo
 
@@ -35,7 +35,7 @@ Fornecer a consulta de visão geral mensal que alimenta o dashboard — saldo, e
 
 ### Riscos
 
-Múltiplas consultas por chamada: medir (BACKEND-SPEC-08); se necessário, consolidar em consultas agregadas únicas com índice `(currency, entry_date)`.
+**Medido na F7:** uma chamada com 40 lançamentos executa 11 comandos SQL agregados (teste `aCallRunsAHandfulOfAggregatedStatements`, limite 14), sem crescer com os dados. Spec original: múltiplas consultas por chamada: medir (BACKEND-SPEC-08); se necessário, consolidar em consultas agregadas únicas com índice `(currency, entry_date)`.
 
 ## Referências
 
@@ -47,13 +47,20 @@ Múltiplas consultas por chamada: medir (BACKEND-SPEC-08); se necessário, conso
 
 ## Regras e critérios de aceitação
 
-- [ ] Para BRL +1000/−250 no mês, `summary` = 1000/250/750; lançamentos em EUR do mesmo mês não alteram nada.
-- [ ] Mês anterior com entradas 0 → `incomeDeltaPercent` ausente; variação absoluta menor que 0,5% → `"0"`.
-- [ ] `reservesTotal` não muda ao trocar o mês.
-- [ ] `bars` tem `ceil(últimoDia/7)` itens; dia 29 de fevereiro cai em S5.
-- [ ] `latestTransactions` tem no máximo 8 itens do mês e da moeda.
-- [ ] Mês sem lançamentos devolve zeros e listas vazias, não erro.
-- [ ] `budgetProgress` reflete o limite efetivo do mês (ajuste ou padrão) e o gasto do mês; sem meta devolve `NONE`.
+- [x] Para BRL +1000/−250 no mês, `summary` = 1000/250/750; lançamentos em EUR do mesmo mês não alteram nada.
+  > ✅ 2026-10-29 12:45 +00:00 — `OverviewFlowIntegrationTest.summaryIsPerMonthAndCurrencyAndBalanceIsIncomeMinusExpense` (PostgreSQL: BRL 1000,00 / 250,00 / 750,00; EUR, setembro e novembro não alteram; `previous` do mês anterior) e `emptyMonthIsZeros…`.
+- [x] Mês anterior com entradas 0 → `incomeDeltaPercent` ausente; variação absoluta menor que 0,5% → `"0"`.
+  > ✅ 2026-10-29 12:45 +00:00 — `variationUsesThePreviousMonthAsBaseAndIsAbsentWithoutIt` (25,0 e "0" com base; ausente sem base) e `OverviewCalculationsTests.variationFollowsRnSal02` (base 0 ou negativa ausente; 1004/1000 e 996/1000 → "0"; 1005/1000 → 0,5; 995/1000 → −0,5; 1 casa `HALF_UP`; o corte de 0,5 é sobre o valor exato).
+- [x] `reservesTotal` não muda ao trocar o mês.
+  > ✅ 2026-10-29 12:45 +00:00 — `reservesTotalDoesNotDependOnTheMonth`. Desvio: o valor é `0.00` (porta `ReservesPort` com implementação provisória) porque cofrinhos só chegam na F8; a F8 troca a implementação sem mudar o contrato.
+- [x] `bars` tem `ceil(últimoDia/7)` itens; dia 29 de fevereiro cai em S5.
+  > ✅ 2026-10-29 12:45 +00:00 — `barsAreSevenDayBandsAndLeapDayFallsInS5` (fev/2028: 5 faixas e o dia 29 em S5; fev/2026: 4; fronteira 01/03 só em março) e `OverviewCalculationsTests` (contagem por mês, faixas de 7 dias, resto na última faixa, 31/01 × 01/02).
+- [x] `latestTransactions` tem no máximo 8 itens do mês e da moeda.
+  > ✅ 2026-10-29 12:45 +00:00 — `latestTransactionsAreAtMostEightOfTheMonthAndCurrencyNewestFirst` (14 lançamentos no mês, 8 devolvidos, mais recentes primeiro; setembro e EUR de fora; subcategoria e categoria resolvidas).
+- [x] Mês sem lançamentos devolve zeros e listas vazias, não erro.
+  > ✅ 2026-10-29 12:45 +00:00 — `emptyMonthIsZerosAndEmptyListsNotAnError` (200; totais `0.00`, faixas S1…S5 zeradas, listas vazias, meta `NONE`, sem variação).
+- [x] `budgetProgress` reflete o limite efetivo do mês (ajuste ou padrão) e o gasto do mês; sem meta devolve `NONE`.
+  > ✅ 2026-10-29 12:45 +00:00 — `budgetProgressFollowsTheEffectiveLimitOfTheMonth` (meta 1000 com gasto 850: `WARNING`, 0,8500, restante 150,00; ajuste do mês 800: `EXCEEDED`; outro mês `OK`; outra moeda e mês desativado `NONE` sem `limit`).
 
 ### Cenários de teste
 
@@ -72,7 +79,8 @@ Mês vazio; mês com BRL e EUR; fronteira de mês (31/01 e 01/02); fevereiro bis
 
 ### Contrato e dados
 
-- [ ] Prévia aprovada e contrato `overview`.
+- [x] Prévia aprovada e contrato `overview`.
+  > ✅ 2026-10-29 12:45 +00:00 — Prévia aprovada pelo utilizador em conversa (1 operação, schemas e 4 decisões: `GET /api/v1/overview` com `month`/`currency` na query, variação com 1 casa, `percentage` com 4 casas em unidades de percentual, `reservesTotal` provisório) e gerada em `openapi/modules/overview.yaml` + execução `generate-overview-api`; `validate.mjs` válido, `generate-sources` gerou `OverviewApi` e modelos, sem `operationId` repetido. Desvio: YAML escrito à mão (a skill não aceita `$ref` para schemas locais).
 
 ### Back-end
 

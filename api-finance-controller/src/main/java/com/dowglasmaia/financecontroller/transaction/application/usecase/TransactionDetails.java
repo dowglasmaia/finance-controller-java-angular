@@ -2,7 +2,7 @@ package com.dowglasmaia.financecontroller.transaction.application.usecase;
 
 import com.dowglasmaia.financecontroller.category.CategoryDirectory.CategoryView;
 import com.dowglasmaia.financecontroller.category.CategoryDirectory.SubcategoryView;
-import com.dowglasmaia.financecontroller.transaction.domain.BudgetAlert;
+import com.dowglasmaia.financecontroller.transaction.BudgetAlert;
 import com.dowglasmaia.financecontroller.transaction.domain.Transaction;
 
 import java.util.Optional;

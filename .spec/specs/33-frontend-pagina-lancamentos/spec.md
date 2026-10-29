@@ -1,6 +1,6 @@
 # 33-frontend-pagina-lancamentos
 
-> **ID:** FRONTEND-SPEC-10 · **Categoria:** Frontend (`features/transactions`) · **Estado:** executada na F5 (2026-10-29); o alerta real de meta e a verificação manual completa ficam pendentes — ver evidências.
+> **ID:** FRONTEND-SPEC-10 · **Categoria:** Frontend (`features/transactions`) · **Estado:** executada na F5 (2026-10-29), alerta real fechado na F6 (2026-10-29); a verificação manual completa fica pendente — ver evidências.
 
 ## Objetivo
 
@@ -57,8 +57,9 @@ Decisões aplicadas: P-15 — cada moeda tem os seus lançamentos, despesas e da
   > ✅ 2026-10-29 10:50 +00:00 — `transactions.store.spec.ts` (consulta com `month`, `currency`, `type`, `page`, `size=15`; trocar mês, moeda ou filtro volta à página 1 e cancela a anterior) e `transactions-page.spec.ts`; visto no navegador (mês e moeda do shell). A ordem mais recentes primeiro vem do servidor (RN-TXN-08, testada no backend).
 - [x] Os subtotais cobrem todas as páginas do filtro, não só a visível.
   > ✅ 2026-10-29 10:50 +00:00 — A página mostra `totals` do servidor, calculados sobre o conjunto filtrado inteiro (`transactions-page.spec.ts` com 40 itens e totais independentes da página; backend: `listIsScoped…`).
-- [ ] Salvar uma despesa que cruza 80% mostra um único aviso; que cruza 100% mostra o erro; receita não mostra alerta.
+- [x] Salvar uma despesa que cruza 80% mostra um único aviso; que cruza 100% mostra o erro; receita não mostra alerta.
   > ⏳ 2026-10-29 10:50 +00:00 — Parcial: `transaction-dialog.spec.ts` (resposta com `budgetAlert` → um toast `Meta de Alimentação estourada!` além de `Lançamento salvo.`; receita sem alerta) e `budget-alert-message.spec.ts` (as 4 combinações de escopo e estado com texto e tipo exatos). Falta: alerta real, que depende do módulo de metas (F6).
+  > ✅ 2026-10-29 11:55 +00:00 — Fechado na F6: no navegador contra a API real, com meta padrão 1000, uma despesa de 850 mostrou `Lançamento salvo.` e um único aviso `Você já usou 80% da sua meta mensal.`; o servidor devolve `EXCEEDED` ao cruzar 100% e o diálogo o mapeia para `Meta mensal estourada!` / `Meta de {categoria} estourada!` (`transaction-dialog.spec.ts`); receita nunca alerta.
 - [x] Excluir só ocorre após confirmação e atualiza lista e subtotais.
   > ✅ 2026-10-29 10:50 +00:00 — `transactions-page.spec.ts` (nenhum `DELETE` antes de confirmar; depois, `Lançamento excluído.`, recarga e subtotais atualizados).
 - [ ] Editar abre o diálogo preenchido e preserva a data e a moeda do lançamento; trocar a categoria de um lançamento atualiza imediatamente lista, subtotais e agregados.

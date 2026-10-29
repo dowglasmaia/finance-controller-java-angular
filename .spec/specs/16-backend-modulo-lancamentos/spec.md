@@ -1,6 +1,6 @@
 # 16-backend-modulo-lancamentos
 
-> **ID:** BACKEND-SPEC-11 · **Categoria:** Backend (módulo `transaction`) · **Estado:** executada na F5 (2026-10-29); o cálculo real do alerta de meta fica para a F6 (porta `BudgetImpactPort` com implementação provisória) — ver evidências.
+> **ID:** BACKEND-SPEC-11 · **Categoria:** Backend (módulo `transaction`) · **Estado:** concluída: executada na F5 (2026-10-29) e fechada na F6 (2026-10-29), quando o módulo de metas implementou o alerta real — ver evidências.
 
 ## Objetivo
 
@@ -56,8 +56,9 @@ O cálculo de "antes" na edição precisa excluir o valor antigo do próprio lan
   > ✅ 2026-10-29 10:50 +00:00 — `futureDatesAreAccepted` (2099-06-01 → 201); `1999-12-31` e `2101-01-01` → 400; `TransactionTests.dateRange…` cobre as bordas 2000-01-01 e 2100-12-31; CHECK `ck_transaction_entry_date` no banco.
 - [x] Editar preserva `id` e `createdAt` e atualiza `updatedAt`.
   > ✅ 2026-10-29 10:50 +00:00 — `editPreservesIdAndCreatedAtAndUpdatesTheRest` (PostgreSQL: mesmo `id` e `createdAt`, `updatedAt` diferente; o lançamento muda de BRL/outubro para EUR/novembro). Correção feita ao verificar: o `Instant` é truncado a microssegundos (precisão do PostgreSQL), senão o `createdAt` devolvido ao criar diferia do lido depois.
-- [ ] Despesa que leva o gasto de 700 para 850 com meta 1000 devolve `budgetAlert` `WARNING`; de 850 para 1100, `EXCEEDED`; nova despesa já estourada não devolve alerta.
+- [x] Despesa que leva o gasto de 700 para 850 com meta 1000 devolve `budgetAlert` `WARNING`; de 850 para 1100, `EXCEEDED`; nova despesa já estourada não devolve alerta.
   > ⏳ 2026-10-29 10:50 +00:00 — Parcial: `TransactionUseCaseTests.createPassesSpentBeforeAndAfterAndReturnsTheAlert` e `editDoesNotCountTheOldValueTwice` provam que `BudgetImpactPort` recebe o gasto antes e depois (categoria e mês, só da moeda e do proprietário, sem contar o valor antigo na edição) e que o alerta devolvido chega na resposta. Falta: os limiares 80%/100% e "já estourada não alerta" — são regra do módulo de metas (F6); hoje `NoBudgetImpactPort` nunca alerta. Próxima ação: na F6, implementar a porta e testar 700→850 `WARNING`, 850→1100 `EXCEEDED` e despesa já estourada.
+  > ✅ 2026-10-29 11:55 +00:00 — Fechado na F6: `BudgetFlowIntegrationTest.alertGoesFromOkToWarningToExceededAndNeverRepeats` (PostgreSQL real, meta 1000: 700 → 850 `WARNING`, 850 → 1100 `EXCEEDED`, já estourada não repete), `categoryAlertHasPriority…` (alerta de categoria com nome e id) e `editingAnExpenseDoesNotCountItsOldValue…` (editar 700 → 850 dá `WARNING`, e 850 → 100 melhora sem alerta). `BudgetImpactService` substituiu a implementação provisória, que foi removida.
 - [x] Receita nunca devolve `budgetAlert`; despesa datada fora do `referenceMonth` também não.
   > ✅ 2026-10-29 10:50 +00:00 — `alertIsOnlyEvaluatedForExpensesInTheReferenceMonth` e `editingToIncomeNeverEvaluatesAnAlert`: receita, despesa fora do `referenceMonth` e despesa sem `referenceMonth` nem chegam a consultar a porta.
 - [x] Um utilizador não lê nem altera lançamentos de outro, nem usa categoria de outro (404).
@@ -90,8 +91,9 @@ Validação de entrada; compatibilidade de categoria/subcategoria; paginação e
 
 ### Validação
 
-- [ ] Testes de validação, listagem, totais e alertas com PostgreSQL real.
+- [x] Testes de validação, listagem, totais e alertas com PostgreSQL real.
   > ⏳ 2026-10-29 10:50 +00:00 — `./mvnw clean verify` com Docker: 214 testes, 0 falhas (`TransactionFlowIntegrationTest` 13, `TransactionUseCaseTests` 11, `TransactionTests` 9). Verificação na API real com PostgreSQL 18.1 pela interface. Falta apenas o cálculo real do alerta e o teste de concorrência no limiar (duas despesas simultâneas), que pertencem à F6.
+  > ✅ 2026-10-29 11:55 +00:00 — Fechado na F6: alertas reais cobertos acima e a concorrência de duas despesas simultâneas no limiar (`twoSimultaneousExpensesAtTheThresholdAlertExactlyOnce`: 4 despesas de 60 sobre 700, exatamente um `WARNING` e nenhum `EXCEEDED`, graças ao lock consultivo por utilizador+moeda+mês em `lockMonth`). `./mvnw clean verify`: 261 testes, 0 falhas.
 
 ## Resultado esperado
 

@@ -1,7 +1,7 @@
 {
   "info": {
     "name": "Finance Controller API",
-    "description": "Collection de testes da API. Atualizada a cada fatia entregue (atual: F5 - lançamentos).\n\nUso: execute 'Register' ou 'Login'; o script de teste guarda o accessToken na variável de coleção {{accessToken}} e o cookie refresh_token fica no cookie jar do Postman (domínio localhost). Em ambiente local o cookie não é Secure (perfil local).",
+    "description": "Collection de testes da API. Atualizada a cada fatia entregue (atual: F7 - dashboard).\n\nUso: execute 'Register' ou 'Login'; o script de teste guarda o accessToken na variável de coleção {{accessToken}} e o cookie refresh_token fica no cookie jar do Postman (domínio localhost). Em ambiente local o cookie não é Secure (perfil local).",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "auth": {
@@ -660,7 +660,7 @@
                 "transactions"
               ]
             },
-            "description": "Use um `categoryId` de despesa (rode listCategories). 201 com `{transaction, budgetAlert?}`; 400 VALIDATION_FAILED (valor <= 0, formato, data fora de 2000-01-01..2100-12-31); 404 categoria inexistente ou de outro utilizador; 409 CATEGORY_TYPE_MISMATCH ou SUBCATEGORY_NOT_IN_CATEGORY. `budgetAlert` só aparece a partir da F6.",
+            "description": "Use um `categoryId` de despesa (rode listCategories). 201 com `{transaction, budgetAlert?}`; 400 VALIDATION_FAILED (valor <= 0, formato, data fora de 2000-01-01..2100-12-31); 404 categoria inexistente ou de outro utilizador; 409 CATEGORY_TYPE_MISMATCH ou SUBCATEGORY_NOT_IN_CATEGORY. `budgetAlert` (`scope` CATEGORY|GLOBAL, `status` WARNING|EXCEEDED) aparece quando o estado da meta piora; envie `referenceMonth` para o alerta ser avaliado.",
             "body": {
               "mode": "raw",
               "raw": "{\n  \"kind\": \"EXPENSE\",\n  \"description\": \"Supermercado\",\n  \"amount\": \"123.45\",\n  \"currency\": \"BRL\",\n  \"date\": \"2026-10-05\",\n  \"categoryId\": \"{{categoryId}}\",\n  \"referenceMonth\": \"2026-10\"\n}"
@@ -767,6 +767,176 @@
               ]
             },
             "description": "204; 404."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Budgets",
+      "item": [
+        {
+          "name": "getBudget",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('200 OK', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}{{apiPath}}/budgets/BRL?month=2026-10",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "{{apiPath}}",
+                "budgets",
+                "BRL"
+              ],
+              "query": [
+                {
+                  "key": "month",
+                  "value": "2026-10"
+                }
+              ]
+            },
+            "description": "200 com `monthlyLimit?`, `monthOverride?` (`limit` ou `disabled`), `effectiveLimit?` e `categoryLimits[]` do mês informado. Moedas independentes (BRL, EUR). 400 mês ou moeda inválidos."
+          },
+          "response": []
+        },
+        {
+          "name": "saveBudget",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('200 OK', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}{{apiPath}}/budgets/BRL",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "{{apiPath}}",
+                "budgets",
+                "BRL"
+              ]
+            },
+            "description": "Grava tudo de uma vez e devolve a configuração do `month`. Limite `0` ou ausente remove; sem `monthOverride` o ajuste do mês é removido; `monthOverride: {\"disabled\": true}` = sem meta neste mês. O conjunto `categoryLimits` substitui o anterior. 400 valor inválido; 404 categoria inexistente ou de outro utilizador; 409 CATEGORY_TYPE_MISMATCH (categoria só de receita). Em falha nada é gravado.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"month\": \"2026-10\",\n  \"monthlyLimit\": \"1000.00\",\n  \"monthOverride\": { \"limit\": \"1500.00\" },\n  \"categoryLimits\": [ { \"categoryId\": \"{{categoryId}}\", \"limit\": \"200.00\" } ]\n}"
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "getBudgetProgress",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('200 OK', () => pm.response.to.have.status(200));",
+                  "const p = pm.response.json();",
+                  "pm.test('tem global e categorias', () => { pm.expect(p.global.status).to.be.a('string'); pm.expect(p.categories).to.be.an('array'); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}{{apiPath}}/budgets/BRL/progress?month=2026-10",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "{{apiPath}}",
+                "budgets",
+                "BRL",
+                "progress"
+              ],
+              "query": [
+                {
+                  "key": "month",
+                  "value": "2026-10"
+                }
+              ]
+            },
+            "description": "200 com `global` e `categories[]` (todas que aceitam despesa): `spent`, `limit?`, `fraction?` (4 casas), `remaining?` e `status` NONE|OK|WARNING|EXCEEDED (80% = WARNING, 100% = EXCEEDED)."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Overview",
+      "item": [
+        {
+          "name": "getMonthlyOverview",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('200 OK', () => pm.response.to.have.status(200));",
+                  "const o = pm.response.json();",
+                  "pm.test('totais e listas', () => { pm.expect(o.summary.balance).to.be.a('string'); pm.expect(o.bars).to.be.an('array'); pm.expect(o.latestTransactions.length).to.be.at.most(8); });",
+                  "pm.test('progresso da meta', () => pm.expect(o.budgetProgress.status).to.be.oneOf(['NONE','OK','WARNING','EXCEEDED']));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}{{apiPath}}/overview?month=2026-10&currency=BRL",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "{{apiPath}}",
+                "overview"
+              ],
+              "query": [
+                {
+                  "key": "month",
+                  "value": "2026-10"
+                },
+                {
+                  "key": "currency",
+                  "value": "BRL"
+                }
+              ]
+            },
+            "description": "Visão geral do mês e da moeda. 200 com `summary` e `previous` (entradas, saídas, saldo), `incomeDeltaPercent?`/`expenseDeltaPercent?` (1 casa; \"0\" se menor que 0,5; ausente sem base), `reservesTotal` (provisório \"0.00\" até a F8), `bars` (faixas S1…S5 de 7 dias), `expenseByCategory` (maior primeiro, `percentage` com 4 casas), `latestTransactions` (até 8) e `budgetProgress` (meta global do mês; `NONE` sem meta). Mês sem lançamentos devolve zeros e listas vazias. 400 parâmetros inválidos."
           },
           "response": []
         }

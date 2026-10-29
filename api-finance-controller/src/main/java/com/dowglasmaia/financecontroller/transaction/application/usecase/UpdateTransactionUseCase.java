@@ -3,7 +3,7 @@ package com.dowglasmaia.financecontroller.transaction.application.usecase;
 import com.dowglasmaia.financecontroller.category.CategoryDirectory;
 import com.dowglasmaia.financecontroller.identity.CurrentOwner;
 import com.dowglasmaia.financecontroller.shared.error.ResourceNotFoundException;
-import com.dowglasmaia.financecontroller.transaction.application.port.out.BudgetImpactPort;
+import com.dowglasmaia.financecontroller.transaction.BudgetImpactPort;
 import com.dowglasmaia.financecontroller.transaction.application.port.out.TransactionRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

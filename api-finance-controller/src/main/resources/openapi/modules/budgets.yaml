@@ -1,0 +1,247 @@
+openapi: 3.1.0
+info:
+    title: Budgets API
+    version: 1.0.0
+paths:
+    /api/v1/budgets/{currency}:
+        get:
+            tags:
+                - Budgets
+            summary: Obter a meta de gastos
+            operationId: getBudget
+            description: Devolve a configuração da moeda para o mês informado - meta recorrente, ajuste do mês, limite
+                efetivo e limites por categoria.
+            security:
+                - bearerAuth: []
+            parameters:
+                - name: currency
+                  in: path
+                  required: true
+                  schema:
+                      $ref: "#/components/schemas/Currency"
+                - name: month
+                  in: query
+                  required: true
+                  description: Mês de referência (YYYY-MM).
+                  schema:
+                      type: string
+                      pattern: "^\\d{4}-(0[1-9]|1[0-2])$"
+            responses:
+                "200":
+                    description: Configuração da meta
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Budget"
+                "400":
+                    $ref: ../common/responses.yaml#/components/responses/BadRequestResponse
+                "401":
+                    $ref: ../common/responses.yaml#/components/responses/UnauthorizedResponse
+        put:
+            tags:
+                - Budgets
+            summary: Salvar a meta de gastos
+            operationId: saveBudget
+            description: Grava de uma vez a meta recorrente, o ajuste do mês e o conjunto de limites por categoria
+                (substitui o anterior). Limite 0 ou ausente remove; sem monthOverride o ajuste do mês é removido. A
+                gravação é atómica - em qualquer falha nada é gravado.
+            security:
+                - bearerAuth: []
+            parameters:
+                - name: currency
+                  in: path
+                  required: true
+                  schema:
+                      $ref: "#/components/schemas/Currency"
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: "#/components/schemas/SaveBudgetRequest"
+            responses:
+                "200":
+                    description: Configuração gravada, para o mês enviado
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Budget"
+                "400":
+                    $ref: ../common/responses.yaml#/components/responses/BadRequestResponse
+                "401":
+                    $ref: ../common/responses.yaml#/components/responses/UnauthorizedResponse
+                "404":
+                    $ref: ../common/responses.yaml#/components/responses/NotFoundResponse
+                "409":
+                    $ref: ../common/responses.yaml#/components/responses/ConflictResponse
+    /api/v1/budgets/{currency}/progress:
+        get:
+            tags:
+                - Budgets
+            summary: Obter o progresso da meta no mês
+            operationId: getBudgetProgress
+            description: Gasto, fração, restante e estado do limite global e de cada categoria que aceita despesa.
+            security:
+                - bearerAuth: []
+            parameters:
+                - name: currency
+                  in: path
+                  required: true
+                  schema:
+                      $ref: "#/components/schemas/Currency"
+                - name: month
+                  in: query
+                  required: true
+                  description: Mês de referência (YYYY-MM).
+                  schema:
+                      type: string
+                      pattern: "^\\d{4}-(0[1-9]|1[0-2])$"
+            responses:
+                "200":
+                    description: Progresso do mês
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/BudgetProgress"
+                "400":
+                    $ref: ../common/responses.yaml#/components/responses/BadRequestResponse
+                "401":
+                    $ref: ../common/responses.yaml#/components/responses/UnauthorizedResponse
+components:
+    securitySchemes:
+        bearerAuth:
+            $ref: ../common/security.yaml#/components/securitySchemes/bearerAuth
+    schemas:
+        Currency:
+            type: string
+            enum:
+                - BRL
+                - EUR
+        BudgetStatus:
+            type: string
+            enum:
+                - NONE
+                - OK
+                - WARNING
+                - EXCEEDED
+        MonthOverrideRequest:
+            type: object
+            description: Ajuste do mês. Informe limit (valor do mês) ou disabled=true (sem meta neste mês), nunca os dois.
+            properties:
+                limit:
+                    type: string
+                    pattern: "^\\d{1,10}(\\.\\d{1,2})?$"
+                disabled:
+                    type: boolean
+        CategoryLimitRequest:
+            type: object
+            required:
+                - categoryId
+                - limit
+            properties:
+                categoryId:
+                    type: string
+                    format: uuid
+                limit:
+                    type: string
+                    pattern: "^\\d{1,10}(\\.\\d{1,2})?$"
+        SaveBudgetRequest:
+            type: object
+            required:
+                - month
+                - categoryLimits
+            properties:
+                month:
+                    type: string
+                    description: Mês exibido pelo cliente (YYYY-MM); o ajuste enviado, ou removido, é o deste mês.
+                    pattern: "^\\d{4}-(0[1-9]|1[0-2])$"
+                monthlyLimit:
+                    type: string
+                    description: Meta recorrente; 0 ou ausente remove.
+                    pattern: "^\\d{1,10}(\\.\\d{1,2})?$"
+                monthOverride:
+                    $ref: "#/components/schemas/MonthOverrideRequest"
+                categoryLimits:
+                    type: array
+                    items:
+                        $ref: "#/components/schemas/CategoryLimitRequest"
+        MonthOverride:
+            type: object
+            properties:
+                limit:
+                    type: string
+                disabled:
+                    type: boolean
+        CategoryLimit:
+            type: object
+            required:
+                - categoryId
+                - limit
+            properties:
+                categoryId:
+                    type: string
+                    format: uuid
+                limit:
+                    type: string
+        Budget:
+            type: object
+            required:
+                - currency
+                - month
+                - categoryLimits
+            properties:
+                currency:
+                    $ref: "#/components/schemas/Currency"
+                month:
+                    type: string
+                monthlyLimit:
+                    type: string
+                monthOverride:
+                    $ref: "#/components/schemas/MonthOverride"
+                effectiveLimit:
+                    type: string
+                    description: Limite do mês; ausente quando não há meta ou o mês está desativado.
+                categoryLimits:
+                    type: array
+                    items:
+                        $ref: "#/components/schemas/CategoryLimit"
+        ProgressEntry:
+            type: object
+            required:
+                - spent
+                - status
+            properties:
+                categoryId:
+                    type: string
+                    format: uuid
+                    description: Ausente no limite global.
+                limit:
+                    type: string
+                spent:
+                    type: string
+                fraction:
+                    type: string
+                    description: gasto / limite com 4 casas decimais; ausente sem limite.
+                remaining:
+                    type: string
+                    description: limite - gasto (pode ser negativo); ausente sem limite.
+                status:
+                    $ref: "#/components/schemas/BudgetStatus"
+        BudgetProgress:
+            type: object
+            required:
+                - currency
+                - month
+                - global
+                - categories
+            properties:
+                currency:
+                    $ref: "#/components/schemas/Currency"
+                month:
+                    type: string
+                global:
+                    $ref: "#/components/schemas/ProgressEntry"
+                categories:
+                    type: array
+                    items:
+                        $ref: "#/components/schemas/ProgressEntry"

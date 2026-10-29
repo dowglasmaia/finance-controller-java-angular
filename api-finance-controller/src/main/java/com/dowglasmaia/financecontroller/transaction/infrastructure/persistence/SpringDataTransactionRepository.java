@@ -55,6 +55,19 @@ interface SpringDataTransactionRepository extends JpaRepository<TransactionEntit
                                      @Param("from") LocalDate from, @Param("to") LocalDate to,
                                      @Param("categoryId") UUID categoryId, @Param("excludingId") UUID excludingId);
 
+    /** Uma linha por dia e direção: {@code [data, kind, soma]}. */
+    @Query("select t.entryDate, t.kind, sum(t.amount) from TransactionEntity t where t.ownerId = :ownerId "
+        + "and t.currency = :currency and t.entryDate >= :from and t.entryDate <= :to group by t.entryDate, t.kind")
+    List<Object[]> sumByDayAndKind(@Param("ownerId") UUID ownerId, @Param("currency") String currency,
+                                   @Param("from") LocalDate from, @Param("to") LocalDate to);
+
+    /** Uma linha por categoria com despesas: {@code [categoryId, soma]}. */
+    @Query("select t.categoryId, sum(t.amount) from TransactionEntity t where t.ownerId = :ownerId "
+        + "and t.currency = :currency and t.kind = 'EXPENSE' and t.entryDate >= :from and t.entryDate <= :to "
+        + "group by t.categoryId")
+    List<Object[]> sumExpensesByCategory(@Param("ownerId") UUID ownerId, @Param("currency") String currency,
+                                         @Param("from") LocalDate from, @Param("to") LocalDate to);
+
     Optional<TransactionEntity> findByOwnerIdAndId(UUID ownerId, UUID id);
 
     boolean existsByOwnerIdAndCategoryId(UUID ownerId, UUID categoryId);

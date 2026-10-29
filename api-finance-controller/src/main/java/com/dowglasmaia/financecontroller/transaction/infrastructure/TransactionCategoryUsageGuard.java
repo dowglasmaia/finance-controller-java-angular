@@ -3,7 +3,7 @@ package com.dowglasmaia.financecontroller.transaction.infrastructure;
 import com.dowglasmaia.financecontroller.category.CategoryType;
 import com.dowglasmaia.financecontroller.category.CategoryUsageGuard;
 import com.dowglasmaia.financecontroller.transaction.application.port.out.TransactionRepository;
-import com.dowglasmaia.financecontroller.transaction.domain.TransactionKind;
+import com.dowglasmaia.financecontroller.transaction.TransactionKind;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
