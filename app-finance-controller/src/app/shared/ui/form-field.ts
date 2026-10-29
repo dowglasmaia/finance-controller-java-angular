@@ -96,6 +96,8 @@ export class FormFieldComponent {
     '[id]': 'field.controlId',
     '[attr.aria-invalid]': 'field.hasError() ? "true" : null',
     '[attr.aria-describedby]': 'field.describedBy()',
+    class:
+      'min-h-11 w-full rounded-control border border-line-input bg-surface-sunken px-3 text-content placeholder:text-content-muted aria-[invalid=true]:border-expense aria-[invalid=true]:ring-1 aria-[invalid=true]:ring-expense disabled:cursor-not-allowed disabled:opacity-60',
   },
 })
 export class FieldControlDirective {

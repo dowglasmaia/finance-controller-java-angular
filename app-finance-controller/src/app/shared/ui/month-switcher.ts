@@ -10,11 +10,11 @@ import { ChevronLeft, ChevronRight, LucideAngularModule } from 'lucide-angular';
     <div
       role="group"
       aria-label="Mês de referência"
-      class="inline-flex items-center rounded-lg border border-border-subtle bg-surface-raised"
+      class="inline-flex items-center rounded-control border border-line-input bg-surface-raised"
     >
       <button
         type="button"
-        class="inline-flex h-11 w-11 items-center justify-center rounded-l-lg text-content hover:bg-surface"
+        class="inline-flex h-11 w-11 items-center justify-center rounded-l-control text-content hover:bg-surface-sunken"
         aria-label="Mês anterior"
         (click)="previous.emit()"
       >
@@ -22,7 +22,7 @@ import { ChevronLeft, ChevronRight, LucideAngularModule } from 'lucide-angular';
       </button>
       <button
         type="button"
-        class="inline-flex min-h-11 min-w-32 items-center justify-center px-2 text-sm font-medium text-content hover:bg-surface"
+        class="inline-flex min-h-11 min-w-32 items-center justify-center px-2 text-sm font-medium text-content hover:bg-surface-sunken"
         [attr.aria-label]="label() + ' — voltar ao mês atual'"
         title="Voltar ao mês atual"
         (click)="reset.emit()"
@@ -31,7 +31,7 @@ import { ChevronLeft, ChevronRight, LucideAngularModule } from 'lucide-angular';
       </button>
       <button
         type="button"
-        class="inline-flex h-11 w-11 items-center justify-center rounded-r-lg text-content hover:bg-surface"
+        class="inline-flex h-11 w-11 items-center justify-center rounded-r-control text-content hover:bg-surface-sunken"
         aria-label="Próximo mês"
         (click)="next.emit()"
       >

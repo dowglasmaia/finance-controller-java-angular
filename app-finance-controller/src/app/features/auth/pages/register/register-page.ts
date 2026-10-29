@@ -12,6 +12,7 @@ import {
   requiredText,
   revalidateOnChange,
 } from '../../../../shared/forms/validators';
+import { ButtonDirective } from '../../../../shared/ui/button';
 import { FORM_FIELD_IMPORTS } from '../../../../shared/ui/form-field';
 import { AuthService } from '../../data-access/auth.service';
 
@@ -21,11 +22,11 @@ const GENERIC_ERROR_MESSAGE = 'Não foi possível concluir o cadastro agora. Ten
 
 @Component({
   selector: 'app-register-page',
-  imports: [ReactiveFormsModule, RouterLink, ...FORM_FIELD_IMPORTS],
+  imports: [ReactiveFormsModule, RouterLink, ButtonDirective, ...FORM_FIELD_IMPORTS],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <main class="flex min-h-screen items-center justify-center bg-surface px-4 py-8">
-      <section class="w-full max-w-md rounded-xl border border-border-subtle bg-surface-raised p-6 shadow-sm sm:p-8">
+      <section class="w-full max-w-md rounded-card border border-line bg-surface-raised p-6 shadow-card sm:p-8">
         <h1 class="text-2xl font-semibold text-content">Cadastrar</h1>
         <p class="mt-1 text-sm text-content-muted">Crie a sua conta para controlar as suas finanças.</p>
 
@@ -37,7 +38,6 @@ const GENERIC_ERROR_MESSAGE = 'Não foi possível concluir o cadastro agora. Ten
               formControlName="email"
               autocomplete="username"
               inputmode="email"
-              class="min-h-11 w-full rounded-lg border border-border-subtle bg-surface px-3 text-content"
             />
           </app-form-field>
 
@@ -52,7 +52,6 @@ const GENERIC_ERROR_MESSAGE = 'Não foi possível concluir o cadastro agora. Ten
               type="password"
               formControlName="password"
               autocomplete="new-password"
-              class="min-h-11 w-full rounded-lg border border-border-subtle bg-surface px-3 text-content"
             />
           </app-form-field>
 
@@ -62,12 +61,11 @@ const GENERIC_ERROR_MESSAGE = 'Não foi possível concluir o cadastro agora. Ten
               type="password"
               formControlName="confirmPassword"
               autocomplete="new-password"
-              class="min-h-11 w-full rounded-lg border border-border-subtle bg-surface px-3 text-content"
             />
           </app-form-field>
 
           @if (formError(); as message) {
-            <p role="alert" class="rounded-lg border border-expense px-3 py-2 text-sm font-medium text-expense">
+            <p role="alert" class="rounded-control border border-expense bg-expense/10 px-3 py-2 text-sm font-medium text-expense">
               {{ message }}
             </p>
           }
@@ -75,7 +73,7 @@ const GENERIC_ERROR_MESSAGE = 'Não foi possível concluir o cadastro agora. Ten
           <button
             type="submit"
             [disabled]="submitting()"
-            class="min-h-11 rounded-lg bg-accent px-4 font-semibold text-on-accent disabled:opacity-60"
+            appButton
           >
             {{ submitting() ? 'Cadastrando…' : 'Cadastrar' }}
           </button>

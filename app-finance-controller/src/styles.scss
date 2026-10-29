@@ -1,35 +1,57 @@
 @use 'tailwindcss';
 
-// Tokens Neon Graphite (spec 25). Cores só por nomes semânticos; nunca literais em templates.
+// Design tokens "Grafite Ciano" (spec 25). Única fonte de cores, raios, sombras e movimento.
+// Templates usam só os nomes semânticos (bg-surface, text-content, border-line...); nunca literais.
+//
+// Superfícies (do fundo para a frente):
+//   surface        fundo da aplicação
+//   brand          menu lateral
+//   surface-raised cartões, painéis e cabeçalho
+//   surface-sunken campos de formulário e áreas rebaixadas
+//   surface-overlay menus, popovers, modais e notificações
 :root {
-  --app-surface: #f1f5f9;
+  --app-surface: #f4f6fa;
   --app-surface-raised: #ffffff;
-  --app-border: #cbd5e1;
+  --app-surface-sunken: #eef1f6;
+  --app-surface-overlay: #ffffff;
+  --app-border: #d5dbe6;
+  --app-border-input: #7b8aa3;
   --app-content: #0f172a;
-  --app-content-muted: #475569;
+  --app-content-muted: #4b5a70;
   --app-brand: #0f172a;
   --app-on-brand: #f8fafc;
-  --app-accent: #0e7490;
+  --app-on-brand-muted: #aab6cb;
+  --app-accent-on-brand: #38bdf8;
+  --app-accent: #0369a1;
   --app-on-accent: #ffffff;
   --app-income: #047857;
   --app-expense: #be123c;
-  --app-warning: #b45309;
+  --app-warning: #92400e;
+  --app-shadow-card: 0 1px 2px rgb(15 23 42 / 0.06);
+  --app-shadow-overlay: 0 8px 24px rgb(15 23 42 / 0.16);
   color-scheme: light;
 }
 
 :root.dark {
-  --app-surface: #0b1120;
-  --app-surface-raised: #131c30;
-  --app-border: #24304a;
-  --app-content: #e2e8f0;
-  --app-content-muted: #94a3b8;
-  --app-brand: #0f172a;
-  --app-on-brand: #f8fafc;
-  --app-accent: #22d3ee;
-  --app-on-accent: #0b1120;
+  --app-surface: #0a0f1a;
+  --app-surface-raised: #121a2b;
+  --app-surface-sunken: #0c1322;
+  --app-surface-overlay: #172136;
+  --app-border: #1f2a40;
+  --app-border-input: #5b6b8a;
+  --app-content: #e6edf7;
+  --app-content-muted: #9aa8bf;
+  --app-brand: #0d1424;
+  --app-on-brand: #e6edf7;
+  --app-on-brand-muted: #aab6cb;
+  --app-accent-on-brand: #38bdf8;
+  --app-accent: #38bdf8;
+  --app-on-accent: #06121f;
   --app-income: #34d399;
   --app-expense: #fb7185;
   --app-warning: #fbbf24;
+  --app-shadow-card: none;
+  --app-shadow-overlay: 0 12px 32px rgb(0 0 0 / 0.5);
   color-scheme: dark;
 }
 
@@ -38,17 +60,31 @@
 @theme inline {
   --color-surface: var(--app-surface);
   --color-surface-raised: var(--app-surface-raised);
-  --color-border-subtle: var(--app-border);
+  --color-surface-sunken: var(--app-surface-sunken);
+  --color-surface-overlay: var(--app-surface-overlay);
+  --color-line: var(--app-border);
+  --color-line-input: var(--app-border-input);
   --color-content: var(--app-content);
   --color-content-muted: var(--app-content-muted);
   --color-brand: var(--app-brand);
   --color-on-brand: var(--app-on-brand);
+  --color-on-brand-muted: var(--app-on-brand-muted);
+  --color-accent-on-brand: var(--app-accent-on-brand);
   --color-accent: var(--app-accent);
   --color-on-accent: var(--app-on-accent);
   --color-income: var(--app-income);
   --color-expense: var(--app-expense);
   --color-warning: var(--app-warning);
+  --shadow-card: var(--app-shadow-card);
+  --shadow-overlay: var(--app-shadow-overlay);
   --font-sans: Inter, system-ui, sans-serif;
+  --radius-control: 0.5rem;
+  --radius-card: 0.75rem;
+}
+
+@theme {
+  --ease-standard: cubic-bezier(0.2, 0, 0, 1);
+  --duration-fast: 150ms;
 }
 
 html {

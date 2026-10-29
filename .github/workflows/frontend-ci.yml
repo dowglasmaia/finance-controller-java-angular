@@ -1,0 +1,55 @@
+name: Frontend CI
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'app-finance-controller/**'
+      - '.github/workflows/frontend-ci.yml'
+  pull_request:
+    paths:
+      - 'app-finance-controller/**'
+      - '.github/workflows/frontend-ci.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: frontend-ci-${{ github.ref }}
+  cancel-in-progress: true
+
+defaults:
+  run:
+    working-directory: app-finance-controller
+
+jobs:
+  build-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: app-finance-controller/package-lock.json
+
+      - name: Instalar dependências (lockfile)
+        run: npm ci
+
+      - name: Build de produção
+        run: npm run build
+
+      - name: Testes
+        run: npm test
+
+  docker-image:
+    needs: build-test
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      # Apenas constrói; nenhum envio a registo (P-18).
+      - name: Construir imagem (sem enviar)
+        run: docker build --tag finance-controller-app:ci-${{ github.sha }} app-finance-controller

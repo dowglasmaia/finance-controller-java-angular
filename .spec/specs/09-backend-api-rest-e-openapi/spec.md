@@ -96,7 +96,7 @@ Agrega o que `home_screen_web.dart` monta com quatro providers (DESC-DSH-01) e, 
 
 ### preferences (P-19: servidor, por utilizador)
 
-`getPreferences` / `savePreferences`: `{currency, theme}`, padrões `BRL` e `SYSTEM`; valores inválidos → 400.
+`getPreferences` / `savePreferences`: `{currency, theme}`, padrões `BRL` e `DARK` (decisão de 2026-10-27); valores inválidos → 400.
 
 ### backup
 

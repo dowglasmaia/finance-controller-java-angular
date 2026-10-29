@@ -52,7 +52,7 @@ const KIND_LABELS: Record<ToastKind, string> = {
     >
       @for (toast of service.toasts(); track toast.id) {
         <div
-          class="toast-enter pointer-events-auto flex items-start gap-3 rounded-lg border border-l-4 border-border-subtle bg-surface-raised p-3 text-content shadow-lg"
+          class="toast-enter pointer-events-auto flex items-start gap-3 rounded-control border border-l-4 border-line bg-surface-overlay p-3 text-content shadow-overlay"
           [class]="borderClass(toast)"
           [attr.role]="toast.kind === 'error' ? 'alert' : null"
         >
@@ -62,7 +62,7 @@ const KIND_LABELS: Record<ToastKind, string> = {
           </p>
           <button
             type="button"
-            class="-m-2 inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-lg text-content-muted hover:text-content"
+            class="-m-2 inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-control text-content-muted hover:text-content"
             aria-label="Fechar notificação"
             (click)="service.dismiss(toast.id)"
           >

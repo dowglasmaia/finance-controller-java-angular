@@ -1,0 +1,27 @@
+# ESQUELETO DESABILITADO: o destino de hospedagem ainda não foi decidido (P-18).
+# O job só roda se a variável de repositório DEPLOY_ENABLED for 'true' e, mesmo assim,
+# não envia imagem a nenhum registo. Ao escolher a hospedagem, acrescentar: login no registo,
+# push da imagem versionada, migração Flyway antes do tráfego, readiness (/actuator/health)
+# e reversão pela imagem anterior (spec 42, INFRA-SPEC-08).
+name: Frontend Deploy (desabilitado)
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Tag da imagem (ex.: v0.1.0)'
+        required: true
+
+permissions:
+  contents: read
+
+jobs:
+  build-image:
+    if: ${{ vars.DEPLOY_ENABLED == 'true' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: Construir imagem versionada (sem enviar)
+        run: docker build --tag finance-controller-frontend:${{ inputs.version }} app-finance-controller
+      # Envio ao registo/destino: não implementado até P-18 ser decidida.

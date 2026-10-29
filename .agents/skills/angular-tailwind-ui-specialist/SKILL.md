@@ -9,9 +9,9 @@ Build clear and durable Angular interfaces with Tailwind CSS. This skill owns th
 
 ## Product direction
 
-Read `.spec/memory/produto.md` and `.spec/memory/contexto-tecnico.md` before changing the interface. For Finance Controller, preserve the Neon Graphite identity, responsive web use, Portuguese (Brazil), clear financial status colors, light/dark theme support, and comprehensible loading, empty, error, and validation states.
+Read `.spec/memory/produto.md` and `.spec/memory/contexto-tecnico.md` before changing the interface. For Finance Controller, preserve the Grafite Ciano identity (dark theme by default), responsive web use, Portuguese (Brazil), clear financial status colors, light/dark theme support, and comprehensible loading, empty, error, and validation states.
 
-Read [Neon Graphite tokens](references/neon-graphite-tokens.md) before introducing a new shared color or visual primitive. Read [UI review checklist](references/ui-review-checklist.md) before declaring a UI task complete.
+Read [Grafite Ciano tokens](references/neon-graphite-tokens.md) before introducing a new shared color or visual primitive. Read [UI review checklist](references/ui-review-checklist.md) before declaring a UI task complete.
 
 ## Working process
 
@@ -26,7 +26,7 @@ Read [Neon Graphite tokens](references/neon-graphite-tokens.md) before introduci
 
 - Tailwind CSS is the default styling tool. Use the Angular/Tailwind integration already established by `angular-frontend-scaffold`: `.postcssrc.json` with `@tailwindcss/postcss` and `@use 'tailwindcss';` in `src/styles.scss`.
 - Prefer semantic design tokens over literal colors. Use the mapped Tailwind semantic names when present, such as `bg-surface`, `text-content`, `text-income`, `text-expense`, and `text-warning`.
-- If the project has no approved token mapping, add the smallest shared semantic mapping required in `src/styles.scss`, based on the Neon Graphite reference. Do not add a component library or a large theme configuration.
+- If the project has no approved token mapping, add the smallest shared semantic mapping required in `src/styles.scss`, based on the Grafite Ciano reference. Do not add a component library or a large theme configuration.
 - Use the spacing scale, `gap-*`, `p-*`, `space-y-*`, `max-w-*`, grid, and flex utilities consistently. Avoid arbitrary pixel values unless a concrete visual constraint demands one.
 - Do not use `@apply` to hide a one-off collection of utilities. Extract a reusable Angular component only after a real second use, or when it encapsulates behavior and accessibility.
 - Do not hardcode colors in templates, create unexplained magic z-index values, rely only on color to communicate financial status, or use hover as the only way to reveal an action.

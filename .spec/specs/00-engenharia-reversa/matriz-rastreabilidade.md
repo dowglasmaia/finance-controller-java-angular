@@ -20,7 +20,7 @@ Specs: B = BACKEND-SPEC, F = FRONTEND-SPEC, I = INFRA-SPEC, Q = QUALITY-SPEC (n�
 | F-11 Relatórios | `report_service.dart`, `reports_screen_web.dart`, `providers.dart::filteredTransactionsProvider` | DESC-REP-01…08 | RN-REP-01…05 | 15 | 14 | Q-01/04/05 | totais e barras do mesmo intervalo | C\* (REP-03 defeito → P-09; REP-02 → P-05; REP-07 → P-10) |
 | F-12 Backup manual | `backup_service.dart`, `backup_screen.dart` | DESC-BKP-01…05 | RN-BKP cancelada | ✖ (16) | ✖ (15) | — | removido do escopo | **EXCLUÍDA** (P-03/P-16) |
 | F-13 Backup automático | `AutoBackupController`, `auto_backup_io_web.dart` | DESC-BKP-06/07 | — | — | — | — | removido do escopo | **EXCLUÍDA** (P-03) |
-| F-14 Preferências | `providers.dart::ThemeModeNotifier`, `SelectedCurrencyNotifier` | DESC-PRF-01/02, DESC-CUR-03 | — | 17 | 04, 02 | Q-04 (J-11) | persistem por utilizador; padrões BRL e SYSTEM | C (servidor, P-19 delegada) |
+| F-14 Preferências | `providers.dart::ThemeModeNotifier`, `SelectedCurrencyNotifier` | DESC-PRF-01/02, DESC-CUR-03 | — | 17 | 04, 02 | Q-04 (J-11) | persistem por utilizador; padrões BRL e DARK (tema escuro desde 2026-10-27) | C (servidor, P-19 delegada) |
 | F-15 Migração legada | `money_box_migration.dart` | DESC-BOX-13 | RN-BKP-05 cancelada | — | — | — | sem dados legados | **EXCLUÍDA** (P-16) |
 | F-16 PWA/offline | `web/manifest.json`, `web/sw.js` | DESC-INF-01 | — | — | — | — | sem offline; entrega em Docker | **EXCLUÍDA** (P-02) |
 | F-19 Recuperação de senha (novo) | ausente na origem | — | BACKEND-SPEC-18 (regras no próprio spec) | 18, 07 | 16 | Q-04 (J-00b), Q-05 | link de uso único por e-mail; resposta neutra; sessões revogadas | N (P-24 decidida) |

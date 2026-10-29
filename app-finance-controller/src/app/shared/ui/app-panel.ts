@@ -8,7 +8,7 @@ let nextPanelId = 0;
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <section
-      class="rounded-xl border border-border-subtle bg-surface-raised p-4 sm:p-6"
+      class="rounded-card border border-line bg-surface-raised p-4 shadow-card sm:p-6"
       [attr.aria-labelledby]="title() ? titleId : null"
     >
       @if (title()) {

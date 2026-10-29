@@ -88,24 +88,36 @@ describe('ThemeStore', () => {
     setup();
   });
 
-  it('padrão SYSTEM e sem matchMedia não é escuro', () => {
+  it('padrão é o tema escuro, aplicado a <html>, sem depender do sistema', () => {
     const store = TestBed.inject(ThemeStore);
-    expect(store.themeMode()).toBe('SYSTEM');
-    expect(store.effectiveDark()).toBe(false);
-  });
-
-  it('toggle alterna dark→light e outros→dark, aplica a classe e persiste', () => {
-    const store = TestBed.inject(ThemeStore);
-    store.toggle();
     TestBed.tick();
     expect(store.themeMode()).toBe('DARK');
+    expect(store.effectiveDark()).toBe(true);
     expect(document.documentElement.classList.contains('dark')).toBe(true);
-    expect(localStorage.getItem('fc.theme')).toBe('DARK');
+  });
 
+  it('respeita a escolha guardada (claro)', () => {
+    localStorage.setItem('fc.theme', 'LIGHT');
+    TestBed.resetTestingModule();
+    setup();
+    const store = TestBed.inject(ThemeStore);
+    TestBed.tick();
+    expect(store.themeMode()).toBe('LIGHT');
+    expect(document.documentElement.classList.contains('dark')).toBe(false);
+  });
+
+  it('toggle alterna dark→light→dark, aplica a classe e persiste', () => {
+    const store = TestBed.inject(ThemeStore);
     store.toggle();
     TestBed.tick();
     expect(store.themeMode()).toBe('LIGHT');
     expect(document.documentElement.classList.contains('dark')).toBe(false);
+    expect(localStorage.getItem('fc.theme')).toBe('LIGHT');
+
+    store.toggle();
+    TestBed.tick();
+    expect(store.themeMode()).toBe('DARK');
+    expect(document.documentElement.classList.contains('dark')).toBe(true);
   });
 });
 

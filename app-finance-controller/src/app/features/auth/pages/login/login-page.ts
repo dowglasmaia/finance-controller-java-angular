@@ -3,6 +3,7 @@ import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { isApiError } from '../../../../core/http/api-error';
 import { applyServerErrors, emailFormat, focusFirstInvalid, maxLength, requiredText } from '../../../../shared/forms/validators';
+import { ButtonDirective } from '../../../../shared/ui/button';
 import { FORM_FIELD_IMPORTS } from '../../../../shared/ui/form-field';
 import { AuthService } from '../../data-access/auth.service';
 import { safeReturnUrl } from '../../guards/auth.guard';
@@ -13,11 +14,11 @@ const GENERIC_ERROR_MESSAGE = 'Não foi possível entrar agora. Tente novamente.
 
 @Component({
   selector: 'app-login-page',
-  imports: [ReactiveFormsModule, RouterLink, ...FORM_FIELD_IMPORTS],
+  imports: [ReactiveFormsModule, RouterLink, ButtonDirective, ...FORM_FIELD_IMPORTS],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <main class="flex min-h-screen items-center justify-center bg-surface px-4 py-8">
-      <section class="w-full max-w-md rounded-xl border border-border-subtle bg-surface-raised p-6 shadow-sm sm:p-8">
+      <section class="w-full max-w-md rounded-card border border-line bg-surface-raised p-6 shadow-card sm:p-8">
         <h1 class="text-2xl font-semibold text-content">Entrar</h1>
         <p class="mt-1 text-sm text-content-muted">Acesse o Finance Controller com o seu e-mail e senha.</p>
 
@@ -29,7 +30,6 @@ const GENERIC_ERROR_MESSAGE = 'Não foi possível entrar agora. Tente novamente.
               formControlName="email"
               autocomplete="username"
               inputmode="email"
-              class="min-h-11 w-full rounded-lg border border-border-subtle bg-surface px-3 text-content"
             />
           </app-form-field>
 
@@ -39,12 +39,11 @@ const GENERIC_ERROR_MESSAGE = 'Não foi possível entrar agora. Tente novamente.
               type="password"
               formControlName="password"
               autocomplete="current-password"
-              class="min-h-11 w-full rounded-lg border border-border-subtle bg-surface px-3 text-content"
             />
           </app-form-field>
 
           @if (formError(); as message) {
-            <p role="alert" class="rounded-lg border border-expense px-3 py-2 text-sm font-medium text-expense">
+            <p role="alert" class="rounded-control border border-expense bg-expense/10 px-3 py-2 text-sm font-medium text-expense">
               {{ message }}
             </p>
           }
@@ -52,14 +51,14 @@ const GENERIC_ERROR_MESSAGE = 'Não foi possível entrar agora. Tente novamente.
           <button
             type="submit"
             [disabled]="submitting()"
-            class="min-h-11 rounded-lg bg-accent px-4 font-semibold text-on-accent disabled:opacity-60"
+            appButton
           >
             {{ submitting() ? 'Entrando…' : 'Entrar' }}
           </button>
         </form>
 
         <div class="mt-6 flex flex-col gap-2 text-sm">
-          <a routerLink="/esqueci-senha" class="font-medium text-accent underline">Esqueci minha senha</a>
+          <a routerLink="/esqueci-senha" class="font-medium text-accent underline underline-offset-2">Esqueci minha senha</a>
           <p class="text-content-muted">
             Ainda não tem conta?
             <a routerLink="/cadastrar" class="font-medium text-accent underline">Cadastre-se</a>

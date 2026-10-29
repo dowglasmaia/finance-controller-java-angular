@@ -4,7 +4,7 @@
 
 ## Objetivo
 
-Definir os tokens visuais (Neon Graphite) e os componentes compartilhados reais da origem, para que as páginas sejam compostas de forma consistente em tema claro e escuro.
+Definir os tokens visuais (Grafite Ciano, evolução do Neon Graphite) e os componentes compartilhados reais da origem, para que as páginas sejam compostas de forma consistente em tema claro e escuro.
 
 ## Escopo
 
@@ -13,22 +13,48 @@ Definir os tokens visuais (Neon Graphite) e os componentes compartilhados reais 
 
 ## Contexto técnico local
 
-### Tokens (DESC-UX-02)
+### Tokens (DESC-UX-02) — paleta "Grafite Ciano"
 
-| Papel | Valor | Observação |
-|---|---|---|
-| `income` | `#34D399` | entradas e estado "dentro da meta" |
-| `expense` | `#FB7185` | saídas e estado "estourada" |
-| `warning` | `#FBBF24` | "perto da meta" |
-| `primary` | `#0F172A` | grafite da marca e do menu |
-| `accent` | `#22D3EE` | ciano neon: seleção e acento |
-| `surface` / `surfaceDark` | `#F1F5F9` / `#0B1120` | fundos |
-| `neutral` | `#64748B` | texto secundário |
-| `webCardDark`, `webBorderDark` | `#131C30`, `#24304A` | superfícies e bordas no escuro |
+**Decisão (escolhida pelo utilizador em 2026-10-27, opção A):** a identidade passa a ser **Grafite Ciano**, evolução do Neon Graphite original: mantém grafite e ciano, com acento mais contido, superfícies em quatro níveis e cores semânticas escurecidas no tema claro. Substitui a tabela original da origem Flutter (`income #34D399`, `expense #FB7185`, `warning #FBBF24`, `accent #22D3EE`, `surface #F1F5F9`/`#0B1120`, cards `#131C30`/`#24304A`) e a decisão anterior de escurecer só quatro cores. **O tema escuro é o padrão** em sessão nova; o claro é uma paleta própria, não uma inversão.
 
-**Decisão (aprovada pelo utilizador em 2026-10-27):** no tema claro os papéis `accent`, `income`, `expense` e `warning` usam variantes mais escuras (`#0E7490`, `#047857`, `#BE123C`, `#B45309`) para ganhar contraste sobre fundos claros; no tema escuro valem os valores da tabela (`#22D3EE`, `#34D399`, `#FB7185`, `#FBBF24`). A razão de contraste ainda deve ser medida (task de descoberta abaixo).
+| Token (Tailwind) | Escuro (padrão) | Claro | Uso |
+|---|---|---|---|
+| `surface` | `#0A0F1A` | `#F4F6FA` | fundo da aplicação |
+| `brand` | `#0D1424` | `#0F172A` | menu lateral (`on-brand` `#E6EDF7`/`#F8FAFC`, `on-brand-muted` `#AAB6CB`) |
+| `surface-raised` | `#121A2B` | `#FFFFFF` | cartões, painéis e cabeçalho |
+| `surface-sunken` | `#0C1322` | `#EEF1F6` | campos de formulário, áreas rebaixadas e *hover* |
+| `surface-overlay` | `#172136` | `#FFFFFF` | menus, popovers, modais e notificações |
+| `line` | `#1F2A40` | `#D5DBE6` | bordas de cartões e divisórias |
+| `line-input` | `#5B6B8A` | `#7B8AA3` | bordas de campos e botões secundários (≥ 3:1) |
+| `content` / `content-muted` | `#E6EDF7` / `#9AA8BF` | `#0F172A` / `#4B5A70` | texto primário e secundário |
+| `accent` / `on-accent` | `#38BDF8` / `#06121F` | `#0369A1` / `#FFFFFF` | ação principal, foco, seleção |
+| `accent-on-brand` | `#38BDF8` | `#38BDF8` | item ativo no menu lateral |
+| `income` | `#34D399` | `#047857` | entradas e "dentro da meta" |
+| `expense` | `#FB7185` | `#BE123C` | saídas, erro e "estourada" |
+| `warning` | `#FBBF24` | `#92400E` | "perto da meta" |
 
-Os tokens são mapeados para nomes semânticos do Tailwind (`bg-surface`, `text-income`, `text-expense`, `text-warning`) seguindo `references/neon-graphite-tokens.md` da skill de UI; cores nunca fixas em templates. Fonte Inter. Espaçamento em escala de 4 px.
+Regras: `income`, `expense` e `warning` só têm significado financeiro (nunca decoração) e vêm sempre com ícone ou texto; fundos suaves de estado usam o modificador de opacidade (`bg-expense/10`), sem tokens extras. Cores literais nunca aparecem em templates. Fonte Inter (com *fallback* do sistema; sem carregar fonte externa). Espaçamento em escala de 4 px.
+
+**Contraste medido (WCAG 2.x, 2026-10-27):** texto/fundo 16,3:1 (escuro) e 16,5:1 (claro); `content-muted` sobre cartão 7,2:1 e 7,0:1; `accent` sobre cartão 8,1:1 e 5,9:1; `on-accent` sobre `accent` 8,8:1 e 5,9:1; receita 9,0:1 e 5,5:1; despesa 6,5:1 e 6,3:1; aviso 10,4:1 e 7,1:1; `line-input` sobre o campo rebaixado 3,1:1 (claro) e 3,5:1 (escuro), acima dos 3:1 exigidos para limites de controles; foco `accent` sobre o fundo 5,5:1 e 8,9:1. Menor valor de texto: 5,5:1 (AA, ≥ 4,5:1).
+
+### Camadas, raios, sombras e movimento
+
+- **Profundidade**: fundo → menu (`brand`) → cartão (`surface-raised`) → campo rebaixado (`surface-sunken`) → sobreposição (`surface-overlay`). No escuro a elevação vem da diferença de superfície e borda (`shadow-card` é nenhuma); no claro, de uma sombra curta. `shadow-overlay` só em menus, gavetas e notificações.
+- **Raios**: `rounded-control` (8 px: botões, campos, menus) e `rounded-card` (12 px: cartões e painéis). Sem outros raios.
+- **Movimento**: `duration-fast` (150 ms) com `ease-standard`; respeita `prefers-reduced-motion`.
+- **Camadas z**: cabeçalho 20, menu fixo 30, gaveta 40, notificações 50, atalho "Ir para o conteúdo" 60.
+
+### Primitivas de interface
+
+- `appButton` (`ButtonDirective`, `<button>` ou `<a>`): `primary` (uma ação principal por contexto), `secondary` e `ghost`; altura mínima 44 px, estados *hover*, *focus-visible* e *disabled*.
+- `appFieldControl` (dentro de `app-form-field`): estilo único de `input`/`select`/`textarea` (campo rebaixado, borda `line-input`, `aria-invalid` com borda e anel `expense`, placeholder em `content-muted`, desabilitado). As páginas não repetem classes de campo.
+- Mensagem de erro de formulário: caixa com borda e fundo suave `expense`, sempre com texto.
+
+### Diretrizes do Dashboard (F7)
+
+O Dashboard só mostra dados que existem na spec do produto (saldo do mês, entradas, saídas, metas, cofrinhos, categorias, lançamentos recentes). Hierarquia: o **saldo do mês** é o único destaque grande; entradas e saídas ficam um nível abaixo; metas e cofrinhos são secundários; gráficos só onde ajudam a comparar (barras entrada/saída, pizza por categoria) e usam as cores dos tokens. Valores monetários com `tabular-nums`, alinhados à direita nas listas e com sinal explícito. Sem gradientes, brilhos ou animações decorativas; no máximo um cartão destacado por tela.
+
+Os tokens são mapeados para nomes semânticos do Tailwind (`bg-surface`, `bg-surface-raised`, `border-line`, `text-income`...) em `src/styles.scss`, seguindo `references/neon-graphite-tokens.md` da skill de UI (atualizado com esta paleta).
 
 ### Componentes compartilhados (origem → destino)
 
@@ -55,11 +81,11 @@ Os tokens são mapeados para nomes semânticos do Tailwind (`bg-surface`, `text-
 
 ### Estados
 
-Cada componente de dados tem estados de carregamento (esqueleto ou indicador), vazio (mensagens da origem), erro e sucesso. Tema claro/escuro por classe no `html`, respeitando `prefers-color-scheme` quando `SYSTEM`.
+Cada componente de dados tem estados de carregamento (esqueleto ou indicador), vazio (mensagens da origem), erro e sucesso. Tema claro/escuro por classe `dark` no `html`. **Padrão: escuro** (decisão de 2026-10-27), aplicado já no `index.html` para não piscar o tema claro; só a escolha explícita `LIGHT` guardada o remove. `SYSTEM` continua disponível como modo (segue `prefers-color-scheme`), mas não é mais o valor inicial.
 
 ### Riscos
 
-Contraste do ciano sobre fundo claro precisa de verificação (a origem não mediu); a skill exige contraste suficiente nos dois temas.
+Contraste medido (ver Tokens). Falta medir o contraste dos gráficos ApexCharts nos dois temas (F7).
 
 ## Referências
 
@@ -70,11 +96,12 @@ Contraste do ciano sobre fundo claro precisa de verificação (a origem não med
 
 ## Regras e critérios de aceitação
 
-- [ ] Todos os tokens existem como variáveis e nomes semânticos, com valores equivalentes nos dois temas.
-  > ⏳ 2026-10-27 — Parcial: tokens como variáveis CSS e nomes semânticos Tailwind em `styles.scss`, com claro e escuro. Desvio a aprovar: no tema claro `accent`, `income`, `expense` e `warning` foram escurecidos (`#0e7490`, `#047857`, `#be123c`, `#b45309`) em vez dos valores da spec, para contraste; razão de contraste não medida numericamente.
-  > ✅ 2026-10-27 — Decisão: o utilizador aprovou as cores escurecidas do tema claro (ver "Decisão" em Tokens). Resta medir o contraste e percorrer a lista de revisão de UI; este critério continua aberto até lá.
+- [x] Todos os tokens existem como variáveis e nomes semânticos, com valores equivalentes nos dois temas.
+  > ✅ 2026-10-27 — Paleta Grafite Ciano (escolhida pelo utilizador) em `src/styles.scss`: variáveis `--app-*` nos temas claro e escuro (padrão) mapeadas para `@theme inline`, mais raios, sombras e movimento. Contraste medido por script (WCAG): texto ≥ 5,5:1 nos dois temas, `line-input` ≥ 3:1 (valores em Tokens).
 - [x] Nenhum template usa cor literal.
-  > ✅ 2026-10-27 — Verificação: busca por cores hexadecimais em `.ts` e `.html` de `src/app` sem ocorrências.
+  > ✅ 2026-10-27 — Verificação após a refatoração: busca por cores hexadecimais, `bg-white/black/slate…` e valores arbitrários (`[..px]`, `z-[..]`) em `.ts` e `.html` de `src/app` sem ocorrências.
+- [x] O tema escuro é o padrão numa sessão nova e o claro é uma paleta própria completa.
+  > ✅ 2026-10-27 — `ThemeStore` inicia em `DARK` e `index.html` já traz a classe `dark`; teste "padrão é o tema escuro" e "respeita a escolha guardada (claro)" em `stores.spec.ts` (73 testes verdes). `/entrar` conferido nos dois temas no navegador.
 - [ ] `KpiCard`, `MoneyInput`, `ConfirmDialog` e `Toast` têm nome acessível, estados desabilitado/inválido e funcionam por teclado.
   > ⏳ 2026-10-27 — Parcial: `Toast` (com `aria-live`) implementado. Falta: `KpiCard`, `MoneyInput` e `ConfirmDialog` (F5/F7 e fatias que os usam; escopo da F2 aprovado pelo utilizador).
 - [ ] Estados financeiros (entrada, saída, aviso, estourado) usam ícone ou texto além da cor.
@@ -96,22 +123,22 @@ Contraste do ciano sobre fundo claro precisa de verificação (a origem não med
 ### Descoberta e decisão
 
 - [ ] Confirmar a compatibilidade de ApexCharts/`ng-apexcharts` e Lucide com Angular 21 e validar o contraste dos tokens.
-  > ✅ 2026-10-27 — Decisão registada: cores do tema claro escurecidas, aprovadas pelo utilizador. A task continua aberta: falta medir a razão de contraste dos tokens nos dois temas e testar o ApexCharts (F7).
-  > ⏳ 2026-10-27 — Parcial: Lucide verificado em uso; ApexCharts por `peerDependencies`. Falta: validar o contraste dos tokens com medição.
+  > ✅ 2026-10-27 — Contraste dos tokens medido nos dois temas (Grafite Ciano; ver Tokens).
+  > ⏳ 2026-10-27 — Parcial: Lucide verificado em uso; ApexCharts por `peerDependencies`. Falta: testar o ApexCharts e o contraste dos gráficos (F7).
 
 ### Front-end
 
 - [ ] Implementar tokens, tema claro/escuro e os componentes da tabela.
-  > ⏳ 2026-10-27 — Parcial: tokens, tema (`ThemeStore`), `PageHeader`, `AppPanel`, `EmptyState`, `Toast`, `CurrencySelector`, `MonthSwitcher`, `ThemeToggle`, `FormField`. Falta: `KpiCard`, `MoneyInput`, `ConfirmDialog`, `DataTable`, `ProgressBar`, pickers, `TypeToggle` e gráficos, adiados para as fatias que os usam (escopo F2 aprovado).
+  > ⏳ 2026-10-27 — Parcial: tokens, tema (`ThemeStore`), `PageHeader`, `AppPanel`, `EmptyState`, `Toast`, `CurrencySelector`, `MonthSwitcher`, `ThemeToggle`, `FormField`; padronização visual de 2026-10-27: `appButton` e estilo único de campo (antes repetidos em 8 lugares), superfícies em quatro níveis, `rounded-control`/`rounded-card`, sombras e movimento por token, item de menu ativo discreto. Falta: `KpiCard`, `MoneyInput`, `ConfirmDialog`, `DataTable`, `ProgressBar`, pickers, `TypeToggle` e gráficos, adiados para as fatias que os usam (escopo F2 aprovado).
 
 ### Validação
 
 - [ ] Percorrer a lista de revisão de UI da skill nos dois temas e em 320 px.
-  > ⏳ 2026-10-27 — Parcial: 320 px sem rolagem horizontal verificado em `/entrar` e no shell; temas claro e escuro vistos no navegador. Falta: percorrer a lista completa da skill.
+  > ⏳ 2026-10-27 — Parcial: após a paleta Grafite Ciano, `/entrar` e o shell (menu, cabeçalho, painel "Em breve") vistos nos dois temas no navegador, e o shell a 375 px sem rolagem horizontal (`scrollWidth` = `clientWidth`). Falta: percorrer a lista completa da skill (320, 768 e 1440 px, teclado ponta a ponta) e as páginas das próximas fatias.
 
 ## Resultado esperado
 
-- Biblioteca interna de componentes pequena, reutilizável, acessível e fiel à identidade Neon Graphite.
+- Biblioteca interna de componentes pequena, reutilizável, acessível e fiel à identidade Grafite Ciano.
 - Preservada a distinção visual de receitas, despesas e avisos.
 
 ## Encerramento

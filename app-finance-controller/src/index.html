@@ -1,11 +1,20 @@
 <!doctype html>
-<html lang="pt-BR">
+<html lang="pt-BR" class="dark">
 <head>
   <meta charset="utf-8">
   <title>Finance Controller</title>
   <base href="/">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark light">
   <link rel="icon" type="image/x-icon" href="favicon.ico">
+  <script>
+    // Evita o flash de tema: o escuro é o padrão; só a escolha "LIGHT" guardada remove a classe.
+    try {
+      if (localStorage.getItem('fc.theme') === 'LIGHT') {
+        document.documentElement.classList.remove('dark');
+      }
+    } catch (e) {}
+  </script>
 </head>
 <body>
   <app-root></app-root>

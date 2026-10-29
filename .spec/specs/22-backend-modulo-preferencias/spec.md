@@ -15,11 +15,11 @@ Guardar no servidor, por utilizador, a moeda selecionada e o tema, para que o ac
 
 ### Origem e decisão
 
-Na origem a moeda (`selected_currency`, padrão BRL) e o tema (`theme_mode`, padrão `system`) viviam no navegador (DESC-CUR-03, DESC-PRF-01). Como há login (P-01), a escolha da análise (P-19, "escolha a melhor opção") é guardá-las no servidor por utilizador (ADR-008); antes de entrar, a interface usa o padrão do sistema para o tema.
+Na origem a moeda (`selected_currency`, padrão BRL) e o tema (`theme_mode`, padrão `system`) viviam no navegador (DESC-CUR-03, DESC-PRF-01). Como há login (P-01), a escolha da análise (P-19, "escolha a melhor opção") é guardá-las no servidor por utilizador (ADR-008); antes de entrar, a interface usa o tema escuro (padrão desde 2026-10-27) ou a escolha guardada no navegador.
 
 ### Contrato
 
-`GET /preferences` → `{currency: BRL|EUR, theme: LIGHT|DARK|SYSTEM}` (padrões `BRL`, `SYSTEM` se nunca gravado); `PUT /preferences` com os dois campos; valor desconhecido → 400 `VALIDATION_FAILED`. Tabela `preference` com `owner_id` único (BACKEND-SPEC-02).
+`GET /preferences` → `{currency: BRL|EUR, theme: LIGHT|DARK|SYSTEM}` (padrões `BRL`, `DARK` se nunca gravado; decisão de 2026-10-27); `PUT /preferences` com os dois campos; valor desconhecido → 400 `VALIDATION_FAILED`. Tabela `preference` com `owner_id` único (BACKEND-SPEC-02).
 
 ### Comportamento relacionado
 
@@ -34,7 +34,7 @@ Alternar o tema segue DESC-PRF-01 (dark→light, qualquer outro→dark). A troca
 
 ## Regras e critérios de aceitação
 
-- [ ] Um utilizador novo recebe `BRL` e `SYSTEM`.
+- [ ] Um utilizador novo recebe `BRL` e `DARK`.
 - [ ] Gravar `EUR` e `DARK` e voltar a ler devolve os mesmos valores, também noutro dispositivo.
 - [ ] O utilizador A nunca lê nem altera as preferências do B.
 - [ ] Moeda ou tema desconhecidos são rejeitados.

@@ -74,19 +74,25 @@ Sem repositório próprio o CI não roda (P-23, responsabilidade do utilizador).
 
 ### Descoberta e decisão
 
-- [ ] Confirmar que o repositório do projeto existe (P-23) e que `api-finance-controller/` e `app-finance-controller/` estão na raiz do repositório.
+- [x] Confirmar que o repositório do projeto existe (P-23) e que `api-finance-controller/` e `app-finance-controller/` estão na raiz do repositório.
+  > ✅ 2026-10-29 — Remoto `origin` = `github.com/dowglasmaia/finance-controller-java-angular`; `git ls-remote origin` devolve `refs/heads/main` em `0526964`; as duas pastas estão na raiz. Verificação: `git remote -v`, `git ls-remote`, `ls`.
 
 ### Back-end
 
-- [ ] Mover/adaptar o fluxo do scaffold para a raiz como `backend-ci.yml` e acrescentar a construção da imagem.
+- [x] Mover/adaptar o fluxo do scaffold para a raiz como `backend-ci.yml` e acrescentar a construção da imagem.
+  > ✅ 2026-10-29 — `.github/workflows/backend-ci.yml` (JDK 25 Temurin, cache Maven, `./mvnw clean verify`, relatórios como artefacto, job `docker-image` sem envio, `permissions: contents: read`, filtro `api-finance-controller/**`); o `build.yml` do scaffold foi removido de `api-finance-controller/.github/`. Verificação local: YAML válido; `./mvnw clean verify` = BUILD SUCCESS, 159 testes, 0 falhas; `docker build` da imagem OK. Execução no GitHub Actions ainda não feita. Desvio: validação do contrato = geração OpenAPI na fase `generate-sources` do próprio `verify`, sem passo separado.
 
 ### Front-end
 
-- [ ] Criar `frontend-ci.yml` depois de o projeto Angular existir.
+- [x] Criar `frontend-ci.yml` depois de o projeto Angular existir.
+  > ✅ 2026-10-29 — `.github/workflows/frontend-ci.yml` (Node 24, `npm ci`, `npm run build`, `npm test`, job `docker-image` sem envio, filtro `app-finance-controller/**`). Verificação local: `npm ci`, build de produção e 73 testes Vitest verdes; `docker build` da imagem OK. Execução no GitHub Actions ainda não feita.
 
 ### Validação
 
 - [ ] Executar cada esteira num ramo de teste e registar os resultados.
+  > ⏳ 2026-10-29 — Parcial: comandos de cada esteira executados localmente com sucesso. Falta: push (manual, o utilizador commita) e execução no GitHub Actions, incluindo a prova de que alteração só em uma pasta não dispara a outra esteira. Próxima ação: commitar `.github/workflows/`, abrir ramo/PR e registar os resultados.
+- [x] Criar esqueletos de deploy `backend-deploy.yml` e `frontend-deploy.yml` desabilitados.
+  > ✅ 2026-10-29 — `workflow_dispatch` manual, job condicionado a `vars.DEPLOY_ENABLED == 'true'`, apenas constrói a imagem versionada, sem login nem envio a registo; sem segredos. Verificação: YAML válido e revisão do conteúdo; não executados no Actions. Tarefa acrescentada ao detalhar o critério dos esqueletos.
 
 ## Resultado esperado
 

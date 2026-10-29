@@ -19,7 +19,7 @@ Definir quem é dono de cada estado do frontend — contexto global (mês, moeda
 |---|---|---|---|
 | `referenceMonth` | `referenceMonthProvider` (DESC-MES-01) | nenhuma (por sessão) | 1.º dia do mês atual |
 | `selectedCurrency` | `SelectedCurrencyNotifier` (DESC-CUR-03) | servidor, por utilizador (`getPreferences`/`savePreferences` — ADR-008, P-19) | `BRL` |
-| `themeMode` | `ThemeModeNotifier` (DESC-PRF-01) | servidor, por utilizador; antes do login, `localStorage` só para o tema | `SYSTEM`; alternar: dark→light, outros→dark |
+| `themeMode` | `ThemeModeNotifier` (DESC-PRF-01) | servidor, por utilizador; antes do login, `localStorage` só para o tema | `DARK` (padrão escuro, decisão de 2026-10-27); alternar: dark→light, light→dark; `SYSTEM` segue o sistema |
 | `session` (utilizador e *access token*) | novo (P-01) | só memória (nunca `localStorage`) | sem sessão |
 
 **Decisão (aprovada pelo utilizador em 2026-10-27):** até a F10 (preferências no servidor), moeda e tema são preferências do dispositivo em `localStorage` e **não** são limpos ao sair; a F10 passa a sincronizá-los por utilizador. Acesso a `localStorage` sempre dentro de `try/catch`. Após o login, as preferências do servidor prevalecem; falha ao gravar mostra erro mas não bloqueia o uso.

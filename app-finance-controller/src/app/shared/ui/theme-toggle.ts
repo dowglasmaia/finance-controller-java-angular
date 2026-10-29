@@ -10,7 +10,7 @@ import { ThemeStore } from '../../core/state/theme.store';
   template: `
     <button
       type="button"
-      class="inline-flex h-11 w-11 items-center justify-center rounded-lg border border-border-subtle bg-surface-raised text-content hover:bg-surface"
+      class="inline-flex h-11 w-11 items-center justify-center rounded-control border border-line-input bg-surface-raised text-content hover:bg-surface-sunken"
       aria-label="Tema escuro"
       [attr.aria-pressed]="theme.effectiveDark()"
       [title]="theme.effectiveDark() ? 'Mudar para o tema claro' : 'Mudar para o tema escuro'"

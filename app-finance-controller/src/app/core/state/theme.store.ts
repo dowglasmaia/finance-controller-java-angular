@@ -13,7 +13,7 @@ function isThemeMode(value: unknown): value is ThemeMode {
 
 function loadMode(): ThemeMode {
   const stored = readStorage(STORAGE_KEY);
-  return isThemeMode(stored) ? stored : 'SYSTEM';
+  return isThemeMode(stored) ? stored : 'DARK';
 }
 
 /**

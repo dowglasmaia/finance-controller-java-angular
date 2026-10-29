@@ -1,0 +1,63 @@
+name: Backend CI
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'api-finance-controller/**'
+      - '.github/workflows/backend-ci.yml'
+  pull_request:
+    paths:
+      - 'api-finance-controller/**'
+      - '.github/workflows/backend-ci.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: backend-ci-${{ github.ref }}
+  cancel-in-progress: true
+
+defaults:
+  run:
+    working-directory: api-finance-controller
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '25'
+          cache: maven
+          cache-dependency-path: api-finance-controller/pom.xml
+
+      # Valida o contrato OpenAPI (geração em generate-sources), roda ModularityTests e os
+      # testes com Testcontainers (o executor ubuntu-latest tem Docker).
+      - name: Maven verify
+        run: ./mvnw -B -ntp clean verify
+
+      - name: Publicar relatórios de testes
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-test-reports
+          path: |
+            api-finance-controller/target/surefire-reports
+            api-finance-controller/target/failsafe-reports
+          if-no-files-found: ignore
+          retention-days: 7
+
+  docker-image:
+    needs: verify
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      # Apenas constrói; nenhum envio a registo (P-18).
+      - name: Construir imagem (sem enviar)
+        run: docker build --tag finance-controller-api:ci-${{ github.sha }} api-finance-controller

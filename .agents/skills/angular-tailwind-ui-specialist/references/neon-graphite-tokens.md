@@ -1,43 +1,28 @@
-# Tokens Neon Graphite
+# Tokens Grafite Ciano (evolução do Neon Graphite)
 
-Use these as the initial semantic palette for Finance Controller. They reflect the approved product direction and must be centralized in `src/styles.scss` when the frontend is initialized.
+Paleta aprovada em 2026-10-27 (spec 25). Fonte única: `src/styles.scss`. O tema **escuro é o padrão**; o claro é uma paleta própria. Use só os nomes semânticos; nunca cores literais nos templates.
 
-```scss
-@use 'tailwindcss';
+| Token Tailwind | Escuro | Claro | Uso |
+|---|---|---|---|
+| `bg-surface` | `#0A0F1A` | `#F4F6FA` | fundo da aplicação |
+| `bg-brand` (+ `text-on-brand`, `text-on-brand-muted`, `text-accent-on-brand`) | `#0D1424` | `#0F172A` | menu lateral |
+| `bg-surface-raised` | `#121A2B` | `#FFFFFF` | cartões, painéis, cabeçalho |
+| `bg-surface-sunken` | `#0C1322` | `#EEF1F6` | campos, áreas rebaixadas, *hover* |
+| `bg-surface-overlay` | `#172136` | `#FFFFFF` | menus, popovers, modais, notificações |
+| `border-line` | `#1F2A40` | `#D5DBE6` | bordas de cartões e divisórias |
+| `border-line-input` | `#5B6B8A` | `#7B8AA3` | bordas de campos e botões secundários |
+| `text-content` / `text-content-muted` | `#E6EDF7` / `#9AA8BF` | `#0F172A` / `#4B5A70` | texto |
+| `bg-accent` / `text-on-accent` | `#38BDF8` / `#06121F` | `#0369A1` / `#FFFFFF` | ação principal, foco, seleção |
+| `text-income` | `#34D399` | `#047857` | entradas |
+| `text-expense` | `#FB7185` | `#BE123C` | saídas e erro |
+| `text-warning` | `#FBBF24` | `#92400E` | alerta de meta |
 
-:root {
-  --app-surface: #f1f5f9;
-  --app-surface-raised: #ffffff;
-  --app-content: #0f172a;
-  --app-content-muted: #475569;
-  --app-brand: #0f172a;
-  --app-accent: #22d3ee;
-  --app-income: #34d399;
-  --app-expense: #fb7185;
-  --app-warning: #fbbf24;
-}
+Também por token: `rounded-control` (8 px), `rounded-card` (12 px), `shadow-card`, `shadow-overlay`, `duration-fast`, `ease-standard`.
 
-.dark {
-  --app-surface: #0b1120;
-  --app-surface-raised: #111827;
-  --app-content: #e2e8f0;
-  --app-content-muted: #94a3b8;
-  --app-brand: #0f172a;
-}
+## Regras
 
-@theme inline {
-  --color-surface: var(--app-surface);
-  --color-surface-raised: var(--app-surface-raised);
-  --color-content: var(--app-content);
-  --color-content-muted: var(--app-content-muted);
-  --color-brand: var(--app-brand);
-  --color-accent: var(--app-accent);
-  --color-income: var(--app-income);
-  --color-expense: var(--app-expense);
-  --color-warning: var(--app-warning);
-}
-```
-
-This mapping enables semantic utilities such as `bg-surface`, `bg-surface-raised`, `text-content`, `text-content-muted`, `text-income`, `text-expense`, and `text-warning`. Extend it only when a repeated visual role has a clear name and use across more than one feature.
-
-Use `brand` and `accent` for hierarchy and interactive emphasis. Reserve `income`, `expense`, and `warning` for financial meaning; they must not become generic decorative colors.
+- Profundidade: fundo → menu → cartão → campo rebaixado → sobreposição. No escuro a elevação vem de superfície e borda, não de sombra.
+- `accent` é para ação, foco e seleção; `income`, `expense` e `warning` só têm significado financeiro e vêm sempre com ícone ou texto.
+- Fundos suaves de estado usam o modificador de opacidade (`bg-expense/10`), sem novos tokens.
+- Botões: diretiva `appButton` (`primary`, `secondary`, `ghost`). Campos: `appFieldControl` dentro de `app-form-field`. Não repita classes de botão ou campo nas páginas.
+- Antes de criar um novo token, confirme que o papel se repete em mais de uma funcionalidade; ao mudar um valor, remeça o contraste (texto ≥ 4,5:1; bordas de controles e foco ≥ 3:1) nos dois temas e atualize a spec 25.
