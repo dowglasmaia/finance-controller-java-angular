@@ -1,3 +1,20 @@
+# Envio da imagem ao Docker Hub (dowglasmaia/finance-controller-service) no push em main, depois do verify.
+#
+# Secrets necessários (valor só, sem comando; nomes exatos, em maiúsculas):
+#   DOCKERHUB_USERNAME  dowglasmaia
+#   DOCKERHUB_TOKEN     token do Docker Hub com permissão Read & Write (nunca a senha da conta)
+#
+# Como criar, no lugar certo:
+#   1. Docker Hub: Account settings > Personal access tokens > Generate new token (Read & Write).
+#      O token só aparece uma vez; copie-o na hora.
+#   2. GitHub, neste repositório: Settings > Secrets and variables > Actions > aba "Secrets"
+#      > "New repository secret". Crie os dois acima.
+#
+# Atenção ao lugar: este job não declara `environment`, então só enxerga REPOSITORY secrets.
+# Secrets criados em "Environment secrets", em "Variables" ou em outro repositório chegam vazios e o
+# login falha com "Username and password required". `docker login -u ...` é comando de terminal,
+# não valor de secret. Para usar Environment secrets, acrescente `environment: <nome exato>` ao job.
+# Se o token vazar, revogue-o no Docker Hub e atualize o secret.
 name: Backend CI
 
 on:
